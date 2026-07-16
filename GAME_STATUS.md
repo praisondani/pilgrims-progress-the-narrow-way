@@ -17,6 +17,11 @@
 - Cinematic conversation camera, chapter pullback shots, and letterbox framing
 - Procedural Web Audio ambience, footsteps, interaction cues, and sound toggle
 - Nine symbolic trials using ordered-action and focus mechanics
+- Bright-by-default gameplay with standard/bright/high-contrast visibility presets
+- WASD and arrow-key movement documented and browser-tested
+- Split production chunks with enforced bundle budget
+- Desktop and mobile Chromium smoke tests
+- GitHub Actions unit/build/bundle/browser quality gates
 
 ## In progress
 
