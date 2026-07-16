@@ -5,6 +5,7 @@ import { useRef } from 'react'
 import { PerspectiveCamera as PerspectiveCameraType, Vector3 } from 'three'
 import { Player, playerPosition } from './Player'
 import { World } from './World'
+import { useGame } from './state'
 
 function CameraRig() {
   const rig = useRef<PerspectiveCameraType>(null); const desired = new Vector3()
@@ -15,4 +16,4 @@ function CameraRig() {
   })
   return <PerspectiveCamera ref={rig} makeDefault fov={48} position={[0, 5, 12]} />
 }
-export function GameCanvas() { return <Canvas shadows dpr={[1, 1.5]} gl={{ antialias: true }}><Physics gravity={[0, -12, 0]}><World /><Player /></Physics><CameraRig /></Canvas> }
+export function GameCanvas() { const sceneIndex = useGame((s) => s.sceneIndex); return <Canvas shadows dpr={[1, 1.5]} gl={{ antialias: true }}><Physics gravity={[0, -12, 0]}><World /><Player key={sceneIndex} /></Physics><CameraRig /></Canvas> }

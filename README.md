@@ -19,4 +19,4 @@ Open `http://localhost:5173`.
 - Click characters and glowing objects: interact
 - Journal and Pause: top-right HUD
 
-Current build is Phase 1 foundation plus first graybox route: City of Destruction → Field → Slough of Despond → Wicket Gate. See `GAME_STATUS.md` for progress.
+Current build contains a 51-beat story graybox: Dream → City of Destruction → Evangelist’s Field → Slough of Despond → Worldly Wiseman and Mount Sinai → Wicket Gate → seven rooms of the Interpreter’s House → Cross. See `GAME_STATUS.md` for progress.
