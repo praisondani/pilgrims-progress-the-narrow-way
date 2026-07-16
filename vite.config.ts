@@ -6,6 +6,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes("three-stdlib")) return "three-runtime";
           if (id.includes("@react-three/rapier") || id.includes("@dimforge"))
             return "physics";
           if (id.includes("@react-three") || id.includes("three/"))

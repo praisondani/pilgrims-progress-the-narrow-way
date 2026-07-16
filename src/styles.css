@@ -129,6 +129,13 @@ button {
   width: 100vw;
   height: 100dvh;
 }
+.game canvas {
+  cursor: grab;
+  touch-action: none;
+}
+.game canvas:active {
+  cursor: grabbing;
+}
 .hud {
   position: fixed;
   z-index: 4;
@@ -164,6 +171,14 @@ button {
   padding: 0.55rem 0.8rem;
   border-radius: 99px;
   font-size: 0.72rem;
+}
+.modal button.primary {
+  border-color: #e5b864;
+  background: #d89a45;
+  color: #17101a;
+}
+.modal button.primary:hover {
+  background: #e5aa50;
 }
 .objective {
   position: fixed;
@@ -284,7 +299,6 @@ button {
 }
 .modal-actions .primary {
   border-radius: 0;
-  background: #d89a45;
 }
 .mobile-controls {
   display: none;
@@ -472,6 +486,27 @@ button {
   grid-template-columns: 1fr 1fr;
   gap: 0.55rem;
   margin: 1rem 0;
+}
+.navigation-cue {
+  width: 100%;
+  margin-top: 0.55rem;
+  padding: 0.5rem 0 0;
+  border: 0;
+  border-top: 1px solid #ffffff17;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: #f1d294;
+  font-size: 0.63rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+.navigation-cue:hover {
+  color: #fff0c7;
+}
+.navigation-cue:disabled {
+  cursor: default;
+  color: #f1d294;
 }
 .settings-grid button {
   display: flex;

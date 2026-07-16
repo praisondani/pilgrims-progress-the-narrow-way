@@ -1,6 +1,6 @@
 import { useFrame } from "@react-three/fiber";
-import { ReactNode, useMemo, useRef } from "react";
-import { Group, Mesh } from "three";
+import { ReactNode, useLayoutEffect, useMemo, useRef } from "react";
+import { Color, Group, InstancedMesh, Object3D } from "three";
 import { useGame } from "./state";
 
 export type CharacterVariant =
@@ -43,10 +43,11 @@ export function Character({
   scale?: number;
 }) {
   const root = useRef<Group>(null);
-  const leftArm = useRef<Mesh>(null);
-  const rightArm = useRef<Mesh>(null);
-  const leftLeg = useRef<Mesh>(null);
-  const rightLeg = useRef<Mesh>(null);
+  const torso = useRef<Group>(null);
+  const leftArm = useRef<Group>(null);
+  const rightArm = useRef<Group>(null);
+  const leftLeg = useRef<Group>(null);
+  const rightLeg = useRef<Group>(null);
   const [cloth, accent, skin] = clothes[variant];
   const reducedMotion = useGame((s) => s.reducedMotion);
   useFrame(({ clock }) => {
@@ -60,44 +61,125 @@ export function Character({
     if (rightArm.current) rightArm.current.rotation.x = -swing;
     if (leftLeg.current) leftLeg.current.rotation.x = -swing;
     if (rightLeg.current) rightLeg.current.rotation.x = swing;
+    if (torso.current)
+      torso.current.rotation.z = reducedMotion
+        ? 0
+        : walking
+          ? Math.sin(t * 9) * 0.025
+          : Math.sin(t * 1.2) * 0.008;
     if (root.current)
       root.current.position.y = reducedMotion
         ? 0
         : Math.sin(t * (walking ? 9 : 1.6)) * (walking ? 0.035 : 0.018);
   });
+  const darkHair = variant === "shining" ? "#f4dda0" : "#392a28";
+  const hasBeard = [
+    "christian",
+    "evangelist",
+    "help",
+    "worldly",
+    "goodwill",
+    "interpreter",
+  ].includes(variant);
   return (
     <group ref={root} scale={scale}>
-      <mesh castShadow position={[0, 0.84, 0]}>
-        <coneGeometry args={[0.42, 0.92, 7]} />
-        <meshStandardMaterial color={cloth} roughness={0.92} />
+      <group ref={torso}>
+        <mesh castShadow position={[0, 1.02, 0]} scale={[0.86, 1, 0.58]}>
+          <capsuleGeometry args={[0.32, 0.52, 8, 16]} />
+          <meshStandardMaterial color={cloth} roughness={0.88} />
+        </mesh>
+        <mesh castShadow position={[0, 0.76, 0]}>
+          <cylinderGeometry args={[0.33, 0.39, 0.48, 12]} />
+          <meshStandardMaterial color={cloth} roughness={0.92} />
+        </mesh>
+        <mesh position={[0, 1.18, 0.29]} scale={[1, 0.65, 0.3]}>
+          <sphereGeometry args={[0.25, 12, 8]} />
+          <meshStandardMaterial color={accent} roughness={0.9} />
+        </mesh>
+      </group>
+
+      <mesh castShadow position={[0, 1.48, 0]}>
+        <cylinderGeometry args={[0.1, 0.12, 0.18, 10]} />
+        <meshStandardMaterial color={skin} roughness={0.78} />
       </mesh>
-      <mesh castShadow position={[0, 1.46, 0]}>
-        <dodecahedronGeometry args={[0.27, 1]} />
-        <meshStandardMaterial color={skin} roughness={0.85} />
-      </mesh>
-      <mesh castShadow position={[0, 1.67, -0.02]} scale={[1, 0.45, 1]}>
-        <sphereGeometry args={[0.28, 12, 8]} />
-        <meshStandardMaterial
-          color={variant === "shining" ? "#f7e7b4" : "#392a28"}
-          roughness={1}
-        />
-      </mesh>
-      <mesh ref={leftArm} castShadow position={[-0.4, 0.92, 0]}>
-        <capsuleGeometry args={[0.09, 0.52, 4, 8]} />
-        <meshStandardMaterial color={cloth} />
-      </mesh>
-      <mesh ref={rightArm} castShadow position={[0.4, 0.92, 0]}>
-        <capsuleGeometry args={[0.09, 0.52, 4, 8]} />
-        <meshStandardMaterial color={cloth} />
-      </mesh>
-      <mesh ref={leftLeg} castShadow position={[-0.16, 0.3, 0]}>
-        <capsuleGeometry args={[0.1, 0.48, 4, 8]} />
-        <meshStandardMaterial color={accent} />
-      </mesh>
-      <mesh ref={rightLeg} castShadow position={[0.16, 0.3, 0]}>
-        <capsuleGeometry args={[0.1, 0.48, 4, 8]} />
-        <meshStandardMaterial color={accent} />
-      </mesh>
+      <group position={[0, 1.7, 0]}>
+        <mesh castShadow scale={[0.92, 1.08, 0.9]}>
+          <sphereGeometry args={[0.27, 18, 14]} />
+          <meshStandardMaterial color={skin} roughness={0.76} />
+        </mesh>
+        <mesh castShadow position={[0, 0.16, -0.025]} scale={[1, 0.55, 1]}>
+          <sphereGeometry args={[0.285, 16, 10]} />
+          <meshStandardMaterial color={darkHair} roughness={0.95} />
+        </mesh>
+        <mesh position={[0, -0.015, 0.255]} scale={[0.55, 0.8, 0.75]}>
+          <sphereGeometry args={[0.065, 10, 8]} />
+          <meshStandardMaterial color={skin} roughness={0.8} />
+        </mesh>
+        {[-0.095, 0.095].map((x) => (
+          <group key={x} position={[x, 0.055, 0.247]}>
+            <mesh scale={[1, 0.7, 0.35]}>
+              <sphereGeometry args={[0.032, 10, 8]} />
+              <meshStandardMaterial color="#f1dfcf" />
+            </mesh>
+            <mesh position={[0, 0, 0.012]}>
+              <sphereGeometry args={[0.013, 8, 6]} />
+              <meshStandardMaterial color="#29241f" />
+            </mesh>
+          </group>
+        ))}
+        {hasBeard && (
+          <mesh position={[0, -0.145, 0.19]} scale={[0.75, 0.9, 0.45]}>
+            <sphereGeometry args={[0.19, 12, 9]} />
+            <meshStandardMaterial color={darkHair} roughness={1} />
+          </mesh>
+        )}
+        <mesh position={[0, -0.085, 0.264]} rotation={[0.12, 0, 0]}>
+          <torusGeometry args={[0.055, 0.012, 6, 16, Math.PI]} />
+          <meshStandardMaterial color="#70423d" />
+        </mesh>
+      </group>
+
+      {([-1, 1] as const).map((side) => (
+        <group
+          key={`arm-${side}`}
+          ref={side < 0 ? leftArm : rightArm}
+          position={[side * 0.39, 1.25, 0]}
+        >
+          <mesh castShadow position={[0, -0.21, 0]}>
+            <capsuleGeometry args={[0.105, 0.3, 6, 10]} />
+            <meshStandardMaterial color={cloth} roughness={0.88} />
+          </mesh>
+          <mesh castShadow position={[0, -0.51, 0.015]}>
+            <capsuleGeometry args={[0.085, 0.25, 6, 10]} />
+            <meshStandardMaterial color={skin} roughness={0.78} />
+          </mesh>
+          <mesh castShadow position={[0, -0.72, 0.025]} scale={[0.8, 1.1, 0.7]}>
+            <sphereGeometry args={[0.1, 10, 8]} />
+            <meshStandardMaterial color={skin} roughness={0.78} />
+          </mesh>
+        </group>
+      ))}
+
+      {([-1, 1] as const).map((side) => (
+        <group
+          key={`leg-${side}`}
+          ref={side < 0 ? leftLeg : rightLeg}
+          position={[side * 0.17, 0.68, 0]}
+        >
+          <mesh castShadow position={[0, -0.24, 0]}>
+            <capsuleGeometry args={[0.12, 0.3, 6, 10]} />
+            <meshStandardMaterial color={accent} roughness={0.9} />
+          </mesh>
+          <mesh castShadow position={[0, -0.56, 0]}>
+            <capsuleGeometry args={[0.105, 0.29, 6, 10]} />
+            <meshStandardMaterial color={accent} roughness={0.92} />
+          </mesh>
+          <mesh castShadow position={[0, -0.77, 0.08]} scale={[1, 0.7, 1.65]}>
+            <sphereGeometry args={[0.13, 10, 8]} />
+            <meshStandardMaterial color="#302820" roughness={1} />
+          </mesh>
+        </group>
+      ))}
       {(variant === "evangelist" || variant === "interpreter") && (
         <mesh position={[0.42, 0.95, 0.08]} rotation={[0, 0, -0.18]}>
           <boxGeometry args={[0.3, 0.48, 0.06]} />
@@ -119,7 +201,7 @@ export function Character({
         />
       )}
       {burden && (
-        <group position={[0, 0.95, 0.34]} rotation={[0.25, 0, 0]}>
+        <group position={[0, 1.02, -0.38]} rotation={[-0.18, 0, 0]}>
           <mesh castShadow>
             <dodecahedronGeometry args={[0.55, 0]} />
             <meshStandardMaterial color="#30231f" roughness={1} />
@@ -152,16 +234,30 @@ export function GnarledTree({
         <cylinderGeometry args={[0.18, 0.34, 2.1, 7]} />
         <meshStandardMaterial color="#49372d" roughness={1} />
       </mesh>
+      {[-1, 1].map((side) => (
+        <mesh
+          key={side}
+          castShadow
+          position={[side * 0.38, 1.55, 0]}
+          rotation={[0, 0, side * -0.72]}
+        >
+          <cylinderGeometry args={[0.07, 0.12, 0.95, 6]} />
+          <meshStandardMaterial color="#49372d" roughness={1} />
+        </mesh>
+      ))}
       {!dead &&
-        [-0.55, 0, 0.55].map((x, i) => (
+        [-0.62, -0.3, 0, 0.34, 0.65].map((x, i) => (
           <mesh
             key={i}
             castShadow
-            position={[x, 2 + (i % 2) * 0.22, 0]}
-            scale={[1.2, 1, 0.8]}
+            position={[x, 1.9 + (i % 3) * 0.25, ((i % 2) - 0.5) * 0.3]}
+            scale={[1.1 + (i % 2) * 0.15, 0.9, 0.9]}
           >
-            <dodecahedronGeometry args={[0.65, 0]} />
-            <meshStandardMaterial color={color} roughness={1} />
+            <dodecahedronGeometry args={[0.58, 1]} />
+            <meshStandardMaterial
+              color={i % 2 ? color : "#344b35"}
+              roughness={0.96}
+            />
           </mesh>
         ))}
     </group>
@@ -328,6 +424,185 @@ export function Reeds({
         </mesh>
       ))}
     </>
+  );
+}
+
+export function GrassMeadow({
+  count = 70,
+  radius = 7,
+  color = "#617348",
+  flowers = true,
+}: {
+  count?: number;
+  radius?: number;
+  color?: string;
+  flowers?: boolean;
+}) {
+  const blades = useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => {
+        const angle = i * 2.399;
+        const distance = 1.2 + ((i * 47) % 100) * 0.058 * (radius / 7);
+        return {
+          x: Math.cos(angle) * Math.min(distance, radius),
+          z: Math.sin(angle) * Math.min(distance, radius),
+          height: 0.16 + (i % 5) * 0.035,
+          lean: ((i % 7) - 3) * 0.035,
+        };
+      }),
+    [count, radius],
+  );
+  const bladeInstances = useRef<InstancedMesh>(null);
+  const stemInstances = useRef<InstancedMesh>(null);
+  const flowerInstances = useRef<InstancedMesh>(null);
+  const flowerCount = flowers ? Math.ceil(count / 11) : 0;
+  useLayoutEffect(() => {
+    const dummy = new Object3D();
+    blades.forEach((blade, i) => {
+      [-0.06, 0, 0.06].forEach((offset, bladeIndex) => {
+        dummy.position.set(blade.x + offset, blade.height / 2, blade.z);
+        dummy.rotation.set(0, i * 0.71, blade.lean + bladeIndex * 0.025);
+        dummy.scale.set(1, blade.height / 0.25, 1);
+        dummy.updateMatrix();
+        bladeInstances.current?.setMatrixAt(i * 3 + bladeIndex, dummy.matrix);
+      });
+    });
+    if (bladeInstances.current)
+      bladeInstances.current.instanceMatrix.needsUpdate = true;
+    if (!flowers) return;
+    let flowerIndex = 0;
+    blades.forEach((blade, i) => {
+      if (i % 11 !== 0) return;
+      dummy.position.set(blade.x, 0.15, blade.z);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      stemInstances.current?.setMatrixAt(flowerIndex, dummy.matrix);
+      dummy.position.set(blade.x, 0.28, blade.z);
+      dummy.updateMatrix();
+      flowerInstances.current?.setMatrixAt(flowerIndex, dummy.matrix);
+      flowerInstances.current?.setColorAt(
+        flowerIndex,
+        new Color(i % 22 ? "#eacb77" : "#d9b7d0"),
+      );
+      flowerIndex += 1;
+    });
+    if (stemInstances.current)
+      stemInstances.current.instanceMatrix.needsUpdate = true;
+    if (flowerInstances.current) {
+      flowerInstances.current.instanceMatrix.needsUpdate = true;
+      if (flowerInstances.current.instanceColor)
+        flowerInstances.current.instanceColor.needsUpdate = true;
+    }
+  }, [blades, flowers]);
+  return (
+    <group>
+      <instancedMesh
+        ref={bladeInstances}
+        args={[undefined, undefined, count * 3]}
+      >
+        <coneGeometry args={[0.026, 0.25, 4]} />
+        <meshStandardMaterial color={color} roughness={1} />
+      </instancedMesh>
+      {flowers && (
+        <>
+          <instancedMesh
+            ref={stemInstances}
+            args={[undefined, undefined, flowerCount]}
+          >
+            <cylinderGeometry args={[0.009, 0.014, 0.25, 5]} />
+            <meshStandardMaterial color="#536d3e" />
+          </instancedMesh>
+          <instancedMesh
+            ref={flowerInstances}
+            args={[undefined, undefined, flowerCount]}
+          >
+            <sphereGeometry args={[0.045, 8, 6]} />
+            <meshStandardMaterial roughness={0.8} />
+          </instancedMesh>
+        </>
+      )}
+    </group>
+  );
+}
+
+export function Bush({
+  position,
+  color = "#4f683d",
+  scale = 1,
+}: {
+  position: [number, number, number];
+  color?: string;
+  scale?: number;
+}) {
+  return (
+    <group position={position} scale={scale}>
+      {[
+        [-0.28, 0.32, 0],
+        [0.24, 0.3, 0.08],
+        [0, 0.5, -0.08],
+      ].map((point, i) => (
+        <mesh
+          key={i}
+          castShadow
+          position={point as [number, number, number]}
+          scale={[1.2, 0.9, 1]}
+        >
+          <dodecahedronGeometry args={[0.42, 1]} />
+          <meshStandardMaterial
+            color={i === 2 ? color : "#3f5935"}
+            roughness={0.96}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+export function WaterPool({
+  position = [0, 0.025, 0],
+  scale = [1, 1, 1],
+  color = "#446f79",
+}: {
+  position?: [number, number, number];
+  scale?: [number, number, number];
+  color?: string;
+}) {
+  const ripples = useRef<Group>(null);
+  const reducedMotion = useGame((s) => s.reducedMotion);
+  useFrame(({ clock }) => {
+    if (!ripples.current || reducedMotion) return;
+    ripples.current.rotation.z = clock.elapsedTime * 0.08;
+    ripples.current.position.y = Math.sin(clock.elapsedTime * 1.3) * 0.008;
+  });
+  return (
+    <group position={position} scale={scale} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh receiveShadow>
+        <circleGeometry args={[1, 48]} />
+        <meshPhysicalMaterial
+          color={color}
+          roughness={0.12}
+          metalness={0.18}
+          transmission={0.12}
+          transparent
+          opacity={0.78}
+          clearcoat={0.8}
+          clearcoatRoughness={0.15}
+        />
+      </mesh>
+      <group ref={ripples} position={[0, 0, 0.012]}>
+        {[0.32, 0.58, 0.84].map((radius) => (
+          <mesh key={radius}>
+            <ringGeometry args={[radius, radius + 0.012, 48]} />
+            <meshBasicMaterial color="#b7d8d6" transparent opacity={0.34} />
+          </mesh>
+        ))}
+      </group>
+      <mesh position={[0, 0, -0.012]}>
+        <ringGeometry args={[0.98, 1.07, 48]} />
+        <meshStandardMaterial color="#495540" roughness={1} />
+      </mesh>
+    </group>
   );
 }
 export function Room({

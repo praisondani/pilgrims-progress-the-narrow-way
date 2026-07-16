@@ -154,12 +154,14 @@ function TargetShape({
 }
 function ActiveTarget() {
   const group = useRef<Group>(null);
+  const beacon = useRef<Group>(null);
   const { sceneIndex, stepIndex, nearby, setNearby, interact, setMessage } =
     useGame();
   const scene = storyScenes[sceneIndex];
   const step = scene.steps[stepIndex];
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!group.current) return;
+    if (beacon.current) beacon.current.rotation.y += delta * 0.8;
     const isNear = playerPosition.distanceTo(group.current.position) < 2.3;
     if (isNear !== nearby) setNearby(isNear);
   });
@@ -185,6 +187,29 @@ function ActiveTarget() {
         size={2.2}
         speed={0.25}
       />
+      <group ref={beacon} position={[0, 2.65, 0]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]} renderOrder={12}>
+          <torusGeometry args={[0.48, 0.045, 8, 28]} />
+          <meshBasicMaterial color={scene.palette.light} depthTest={false} />
+        </mesh>
+        <mesh
+          position={[0, 0.38, 0]}
+          rotation={[0, 0, Math.PI]}
+          renderOrder={12}
+        >
+          <coneGeometry args={[0.16, 0.34, 8]} />
+          <meshBasicMaterial color={scene.palette.light} depthTest={false} />
+        </mesh>
+      </group>
+      <mesh position={[0, 1.35, 0]} renderOrder={2}>
+        <cylinderGeometry args={[0.42, 0.8, 2.7, 16, 1, true]} />
+        <meshBasicMaterial
+          color={scene.palette.light}
+          transparent
+          opacity={0.08}
+          depthWrite={false}
+        />
+      </mesh>
       <Text
         position={[0, 2.35, 0]}
         fontSize={0.27}
@@ -193,6 +218,8 @@ function ActiveTarget() {
         color="#fff1d1"
         outlineWidth={0.014}
         outlineColor="#17121b"
+        renderOrder={11}
+        material-depthTest={false}
       >
         {step.action}
       </Text>
@@ -247,16 +274,16 @@ export function World() {
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider args={[8, 0.25, 8]} position={[0, -0.25, 0]} />
         <mesh receiveShadow position={[0, -0.3, 0]}>
-          <boxGeometry args={[16, 0.5, 16]} />
+          <boxGeometry args={[40, 0.5, 40]} />
           <meshStandardMaterial color={ground} roughness={0.96} />
         </mesh>
       </RigidBody>
-      <SceneEnvironment id={scene.id} stepIndex={stepIndex} />
+      <SceneEnvironment
+        id={scene.id}
+        stepIndex={stepIndex}
+        target={scene.steps[stepIndex].position}
+      />
       <ActiveTarget />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
-        <ringGeometry args={[7.25, 7.6, 40]} />
-        <meshStandardMaterial color="#17131a" transparent opacity={0.35} />
-      </mesh>
     </>
   );
 }

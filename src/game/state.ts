@@ -26,6 +26,7 @@ type GameState = {
   puzzleActive: boolean;
   puzzleSolvedCurrent: boolean;
   checkpointRevision: number;
+  guidedTravel: boolean;
   start: () => void;
   reset: () => void;
   togglePause: () => void;
@@ -43,6 +44,8 @@ type GameState = {
   toggleCinematicCamera: () => void;
   completePuzzle: () => void;
   recoverCheckpoint: () => void;
+  beginGuidedTravel: () => void;
+  stopGuidedTravel: () => void;
 };
 
 function finishStep(state: GameState) {
@@ -63,8 +66,8 @@ function finishStep(state: GameState) {
       journal,
       burden,
       puzzleSolvedCurrent: false,
-      checkpointRevision: 0,
       puzzleActive: false,
+      guidedTravel: false,
     };
   return {
     dialogue: undefined,
@@ -76,6 +79,7 @@ function finishStep(state: GameState) {
     burden,
     puzzleSolvedCurrent: false,
     puzzleActive: false,
+    guidedTravel: false,
   };
 }
 
@@ -102,6 +106,7 @@ export const useGame = create<GameState>()(
       puzzleActive: false,
       puzzleSolvedCurrent: false,
       checkpointRevision: 0,
+      guidedTravel: false,
       start: () => set({ started: true, paused: false }),
       reset: () =>
         set({
@@ -121,6 +126,7 @@ export const useGame = create<GameState>()(
           puzzleActive: false,
           puzzleSolvedCurrent: false,
           checkpointRevision: 0,
+          guidedTravel: false,
         }),
       togglePause: () => set((s) => ({ paused: !s.paused })),
       toggleJournal: () =>
@@ -150,6 +156,8 @@ export const useGame = create<GameState>()(
         set((s) => ({ reducedMotion: !s.reducedMotion })),
       toggleCinematicCamera: () =>
         set((s) => ({ cinematicCamera: !s.cinematicCamera })),
+      beginGuidedTravel: () => set({ guidedTravel: true }),
+      stopGuidedTravel: () => set({ guidedTravel: false }),
       recoverCheckpoint: () =>
         set((s) => ({
           paused: false,
@@ -162,6 +170,7 @@ export const useGame = create<GameState>()(
           puzzleActive: false,
           puzzleSolvedCurrent: false,
           checkpointRevision: s.checkpointRevision + 1,
+          guidedTravel: false,
         })),
       completePuzzle: () => {
         const s = get();

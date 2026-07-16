@@ -1,30 +1,223 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from "@playwright/test";
+import { storyScenes } from "../../src/game/story";
+import { puzzleFor } from "../../src/game/puzzles";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/')
-  await page.evaluate(() => localStorage.clear())
-  await page.reload()
-})
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+});
 
-test('starts a new journey and initializes WebGL gameplay', async ({ page }) => {
-  const title = page.getByTestId('title-screen')
-  await expect(title).toBeVisible()
-  await expect(title).toContainText('WASD or arrow keys')
-  await page.getByRole('button', { name: 'Enter the dream' }).click()
-  await expect(page.getByTestId('game-screen')).toBeVisible()
-  await expect(page.getByTestId('game-hud')).toContainText('The Dreamer')
-  await expect(page.locator('canvas')).toBeVisible()
-  await expect(page.getByText('Find and light the abandoned lantern')).toBeVisible()
-  await page.keyboard.press('ArrowLeft')
-  await page.keyboard.press('ArrowUp')
-})
+test("starts a new journey and initializes WebGL gameplay", async ({
+  page,
+}) => {
+  const title = page.getByTestId("title-screen");
+  await expect(title).toBeVisible();
+  await expect(title).toContainText("WASD or arrow keys");
+  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await expect(page.getByTestId("game-screen")).toBeVisible();
+  await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
+  await expect(page.locator("canvas")).toBeVisible();
+  await expect(
+    page.getByText("Find and light the abandoned lantern"),
+  ).toBeVisible();
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowUp");
+});
 
-test('offers brighter visibility and persists the selection', async ({ page }) => {
-  await page.getByRole('button', { name: 'Enter the dream' }).click()
-  const visibility = page.getByRole('button', { name: /Visibility:/ })
-  await expect(visibility).toContainText('bright')
-  await visibility.click()
-  await expect(visibility).toContainText('contrast')
-  await page.reload()
-  await expect(page.getByRole('button', { name: /Visibility:/ })).toContainText('contrast')
-})
+test("offers brighter visibility and persists the selection", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Enter the dream" }).click();
+  const visibility = page.getByRole("button", { name: /Visibility:/ });
+  await expect(visibility).toContainText("bright");
+  await visibility.evaluate((element) =>
+    (element as HTMLButtonElement).click(),
+  );
+  await expect(visibility).toContainText("contrast");
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Visibility:/ })).toContainText(
+    "contrast",
+  );
+});
+
+test("shows a readable continue action on chapter completion", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: { started: true, sceneIndex: 0, stepIndex: 3 },
+        version: 3,
+      }),
+    ),
+  );
+  await page.reload();
+  const cue = page.locator(".navigation-cue");
+  await cue.click();
+  const interactPrompt = page.locator(".interact-prompt");
+  await expect(interactPrompt).toBeVisible({ timeout: 12_000 });
+  await page.evaluate(() =>
+    document.querySelector<HTMLButtonElement>(".interact-prompt")?.click(),
+  );
+  const spoken = page.locator(".spoken");
+  await expect(spoken).toBeVisible();
+  await spoken.click();
+  await spoken.click();
+
+  const chapterCta = page.locator(".chapter-card .primary");
+  await expect(chapterCta).toBeVisible();
+  await expect(chapterCta).toContainText("Continue the journey");
+  await expect
+    .poll(() =>
+      chapterCta.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return `${style.backgroundColor}|${style.color}`;
+      }),
+    )
+    .toBe("rgb(216, 154, 69)|rgb(23, 16, 26)");
+});
+
+test("rotates the camera and moves relative to its heading", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Enter the dream" }).click();
+  const canvas = page.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-camera-yaw", "0.000");
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  await page.mouse.move(bounds!.x + bounds!.width * 0.65, bounds!.y + 300);
+  await page.mouse.down();
+  await page.mouse.move(bounds!.x + bounds!.width * 0.35, bounds!.y + 300, {
+    steps: 8,
+  });
+  await page.mouse.up();
+  await expect
+    .poll(async () => Number(await canvas.getAttribute("data-camera-yaw")))
+    .not.toBeCloseTo(0, 1);
+  await page.waitForTimeout(350);
+
+  await page.keyboard.down("w");
+  await page.waitForTimeout(500);
+  await page.keyboard.up("w");
+  await expect
+    .poll(async () =>
+      Number(
+        await page.locator(".navigation-cue").getAttribute("data-player-x"),
+      ),
+    )
+    .not.toBeCloseTo(0, 1);
+  await page.keyboard.press("r");
+});
+
+test("completes the full Dream-to-Cross journey through real controls", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(
+    Boolean(isMobile),
+    "Full keyboard journey runs in desktop project; mobile retains smoke coverage.",
+  );
+  test.setTimeout(720_000);
+  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await expect(page.locator("canvas")).toBeVisible();
+  const cue = page.locator(".navigation-cue");
+  const interactPrompt = page.locator(".interact-prompt");
+  const walkToTarget = async () => {
+    if (await interactPrompt.isVisible()) return;
+    await expect(cue).toBeEnabled();
+    await expect
+      .poll(
+        async () => {
+          if (await interactPrompt.isVisible()) return true;
+          if (await cue.isEnabled())
+            await cue.evaluate((element) =>
+              (element as HTMLButtonElement).click(),
+            );
+          return false;
+        },
+        { timeout: 18_000, intervals: [0, 200, 400] },
+      )
+      .toBe(true);
+  };
+
+  for (let sceneIndex = 0; sceneIndex < storyScenes.length; sceneIndex++) {
+    const scene = storyScenes[sceneIndex];
+    await expect(page.getByTestId("game-hud")).toContainText(scene.title);
+
+    for (const step of scene.steps) {
+      await expect(page.locator(".objective")).toContainText(step.objective);
+      await page.waitForTimeout(140);
+      await walkToTarget();
+
+      await expect
+        .poll(() =>
+          page.evaluate(() => {
+            const prompt =
+              document.querySelector<HTMLButtonElement>(".interact-prompt");
+            if (!prompt) return false;
+            prompt.click();
+            return true;
+          }),
+        )
+        .toBe(true);
+      const puzzle = puzzleFor(scene.id, step.id);
+      if (puzzle) {
+        await expect(page.locator(".puzzle-shell")).toBeVisible();
+        if (puzzle.type === "sequence") {
+          for (const choice of puzzle.solution)
+            await page
+              .getByRole("button", { name: puzzle.options[choice] })
+              .click();
+        } else {
+          const slider = page.locator('input[type="range"]');
+          await slider.focus();
+          const current = Number(await slider.inputValue());
+          const key = puzzle.target > current ? "ArrowRight" : "ArrowLeft";
+          for (let i = 0; i < Math.abs(puzzle.target - current); i++)
+            await page.keyboard.press(key);
+          await expect(slider).toHaveValue(String(puzzle.target));
+          await page.getByRole("button", { name: "Hold this focus" }).click();
+        }
+        await expect(page.locator(".puzzle-shell")).toBeHidden();
+      }
+      if (step.choices?.length) {
+        await expect(page.locator(".choice")).toBeVisible();
+        await page.locator(".choice button").first().click();
+      }
+      const spoken = page.locator(".spoken");
+      const dialogueCount = step.choices?.[0]
+        ? step.choices[0].response.length
+        : step.dialogue.length;
+      if (dialogueCount) {
+        await expect(spoken).toBeVisible();
+        for (let line = 0; line < dialogueCount; line++)
+          await spoken.click({ force: true });
+        await expect(spoken).toBeHidden();
+      }
+    }
+
+    await expect(page.locator(".chapter-card")).toBeVisible();
+    const chapterCta = page.locator(".chapter-card .primary");
+    await expect(chapterCta).toBeVisible();
+    await expect(chapterCta).toContainText(
+      sceneIndex === storyScenes.length - 1
+        ? "Complete MVP"
+        : "Continue the journey",
+    );
+    await expect
+      .poll(() =>
+        chapterCta.evaluate((element) => {
+          const style = getComputedStyle(element);
+          return `${style.backgroundColor}|${style.color}`;
+        }),
+      )
+      .toBe("rgb(216, 154, 69)|rgb(23, 16, 26)");
+    await chapterCta.click();
+  }
+
+  await expect(page.locator(".ending")).toBeVisible();
+  await expect(page.locator(".ending")).toContainText("The road continues");
+});

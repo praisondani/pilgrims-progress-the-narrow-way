@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GameCanvas } from "../game/GameCanvas";
 import { mobileInput } from "../game/Player";
 import { useGame } from "../game/state";
@@ -6,6 +6,64 @@ import { storyScenes, totalStoryBeats } from "../game/story";
 import { gameAudio } from "../game/audio";
 import { puzzleFor } from "../game/puzzles";
 import { PuzzleOverlay } from "./PuzzleOverlay";
+import { playerPosition } from "../game/Player";
+
+function NavigationCue({
+  target,
+  nearby,
+  onGuide,
+}: {
+  target: [number, number];
+  nearby: boolean;
+  onGuide: () => void;
+}) {
+  const [reading, setReading] = useState({
+    direction: "ahead",
+    distance: 0,
+    playerX: 0,
+    playerZ: 7,
+  });
+  useEffect(() => {
+    const update = () => {
+      const dx = target[0] - playerPosition.x;
+      const dz = target[1] - playerPosition.z;
+      const directions = [
+        "north",
+        "north-east",
+        "east",
+        "south-east",
+        "south",
+        "south-west",
+        "west",
+        "north-west",
+      ];
+      const index = Math.round(Math.atan2(dx, -dz) / (Math.PI / 4) + 8) % 8;
+      setReading({
+        direction: directions[index],
+        distance: Math.round(Math.hypot(dx, dz)),
+        playerX: playerPosition.x,
+        playerZ: playerPosition.z,
+      });
+    };
+    update();
+    const timer = window.setInterval(update, 100);
+    return () => window.clearInterval(timer);
+  }, [target[0], target[1]]);
+  return (
+    <button
+      className="navigation-cue"
+      data-direction={reading.direction}
+      data-distance={reading.distance}
+      data-nearby={nearby}
+      data-player-x={reading.playerX.toFixed(2)}
+      data-player-z={reading.playerZ.toFixed(2)}
+      onClick={onGuide}
+      disabled={nearby}
+    >
+      {nearby ? "Within reach" : `${reading.direction} · ${reading.distance}m`}
+    </button>
+  );
+}
 
 function Title() {
   const start = useGame((s) => s.start);
@@ -36,7 +94,7 @@ function Title() {
         </button>
         <p className="hint">
           WASD or arrow keys to walk · E to interact · Shift to jog · Space to
-          jump
+          jump · Drag to look 360° · Scroll to zoom · R to recenter
         </p>
       </section>
       <blockquote>
@@ -145,6 +203,11 @@ function Overlay() {
               ? "◇ The dream begins"
               : "✦ Burden released"}
         </div>
+        <NavigationCue
+          target={step.position}
+          nearby={game.nearby}
+          onGuide={game.beginGuidedTravel}
+        />
       </aside>
       {game.nearby &&
         !game.dialogue &&
@@ -257,7 +320,8 @@ function Overlay() {
             <h2>Rest by the way.</h2>
             <p>Progress saves automatically after each story beat.</p>
             <p className="controls-reference">
-              Move: WASD or arrow keys · Interact: E · Jog: Shift · Jump: Space
+              Move: WASD or arrow keys · Look: drag · Zoom: scroll · Recenter: R
+              · Interact: E · Jog: Shift · Jump: Space
             </p>
             <div className="settings-grid">
               <button onClick={game.cycleVisibility}>

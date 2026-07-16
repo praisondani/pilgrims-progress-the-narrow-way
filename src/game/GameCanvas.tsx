@@ -1,17 +1,28 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
-import { PerspectiveCamera } from "@react-three/drei";
-import { useRef } from "react";
+import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { useEffect, useRef } from "react";
 import { PerspectiveCamera as PerspectiveCameraType, Vector3 } from "three";
+import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 import { Player, playerPosition } from "./Player";
 import { World } from "./World";
 import { useGame } from "./state";
 import { storyScenes } from "./story";
-import { useEffect } from "react";
+import { cameraControl, playerMotion } from "./camera";
+
+function shortestAngle(from: number, to: number) {
+  return Math.atan2(Math.sin(to - from), Math.cos(to - from));
+}
 
 function CameraRig() {
   const rig = useRef<PerspectiveCameraType>(null);
-  const desired = new Vector3();
+  const controls = useRef<OrbitControlsType>(null);
+  const desired = useRef(new Vector3());
+  const priorFocus = useRef(new Vector3(0, 2, 5));
+  const offset = useRef(new Vector3());
+  const dragging = useRef(false);
+  const lastLook = useRef(0);
+  const { gl } = useThree();
   const {
     dialogue,
     choosing,
@@ -22,38 +33,85 @@ function CameraRig() {
     cinematicCamera,
   } = useGame();
   const step = storyScenes[sceneIndex].steps[stepIndex];
+
   useFrame((_, dt) => {
-    if (!rig.current) return;
+    if (!rig.current || !controls.current) return;
+    const orbit = controls.current;
     if (sceneComplete && cinematicCamera) {
-      desired.set(8, 9, 10);
-      rig.current.position.lerp(desired, 1 - Math.exp(-1.5 * dt));
+      orbit.enabled = false;
+      desired.current.set(8, 9, 10);
+      rig.current.position.lerp(desired.current, 1 - Math.exp(-1.5 * dt));
       rig.current.lookAt(0, 0, 0);
       return;
     }
     if ((dialogue || choosing) && cinematicCamera) {
+      orbit.enabled = false;
       const [x, z] = step.position;
-      desired.set(x + 3.5, 2.7, z + 4.2);
-      rig.current.position.lerp(desired, 1 - Math.exp(-2.8 * dt));
+      desired.current.set(x + 3.5, 2.7, z + 4.2);
+      rig.current.position.lerp(desired.current, 1 - Math.exp(-2.8 * dt));
       rig.current.lookAt(x, 1, z);
       return;
     }
-    desired.set(
+    orbit.enabled = true;
+    desired.current.set(
       playerPosition.x,
-      playerPosition.y + 4.6,
-      playerPosition.z + 7.5,
+      playerPosition.y + 0.95,
+      playerPosition.z,
     );
-    rig.current.position.lerp(
-      desired,
-      reducedMotion ? 1 : 1 - Math.exp(-4 * dt),
+    priorFocus.current.copy(orbit.target);
+    orbit.target.lerp(
+      desired.current,
+      reducedMotion ? 1 : 1 - Math.exp(-7 * dt),
     );
-    rig.current.lookAt(
-      playerPosition.x,
-      playerPosition.y + 0.8,
-      playerPosition.z - 1.8,
+    rig.current.position.add(
+      desired.current.copy(orbit.target).sub(priorFocus.current),
     );
+    offset.current.copy(rig.current.position).sub(orbit.target);
+    let yaw = Math.atan2(offset.current.x, offset.current.z);
+    const shouldRecenter =
+      cameraControl.resetRequested ||
+      (playerMotion.moving &&
+        !dragging.current &&
+        performance.now() - lastLook.current > 1100);
+    if (shouldRecenter) {
+      const behind = playerMotion.yaw + Math.PI;
+      yaw +=
+        shortestAngle(yaw, behind) *
+        (reducedMotion ? 1 : 1 - Math.exp(-3.2 * dt));
+      const horizontal = Math.hypot(offset.current.x, offset.current.z);
+      rig.current.position.set(
+        orbit.target.x + Math.sin(yaw) * horizontal,
+        orbit.target.y + offset.current.y,
+        orbit.target.z + Math.cos(yaw) * horizontal,
+      );
+      cameraControl.resetRequested = false;
+    }
+    cameraControl.yaw = yaw;
+    gl.domElement.dataset.cameraYaw = yaw.toFixed(3);
+    orbit.update();
   });
   return (
-    <PerspectiveCamera ref={rig} makeDefault fov={48} position={[0, 5, 12]} />
+    <>
+      <PerspectiveCamera ref={rig} makeDefault fov={48} position={[0, 5, 12]} />
+      <OrbitControls
+        ref={controls}
+        enablePan={false}
+        enableDamping
+        dampingFactor={0.08}
+        minDistance={5.2}
+        maxDistance={12.5}
+        minPolarAngle={0.2}
+        maxPolarAngle={1.35}
+        onStart={() => {
+          dragging.current = true;
+          lastLook.current = performance.now();
+        }}
+        onEnd={() => {
+          dragging.current = false;
+          lastLook.current = performance.now();
+        }}
+      />
+    </>
   );
 }
 function Exposure() {
