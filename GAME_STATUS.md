@@ -22,6 +22,9 @@
 - Split production chunks with enforced bundle budget
 - Desktop and mobile Chromium smoke tests
 - GitHub Actions unit/build/bundle/browser quality gates
+- Persistent normal/large/largest text settings
+- Reduced-motion and cinematic-camera comfort controls
+- Recover-current-checkpoint action and persisted-save index clamping
 
 ## In progress
 

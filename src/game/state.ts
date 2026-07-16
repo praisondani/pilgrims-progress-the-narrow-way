@@ -20,8 +20,12 @@ type GameState = {
   journal: string[];
   soundEnabled: boolean;
   visibility: "standard" | "bright" | "highContrast";
+  textSize: "normal" | "large" | "largest";
+  reducedMotion: boolean;
+  cinematicCamera: boolean;
   puzzleActive: boolean;
   puzzleSolvedCurrent: boolean;
+  checkpointRevision: number;
   start: () => void;
   reset: () => void;
   togglePause: () => void;
@@ -34,7 +38,11 @@ type GameState = {
   setMessage: (message?: string) => void;
   toggleSound: () => void;
   cycleVisibility: () => void;
+  cycleTextSize: () => void;
+  toggleReducedMotion: () => void;
+  toggleCinematicCamera: () => void;
   completePuzzle: () => void;
+  recoverCheckpoint: () => void;
 };
 
 function finishStep(state: GameState) {
@@ -55,6 +63,7 @@ function finishStep(state: GameState) {
       journal,
       burden,
       puzzleSolvedCurrent: false,
+      checkpointRevision: 0,
       puzzleActive: false,
     };
   return {
@@ -87,8 +96,12 @@ export const useGame = create<GameState>()(
       journal: [],
       soundEnabled: true,
       visibility: "bright",
+      textSize: "normal",
+      reducedMotion: false,
+      cinematicCamera: true,
       puzzleActive: false,
       puzzleSolvedCurrent: false,
+      checkpointRevision: 0,
       start: () => set({ started: true, paused: false }),
       reset: () =>
         set({
@@ -107,6 +120,7 @@ export const useGame = create<GameState>()(
           journal: [],
           puzzleActive: false,
           puzzleSolvedCurrent: false,
+          checkpointRevision: 0,
         }),
       togglePause: () => set((s) => ({ paused: !s.paused })),
       toggleJournal: () =>
@@ -122,6 +136,32 @@ export const useGame = create<GameState>()(
               : s.visibility === "bright"
                 ? "highContrast"
                 : "standard",
+        })),
+      cycleTextSize: () =>
+        set((s) => ({
+          textSize:
+            s.textSize === "normal"
+              ? "large"
+              : s.textSize === "large"
+                ? "largest"
+                : "normal",
+        })),
+      toggleReducedMotion: () =>
+        set((s) => ({ reducedMotion: !s.reducedMotion })),
+      toggleCinematicCamera: () =>
+        set((s) => ({ cinematicCamera: !s.cinematicCamera })),
+      recoverCheckpoint: () =>
+        set((s) => ({
+          paused: false,
+          journalOpen: false,
+          nearby: false,
+          message: "Checkpoint restored.",
+          dialogue: undefined,
+          dialogueIndex: 0,
+          choosing: false,
+          puzzleActive: false,
+          puzzleSolvedCurrent: false,
+          checkpointRevision: s.checkpointRevision + 1,
         })),
       completePuzzle: () => {
         const s = get();
@@ -182,6 +222,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
+      version: 3,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -191,7 +232,25 @@ export const useGame = create<GameState>()(
         gameComplete: state.gameComplete,
         soundEnabled: state.soundEnabled,
         visibility: state.visibility,
+        textSize: state.textSize,
+        reducedMotion: state.reducedMotion,
+        cinematicCamera: state.cinematicCamera,
       }),
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<GameState>;
+        const sceneIndex = Math.max(
+          0,
+          Math.min(storyScenes.length - 1, Number(saved.sceneIndex) || 0),
+        );
+        const stepIndex = Math.max(
+          0,
+          Math.min(
+            storyScenes[sceneIndex].steps.length - 1,
+            Number(saved.stepIndex) || 0,
+          ),
+        );
+        return { ...current, ...saved, sceneIndex, stepIndex };
+      },
     },
   ),
 );

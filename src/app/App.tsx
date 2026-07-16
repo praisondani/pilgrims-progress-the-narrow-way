@@ -35,7 +35,8 @@ function Title() {
           Enter the dream <span>→</span>
         </button>
         <p className="hint">
-          WASD or arrow keys to walk · E to interact · Shift to jog · Space to jump
+          WASD or arrow keys to walk · E to interact · Shift to jog · Space to
+          jump
         </p>
       </section>
       <blockquote>
@@ -93,6 +94,10 @@ function Overlay() {
   useEffect(() => {
     if (game.sceneComplete) gameAudio.chapter();
   }, [game.sceneComplete]);
+  useEffect(() => {
+    document.documentElement.dataset.textSize = game.textSize;
+    document.documentElement.dataset.reducedMotion = String(game.reducedMotion);
+  }, [game.textSize, game.reducedMotion]);
   return (
     <>
       <header className="hud" data-testid="game-hud">
@@ -110,7 +115,8 @@ function Overlay() {
         </div>
         <div className="hud-actions">
           <button onClick={game.cycleVisibility}>
-            Visibility: {game.visibility === "highContrast" ? "contrast" : game.visibility}
+            Visibility:{" "}
+            {game.visibility === "highContrast" ? "contrast" : game.visibility}
           </button>
           <button
             aria-label="Toggle sound"
@@ -249,15 +255,34 @@ function Overlay() {
           <section>
             <p className="eyebrow">JOURNEY PAUSED</p>
             <h2>Rest by the way.</h2>
-          <p>Progress saves automatically after each story beat.</p>
-          <p className="controls-reference">
-            Move: WASD or arrow keys · Interact: E · Jog: Shift · Jump: Space
-          </p>
+            <p>Progress saves automatically after each story beat.</p>
+            <p className="controls-reference">
+              Move: WASD or arrow keys · Interact: E · Jog: Shift · Jump: Space
+            </p>
+            <div className="settings-grid">
+              <button onClick={game.cycleVisibility}>
+                Visibility <strong>{game.visibility}</strong>
+              </button>
+              <button onClick={game.cycleTextSize}>
+                Text size <strong>{game.textSize}</strong>
+              </button>
+              <button onClick={game.toggleReducedMotion}>
+                Reduced motion{" "}
+                <strong>{game.reducedMotion ? "on" : "off"}</strong>
+              </button>
+              <button onClick={game.toggleCinematicCamera}>
+                Cinematic camera{" "}
+                <strong>{game.cinematicCamera ? "on" : "off"}</strong>
+              </button>
+            </div>
             <div className="modal-actions">
               <button className="primary" onClick={game.togglePause}>
                 Continue
               </button>
               <button onClick={game.reset}>Restart story</button>
+              <button onClick={game.recoverCheckpoint}>
+                Reload checkpoint
+              </button>
             </div>
           </section>
         </div>

@@ -12,18 +12,25 @@ import { useEffect } from "react";
 function CameraRig() {
   const rig = useRef<PerspectiveCameraType>(null);
   const desired = new Vector3();
-  const { dialogue, choosing, sceneComplete, sceneIndex, stepIndex } =
-    useGame();
+  const {
+    dialogue,
+    choosing,
+    sceneComplete,
+    sceneIndex,
+    stepIndex,
+    reducedMotion,
+    cinematicCamera,
+  } = useGame();
   const step = storyScenes[sceneIndex].steps[stepIndex];
   useFrame((_, dt) => {
     if (!rig.current) return;
-    if (sceneComplete) {
+    if (sceneComplete && cinematicCamera) {
       desired.set(8, 9, 10);
       rig.current.position.lerp(desired, 1 - Math.exp(-1.5 * dt));
       rig.current.lookAt(0, 0, 0);
       return;
     }
-    if (dialogue || choosing) {
+    if ((dialogue || choosing) && cinematicCamera) {
       const [x, z] = step.position;
       desired.set(x + 3.5, 2.7, z + 4.2);
       rig.current.position.lerp(desired, 1 - Math.exp(-2.8 * dt));
@@ -35,7 +42,10 @@ function CameraRig() {
       playerPosition.y + 4.6,
       playerPosition.z + 7.5,
     );
-    rig.current.position.lerp(desired, 1 - Math.exp(-4 * dt));
+    rig.current.position.lerp(
+      desired,
+      reducedMotion ? 1 : 1 - Math.exp(-4 * dt),
+    );
     rig.current.lookAt(
       playerPosition.x,
       playerPosition.y + 0.8,
@@ -57,12 +67,13 @@ function Exposure() {
 }
 export function GameCanvas() {
   const sceneIndex = useGame((s) => s.sceneIndex);
+  const checkpointRevision = useGame((s) => s.checkpointRevision);
   return (
     <Canvas shadows dpr={[1, 1.5]} gl={{ antialias: true }}>
       <Exposure />
       <Physics gravity={[0, -12, 0]}>
         <World />
-        <Player key={sceneIndex} />
+        <Player key={`${sceneIndex}-${checkpointRevision}`} />
       </Physics>
       <CameraRig />
     </Canvas>
