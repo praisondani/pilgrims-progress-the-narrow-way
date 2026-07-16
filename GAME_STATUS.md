@@ -12,19 +12,24 @@
 - Multi-line dialogue, response choices, chapter transitions, journal discoveries, and ending
 - Burden appears in City, affects movement, and is removed only at Cross
 - Automated story structure and save-ID invariants
+- Eight scene-authored painterly low-poly environment families
+- Twelve reusable character variants with walk and idle animation
+- Cinematic conversation camera, chapter pullback shots, and letterbox framing
+- Procedural Web Audio ambience, footsteps, interaction cues, and sound toggle
+- Nine symbolic trials using ordered-action and focus mechanics
 
 ## In progress
 
-- Playtime tuning and richer scene-specific symbolic mechanics
+- Playtime, lighting, camera, and puzzle-difficulty tuning from player feedback
 
 ## Blocked
 
-- Final authored `.glb` characters/environments and licensed audio are not yet available
+- None for current procedural-art MVP
 
 ## Next
 
-1. Replace remaining primitives with authored painterly assets
-2. Add voice, ambience, music, and spatial sound
-3. Add scene-specific traversal animations and cutscene camera rails
-4. Add browser E2E progression tests and CI
-5. Profile/code-split Three.js and Rapier bundles
+1. Optional Blender-authored `.glb` hero assets and bespoke skeletal animation
+2. Optional human voice acting and composed score
+3. Add browser E2E progression tests and CI
+4. Profile/code-split Three.js and Rapier bundles
+5. Expand beyond Cross toward Hill Difficulty

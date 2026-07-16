@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { storyScenes, totalStoryBeats } from './story'
+import { puzzles } from './puzzles'
 
 describe('MVP story journey', () => {
   it('covers the complete planned journey through the Cross', () => {
@@ -23,5 +24,10 @@ describe('MVP story journey', () => {
   it('removes the burden only at the Cross', () => {
     const changes = storyScenes.flatMap((scene) => scene.steps.filter((step) => step.burden !== undefined).map((step) => [scene.id, step.id, step.burden]))
     expect(changes).toEqual([['city','read-warning',1],['cross','reach-cross',0]])
+  })
+
+  it('adds mechanical trials to every major journey phase',()=>{
+    expect(Object.keys(puzzles).length).toBeGreaterThanOrEqual(9)
+    expect(new Set(Object.keys(puzzles).map((key)=>key.split(':')[0])).size).toBeGreaterThanOrEqual(7)
   })
 })

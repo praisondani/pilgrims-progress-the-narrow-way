@@ -12,12 +12,13 @@ describe('story progression state machine', () => {
   })
 
   it('advances only after all dialogue is read', () => {
+    useGame.setState({stepIndex:1})
     useGame.getState().setNearby(true); useGame.getState().interact()
-    const lines = storyScenes[0].steps[0].dialogue.length
+    const lines = storyScenes[0].steps[1].dialogue.length
     for (let i=0; i<lines-1; i++) useGame.getState().advanceDialogue()
-    expect(useGame.getState().stepIndex).toBe(0)
-    useGame.getState().advanceDialogue()
     expect(useGame.getState().stepIndex).toBe(1)
+    useGame.getState().advanceDialogue()
+    expect(useGame.getState().stepIndex).toBe(2)
   })
 
   it('requires a response at choice beats', () => {
