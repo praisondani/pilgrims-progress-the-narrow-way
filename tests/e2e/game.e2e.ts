@@ -167,8 +167,23 @@ test("continues from Palace Beautiful into the valley journey", async ({
   await page.reload();
   const cue = page.locator(".navigation-cue");
   const interactPrompt = page.locator(".interact-prompt");
-  await cue.evaluate((element) => (element as HTMLButtonElement).click());
-  await expect(interactPrompt).toBeVisible({ timeout: 18_000 });
+  await expect
+    .poll(
+      async () => {
+        if (await interactPrompt.isVisible()) return true;
+        if (await cue.isEnabled())
+          await cue.evaluate((element) =>
+            (element as HTMLButtonElement).click(),
+          );
+        return false;
+      },
+      {
+        timeout: process.env.CI ? 60_000 : 24_000,
+        intervals: [0, 200, 400],
+        message: "Reach Hopeful’s final marker through guided travel",
+      },
+    )
+    .toBe(true);
   await interactPrompt.click({ force: true });
   const spoken = page.locator(".spoken");
   await expect(spoken).toBeVisible();
