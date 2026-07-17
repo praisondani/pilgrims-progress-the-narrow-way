@@ -113,7 +113,7 @@ export const useGame = create<GameState>()(
       sceneComplete: false,
       gameComplete: false,
       journal: [],
-      soundEnabled: true,
+      soundEnabled: false,
       visibility: "bright",
       textSize: "normal",
       reducedMotion: false,
@@ -249,7 +249,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 6,
+      version: 7,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -297,7 +297,8 @@ export const useGame = create<GameState>()(
               : saved.equipment,
           journal: Array.isArray(saved.journal) ? saved.journal : [],
           gameComplete: version < 6 ? false : (saved.gameComplete ?? false),
-          soundEnabled: saved.soundEnabled ?? true,
+          soundEnabled:
+            version < 7 ? false : (saved.soundEnabled ?? false),
           visibility: saved.visibility ?? "bright",
           textSize: saved.textSize ?? "normal",
           reducedMotion: saved.reducedMotion ?? false,

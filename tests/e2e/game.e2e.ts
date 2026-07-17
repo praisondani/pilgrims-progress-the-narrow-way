@@ -11,6 +11,10 @@ test.beforeEach(async ({ page }) => {
 test("starts a new journey and initializes WebGL gameplay", async ({
   page,
 }) => {
+  const audioResponses: string[] = [];
+  page.on("response", (response) => {
+    if (response.url().includes("/audio/")) audioResponses.push(response.url());
+  });
   const title = page.getByTestId("title-screen");
   await expect(title).toBeVisible();
   await expect(title).toContainText("WASD or arrow keys");
@@ -22,6 +26,13 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await expect(
     page.getByText("Find and light the abandoned lantern"),
   ).toBeVisible();
+  const sound = page.getByRole("button", { name: "Toggle sound" });
+  await expect(sound).toContainText("Sound off");
+  await sound.click();
+  await expect(sound).toContainText("Sound on");
+  await expect
+    .poll(() => audioResponses.some((url) => url.endsWith("/audio/ambience/dream.mp3")))
+    .toBe(true);
   await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("ArrowUp");
 });

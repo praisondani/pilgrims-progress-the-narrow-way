@@ -1,153 +1,226 @@
-const sceneTones: Record<string, number> = {
-  dream: 98,
-  city: 82,
-  field: 147,
-  slough: 73,
-  worldly: 123,
-  gate: 110,
-  interpreter: 165,
-  cross: 220,
-  sleepers: 174,
-  wall: 156,
-  hill: 132,
-  arbor: 117,
-  lions: 92,
-  palace: 196,
-  humiliation: 88,
-  shadow: 61,
-  faithful: 185,
-  talkative: 151,
-  warning: 104,
-  vanity: 139,
-  hopeful: 207,
-  byends: 148,
-  demas: 126,
-  bypath: 102,
-  doubting: 58,
+const sceneGainDb: Record<string, number> = {
+  dream: 13.5,
+  city: 23.4,
+  field: 13,
+  slough: 7.6,
+  worldly: -0.5,
+  gate: 15.5,
+  interpreter: 19.8,
+  cross: 3.3,
+  sleepers: 7.4,
+  wall: 9.7,
+  hill: 5.5,
+  arbor: 38.4,
+  lions: 13.4,
+  palace: 18.8,
+  humiliation: -8,
+  shadow: -5.2,
+  faithful: 11.8,
+  talkative: 6.5,
+  warning: 6,
+  vanity: -2.7,
+  hopeful: 7.3,
+  byends: -0.6,
+  demas: 3.5,
+  bypath: 21.1,
+  doubting: 11,
 };
+
+const sfxGainDb: Record<string, number> = {
+  interact: -0.1,
+  dialogue: 10.9,
+  chapter: 1.8,
+  error: 23.2,
+  focus: 7.1,
+  "step-earth": -4,
+  "step-mud": -6.7,
+  success: 5.8,
+};
+
+export const ambienceUrl = (sceneId: string) =>
+  `/audio/ambience/${sceneId}.mp3`;
+export const sfxUrl = (name: string) => `/audio/sfx/${name}.mp3`;
+export const dbToGain = (decibels: number) => 10 ** (decibels / 20);
+export const audioSceneIds = Object.keys(sceneGainDb);
+
+type PlayingAmbience = {
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+};
+
 class GameAudio {
   private ctx?: AudioContext;
   private master?: GainNode;
-  private drone?: OscillatorNode;
-  private droneGain?: GainNode;
-  private noise?: AudioBufferSourceNode;
-  private filter?: BiquadFilterNode;
+  private ambienceBus?: GainNode;
+  private sfxBus?: GainNode;
+  private buffers = new Map<string, AudioBuffer>();
+  private loading = new Map<string, Promise<AudioBuffer | undefined>>();
+  private current?: PlayingAmbience;
+  private pendingScene = "dream";
+  private sceneRequest = 0;
   private lastStep = 0;
-  private enabled = true;
+  private lastFocus = 0;
+  private enabled = false;
+
   start() {
-    if (!this.ctx) {
-      this.ctx = new AudioContext();
-      this.master = this.ctx.createGain();
-      this.master.gain.value = 0.18;
-      this.master.connect(this.ctx.destination);
-      this.buildAmbience();
-    }
-    this.ctx.resume();
+    if (!this.ctx) this.buildGraph();
+    void this.ctx?.resume();
+    window.setTimeout(() => void this.playScene(this.pendingScene), 0);
   }
+
   setEnabled(value: boolean) {
     this.enabled = value;
-    if (this.master && this.ctx)
-      this.master.gain.setTargetAtTime(
-        value ? 0.18 : 0,
-        this.ctx.currentTime,
-        0.08,
-      );
+    if (!this.ctx || !this.master) {
+      if (value) this.start();
+      return;
+    }
+    const now = this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setTargetAtTime(value ? 0.65 : 0, now, 0.08);
     if (value) this.start();
   }
-  private buildAmbience() {
-    if (!this.ctx || !this.master) return;
-    this.drone = this.ctx.createOscillator();
-    this.drone.type = "sine";
-    this.drone.frequency.value = 98;
-    this.droneGain = this.ctx.createGain();
-    this.droneGain.gain.value = 0.055;
-    this.drone.connect(this.droneGain).connect(this.master);
-    this.drone.start();
-    const buffer = this.ctx.createBuffer(
-      1,
-      this.ctx.sampleRate * 3,
-      this.ctx.sampleRate,
-    );
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++)
-      data[i] = (Math.random() * 2 - 1) * 0.32;
-    this.noise = this.ctx.createBufferSource();
-    this.noise.buffer = buffer;
-    this.noise.loop = true;
-    this.filter = this.ctx.createBiquadFilter();
-    this.filter.type = "lowpass";
-    this.filter.frequency.value = 420;
-    const gain = this.ctx.createGain();
-    gain.gain.value = 0.035;
-    this.noise.connect(this.filter).connect(gain).connect(this.master);
-    this.noise.start();
+
+  private buildGraph() {
+    this.ctx = new AudioContext();
+    const lowpass = this.ctx.createBiquadFilter();
+    lowpass.type = "lowpass";
+    lowpass.frequency.value = 9_000;
+    lowpass.Q.value = 0.4;
+
+    const limiter = this.ctx.createDynamicsCompressor();
+    limiter.threshold.value = -18;
+    limiter.knee.value = 24;
+    limiter.ratio.value = 12;
+    limiter.attack.value = 0.006;
+    limiter.release.value = 0.28;
+
+    this.master = this.ctx.createGain();
+    this.master.gain.value = this.enabled ? 0.65 : 0;
+    this.ambienceBus = this.ctx.createGain();
+    this.ambienceBus.gain.value = 0.32;
+    this.sfxBus = this.ctx.createGain();
+    this.sfxBus.gain.value = 0.5;
+
+    this.ambienceBus.connect(lowpass);
+    this.sfxBus.connect(lowpass);
+    lowpass.connect(limiter).connect(this.master).connect(this.ctx.destination);
   }
-  scene(id: string) {
-    if (!this.enabled) this.setEnabled(false);
-    this.start();
+
+  private async load(url: string) {
+    const cached = this.buffers.get(url);
+    if (cached) return cached;
+    const existing = this.loading.get(url);
+    if (existing) return existing;
     if (!this.ctx) return;
-    this.drone?.frequency.setTargetAtTime(
-      sceneTones[id] ?? 110,
-      this.ctx.currentTime,
-      1.8,
-    );
-    this.filter?.frequency.setTargetAtTime(
-      id === "slough" || id === "shadow" || id === "doubting"
-        ? 240
-        : id === "cross" || id === "palace" || id === "hopeful"
-          ? 900
-          : id === "lions" || id === "humiliation"
-            ? 320
-            : id === "vanity"
-              ? 680
-            : 480,
-      this.ctx.currentTime,
-      1,
-    );
+    const request = (async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok || !this.ctx) return;
+        const buffer = await this.ctx.decodeAudioData(await response.arrayBuffer());
+        this.buffers.set(url, buffer);
+        return buffer;
+      } catch {
+        return;
+      } finally {
+        this.loading.delete(url);
+      }
+    })();
+    this.loading.set(url, request);
+    return request;
   }
-  tone(
-    freq: number,
-    duration = 0.18,
-    volume = 0.12,
-    type: OscillatorType = "sine",
-  ) {
+
+  scene(id: string) {
+    this.pendingScene = id;
+    if (this.ctx) void this.playScene(id);
+  }
+
+  private async playScene(id: string) {
+    if (
+      !this.ctx ||
+      !this.ambienceBus ||
+      !this.enabled ||
+      (this.current &&
+        this.current.source.buffer === this.buffers.get(ambienceUrl(id)))
+    )
+      return;
+    const request = ++this.sceneRequest;
+    const buffer = await this.load(ambienceUrl(id));
+    if (!buffer || request !== this.sceneRequest || id !== this.pendingScene) return;
+
+    const now = this.ctx.currentTime;
+    const source = this.ctx.createBufferSource();
+    const gain = this.ctx.createGain();
+    source.buffer = buffer;
+    source.loop = true;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(
+      dbToGain(sceneGainDb[id] ?? 0),
+      now + 1.4,
+    );
+    source.connect(gain).connect(this.ambienceBus);
+    source.start();
+
+    const previous = this.current;
+    if (previous) {
+      previous.gain.gain.cancelScheduledValues(now);
+      previous.gain.gain.setValueAtTime(
+        Math.max(0.0001, previous.gain.gain.value),
+        now,
+      );
+      previous.gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+      previous.source.stop(now + 1.5);
+    }
+    this.current = { source, gain };
+  }
+
+  private async playSfx(name: string) {
     if (!this.enabled) return;
     this.start();
-    if (!this.ctx || !this.master) return;
-    const o = this.ctx.createOscillator(),
-      g = this.ctx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.setValueAtTime(volume, this.ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
-    o.connect(g).connect(this.master);
-    o.start();
-    o.stop(this.ctx.currentTime + duration);
+    if (!this.ctx || !this.sfxBus) return;
+    const buffer = await this.load(sfxUrl(name));
+    if (!buffer || !this.enabled) return;
+    const source = this.ctx.createBufferSource();
+    const gain = this.ctx.createGain();
+    source.buffer = buffer;
+    gain.gain.value = dbToGain(sfxGainDb[name] ?? 0);
+    source.connect(gain).connect(this.sfxBus);
+    source.start();
   }
+
   interact() {
-    this.tone(440, 0.12, 0.11, "triangle");
-    setTimeout(() => this.tone(660, 0.2, 0.08, "triangle"), 65);
+    void this.playSfx("interact");
   }
+
   dialogue() {
-    this.tone(220, 0.07, 0.035, "sine");
+    void this.playSfx("dialogue");
   }
+
   chapter() {
-    [220, 330, 440, 660].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.45, 0.065, "triangle"), i * 120),
-    );
+    void this.playSfx("chapter");
   }
+
+  success() {
+    void this.playSfx("success");
+  }
+
   error() {
-    this.tone(95, 0.2, 0.08, "sawtooth");
+    void this.playSfx("error");
   }
-  focus(value: number) {
-    this.tone(130 + value * 4.2, 0.075, 0.035, "sine");
+
+  focus(_value?: number) {
+    const now = performance.now();
+    if (now - this.lastFocus < 110) return;
+    this.lastFocus = now;
+    void this.playSfx("focus");
   }
+
   walking(moving: boolean, mud = false) {
     if (!moving || !this.ctx || !this.enabled) return;
     const now = this.ctx.currentTime;
     if (now - this.lastStep < (mud ? 0.48 : 0.34)) return;
     this.lastStep = now;
-    this.tone(mud ? 72 : 105, 0.09, mud ? 0.07 : 0.045, "sine");
+    void this.playSfx(mud ? "step-mud" : "step-earth");
   }
 }
+
 export const gameAudio = new GameAudio();

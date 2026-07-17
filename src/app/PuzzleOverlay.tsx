@@ -27,7 +27,7 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
   const confirm = () => {
     if (puzzle.type !== "focus") return;
     if (Math.abs(focus - puzzle.target) <= puzzle.tolerance) {
-      gameAudio.chapter();
+      gameAudio.success();
       complete();
     } else {
       gameAudio.error();

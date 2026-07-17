@@ -89,7 +89,6 @@ function Title() {
               className="primary"
               autoFocus
               onClick={() => {
-                gameAudio.start();
                 start();
               }}
             >
@@ -372,7 +371,13 @@ function Overlay() {
         !game.choosing &&
         !game.puzzleActive &&
         !game.sceneComplete && (
-          <button className="interact-prompt" onClick={game.interact}>
+          <button
+            className="interact-prompt"
+            onClick={() => {
+              gameAudio.interact();
+              game.interact();
+            }}
+          >
             <kbd>E</kbd> {step.action}
           </button>
         )}

@@ -74,7 +74,12 @@ export function Player() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       keys.add(e.code);
-      if (e.code === "KeyE") useGame.getState().interact();
+      if (e.code === "KeyE") {
+        const state = useGame.getState();
+        if (state.nearby && !state.dialogue && !state.sceneComplete)
+          gameAudio.interact();
+        state.interact();
+      }
       if (e.code === "KeyR") cameraControl.resetRequested = true;
       if (e.code === "Space")
         body.current?.applyImpulse({ x: 0, y: 3.8, z: 0 }, true);
