@@ -33,6 +33,14 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await expect
     .poll(() => audioResponses.some((url) => url.endsWith("/audio/ambience/dream.mp3")))
     .toBe(true);
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "playing",
+  );
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-scene",
+    "dream",
+  );
   await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("ArrowUp");
 });

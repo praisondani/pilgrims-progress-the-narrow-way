@@ -42,6 +42,18 @@ export const ambienceUrl = (sceneId: string) =>
 export const sfxUrl = (name: string) => `/audio/sfx/${name}.mp3`;
 export const dbToGain = (decibels: number) => 10 ** (decibels / 20);
 export const audioSceneIds = Object.keys(sceneGainDb);
+export const audioMix = {
+  measuredAmbienceRmsDb: -32,
+  ambienceNormalizationLiftDb: 6,
+  ambienceBusGain: 0.5,
+  sfxBusGain: 0.5,
+  masterGain: 0.75,
+} as const;
+export const normalizedAmbienceOutputDb = () =>
+  audioMix.measuredAmbienceRmsDb +
+  audioMix.ambienceNormalizationLiftDb +
+  20 * Math.log10(audioMix.ambienceBusGain) +
+  20 * Math.log10(audioMix.masterGain);
 
 type PlayingAmbience = {
   source: AudioBufferSourceNode;
@@ -62,6 +74,15 @@ class GameAudio {
   private lastFocus = 0;
   private enabled = false;
 
+  private markState(
+    state: "muted" | "loading" | "playing" | "error",
+    scene?: string,
+  ) {
+    if (typeof document === "undefined") return;
+    document.documentElement.dataset.audioState = state;
+    if (scene) document.documentElement.dataset.audioScene = scene;
+  }
+
   start() {
     if (!this.ctx) this.buildGraph();
     void this.ctx?.resume();
@@ -70,13 +91,14 @@ class GameAudio {
 
   setEnabled(value: boolean) {
     this.enabled = value;
+    this.markState(value ? "loading" : "muted", this.pendingScene);
     if (!this.ctx || !this.master) {
       if (value) this.start();
       return;
     }
     const now = this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setTargetAtTime(value ? 0.65 : 0, now, 0.08);
+    this.master.gain.setTargetAtTime(value ? audioMix.masterGain : 0, now, 0.08);
     if (value) this.start();
   }
 
@@ -95,11 +117,11 @@ class GameAudio {
     limiter.release.value = 0.28;
 
     this.master = this.ctx.createGain();
-    this.master.gain.value = this.enabled ? 0.65 : 0;
+    this.master.gain.value = this.enabled ? audioMix.masterGain : 0;
     this.ambienceBus = this.ctx.createGain();
-    this.ambienceBus.gain.value = 0.32;
+    this.ambienceBus.gain.value = audioMix.ambienceBusGain;
     this.sfxBus = this.ctx.createGain();
-    this.sfxBus.gain.value = 0.5;
+    this.sfxBus.gain.value = audioMix.sfxBusGain;
 
     this.ambienceBus.connect(lowpass);
     this.sfxBus.connect(lowpass);
@@ -143,9 +165,13 @@ class GameAudio {
         this.current.source.buffer === this.buffers.get(ambienceUrl(id)))
     )
       return;
+    this.markState("loading", id);
     const request = ++this.sceneRequest;
     const buffer = await this.load(ambienceUrl(id));
-    if (!buffer || request !== this.sceneRequest || id !== this.pendingScene) return;
+    if (!buffer || request !== this.sceneRequest || id !== this.pendingScene) {
+      if (!buffer && request === this.sceneRequest) this.markState("error", id);
+      return;
+    }
 
     const now = this.ctx.currentTime;
     const source = this.ctx.createBufferSource();
@@ -154,11 +180,14 @@ class GameAudio {
     source.loop = true;
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(
-      dbToGain(sceneGainDb[id] ?? 0),
+      dbToGain(
+        (sceneGainDb[id] ?? 0) + audioMix.ambienceNormalizationLiftDb,
+      ),
       now + 1.4,
     );
     source.connect(gain).connect(this.ambienceBus);
     source.start();
+    this.markState("playing", id);
 
     const previous = this.current;
     if (previous) {

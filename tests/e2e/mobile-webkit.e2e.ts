@@ -64,3 +64,24 @@ test("loads the Cross without external cloud textures", async ({ page }) => {
   expect(externalImages).toEqual([]);
   expect(runtimeFailures).toEqual([]);
 });
+
+test("starts recorded ambience after a mobile user gesture", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Begin the journey" }).click();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+
+  const sound = page.getByRole("button", { name: "Toggle sound" });
+  await expect(sound).toContainText("Sound off");
+  await sound.click();
+
+  await expect(sound).toContainText("Sound on");
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "playing",
+    { timeout: 15_000 },
+  );
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-scene",
+    "dream",
+  );
+});
