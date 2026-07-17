@@ -1,4 +1,4 @@
-import { Float, Sparkles, Text } from "@react-three/drei";
+import { Float, Sparkles } from "@react-three/drei";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
@@ -14,7 +14,7 @@ import {
 } from "./Visuals";
 import { SceneEnvironment } from "./Environments";
 
-function personFor(id: string): CharacterVariant {
+function personFor(id: string, sceneId = ""): CharacterVariant {
   if (id.includes("evangelist")) return "evangelist";
   if (id.includes("family") || id === "child") return "family";
   if (id.includes("obstinate")) return "obstinate";
@@ -48,6 +48,12 @@ function personFor(id: string): CharacterVariant {
   if (id.includes("envy")) return "envy";
   if (id.includes("superstition")) return "superstition";
   if (id.includes("pickthank")) return "pickthank";
+  if (id.includes("byends")) return "byends";
+  if (id.includes("money") || id.includes("companions-overheard")) return "moneylove";
+  if (sceneId === "byends") return "byends";
+  if (id.includes("demas")) return "demas";
+  if (id.includes("vain-confidence")) return "vainconfidence";
+  if (id.includes("diffidence")) return "diffidence";
   return "interpreter";
 }
 function TargetShape({
@@ -89,13 +95,26 @@ function TargetShape({
         </mesh>
       </group>
     );
-  if (kind === "person") return <Character variant={personFor(id)} />;
+  if (kind === "person") return <Character variant={personFor(id, sceneId)} />;
+  if (kind === "companion")
+    if (sceneId === "hopeful" && id !== "hopeful-arrives")
+      return (
+        <group position={[0, 0.25, 0]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.55, 0.72, 24]} />
+            <meshStandardMaterial color={light} emissive={light} emissiveIntensity={1.2} />
+          </mesh>
+        </group>
+      );
   if (kind === "companion")
     return (
       <Character
         variant={sceneId === "hopeful" ? "hopeful" : "faithful"}
       />
     );
+  if (kind === "enemy")
+    if (sceneId === "doubting")
+      return <Character variant="despair" scale={1.45} />;
   if (kind === "enemy")
     return (
       <group position={[0, 1.15, 0]} scale={1.15}>
@@ -352,19 +371,6 @@ function ActiveTarget() {
           depthWrite={false}
         />
       </mesh>
-      <Text
-        position={[0, 2.35, 0]}
-        fontSize={0.27}
-        maxWidth={3.2}
-        textAlign="center"
-        color="#fff1d1"
-        outlineWidth={0.014}
-        outlineColor="#17121b"
-        renderOrder={11}
-        material-depthTest={false}
-      >
-        {step.action}
-      </Text>
     </group>
   );
 }

@@ -15,6 +15,15 @@ The game is a static Vite build. Production receives only the generated contents
 
 Nginx serves a versioned release directory through a `current` symlink. Switching the symlink makes deployments atomic and keeps rollback simple.
 
+The browser CSP must allow Rapier to compile its bundled WebAssembly without enabling general JavaScript evaluation:
+
+```nginx
+script-src 'self' 'wasm-unsafe-eval';
+worker-src 'self' blob:;
+```
+
+Do not replace `wasm-unsafe-eval` with the broader `unsafe-eval`. Keep runtime fonts and assets same-origin so `connect-src 'self'` remains sufficient.
+
 ## Local release
 
 1. Export deployment details only in the current shell or a password manager-backed environment:

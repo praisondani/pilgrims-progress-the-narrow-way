@@ -20,6 +20,10 @@ const sceneTones: Record<string, number> = {
   warning: 104,
   vanity: 139,
   hopeful: 207,
+  byends: 148,
+  demas: 126,
+  bypath: 102,
+  doubting: 58,
 };
 class GameAudio {
   private ctx?: AudioContext;
@@ -88,7 +92,7 @@ class GameAudio {
       1.8,
     );
     this.filter?.frequency.setTargetAtTime(
-      id === "slough" || id === "shadow"
+      id === "slough" || id === "shadow" || id === "doubting"
         ? 240
         : id === "cross" || id === "palace" || id === "hopeful"
           ? 900

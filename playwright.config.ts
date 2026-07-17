@@ -9,7 +9,20 @@ export default defineConfig({
   use: { baseURL: 'http://127.0.0.1:4173', trace: 'on-first-retry' },
   webServer: { command: 'npm run build && npm run preview', url: 'http://127.0.0.1:4173', reuseExistingServer: !process.env.CI },
   projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'desktop-chromium',
+      testIgnore: '**/mobile-webkit.e2e.ts',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'mobile-chromium',
+      testIgnore: '**/mobile-webkit.e2e.ts',
+      use: { ...devices['Pixel 7'] },
+    },
+    {
+      name: 'mobile-webkit',
+      testMatch: '**/mobile-webkit.e2e.ts',
+      use: { ...devices['iPhone 15'] },
+    },
   ],
 })

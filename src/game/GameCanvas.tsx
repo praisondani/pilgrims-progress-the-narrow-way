@@ -4,7 +4,7 @@ import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
 import { PerspectiveCamera as PerspectiveCameraType, Vector3 } from "three";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
-import { Player, playerPosition } from "./Player";
+import { HopefulCompanion, Player, playerPosition } from "./Player";
 import { World } from "./World";
 import { useGame } from "./state";
 import { storyScenes } from "./story";
@@ -153,6 +153,7 @@ export function GameCanvas() {
         <Physics gravity={[0, -12, 0]}>
           <World />
           <Player key={sceneKey} />
+          <HopefulCompanion />
         </Physics>
         <CameraRig />
         <FrameReady

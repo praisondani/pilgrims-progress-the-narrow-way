@@ -29,6 +29,7 @@ export type StoryStep = {
   choices?: StoryChoice[];
   burden?: number;
   roll?: boolean;
+  keyOfPromise?: boolean;
   equipment?: string[];
 };
 export type StoryScene = {
@@ -2419,6 +2420,522 @@ export const storyScenes: StoryScene[] = [
         ],
         journal:
           "The Road beyond Vanity — Hope does not erase grief. It receives what faithful love has given and carries it forward.",
+      },
+    ],
+  },
+  {
+    id: "byends",
+    number: "CHAPTER XXI",
+    title: "By-Ends",
+    subtitle: "A traveler who always agrees with truth when truth agrees with advantage.",
+    meaning:
+      "By-Ends represents religion adjusted to weather, reputation, and profit rather than faithful allegiance.",
+    palette: {
+      sky: "#9aa4ae",
+      ground: "#77765f",
+      light: "#e7c37b",
+      fog: "#9b9b90",
+    },
+    steps: [
+      {
+        id: "meet-byends",
+        objective: "Meet the polished traveler waiting at the fork",
+        action: "Greet By-Ends",
+        kind: "person",
+        position: [0, -5],
+        dialogue: [
+          "BY-ENDS: We appear bound in the same direction. Let us travel together, provided we avoid unnecessary extremes.",
+          "He speaks warmly without naming where he came from, who taught him, or what he means by extreme.",
+        ],
+        journal:
+          "By-Ends — Convenience often speaks in moderate language while quietly reserving the right to abandon truth when truth becomes costly.",
+      },
+      {
+        id: "flexible-name",
+        objective: "Ask why By-Ends will not give his family name",
+        action: "Ask directly",
+        kind: "person",
+        position: [-4, -2],
+        dialogue: [
+          "BY-ENDS: Names provoke prejudice. Judge only the pleasant company I offer now.",
+          "CHRISTIAN: A hidden history is not erased by calling every question unkind.",
+          "Hopeful notices that By-Ends asks for trust while treating accountability as hostility.",
+        ],
+      },
+      {
+        id: "weather-religion",
+        objective: "Test By-Ends’s rule of traveling only with favorable weather",
+        action: "Examine the rule",
+        kind: "book",
+        position: [4, -2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Ask what happens in a storm",
+            response: [
+              "BY-ENDS: Prudence waits until conviction becomes safe and respectable.",
+              "HOPEFUL: Then weather, not truth, decides your direction.",
+            ],
+          },
+          {
+            label: "Ask who defines advantage",
+            response: [
+              "BY-ENDS: Providence is proved when religion improves one’s position.",
+              "CHRISTIAN: That makes gain the judge of faithfulness instead of its possible test.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "companions-overheard",
+        objective: "Listen as By-Ends’s companions discuss profitable religion",
+        action: "Listen from the marker",
+        kind: "person",
+        position: [5, 2],
+        dialogue: [
+          "MR. MONEY-LOVE: When devotion and profit travel together, refusing the opportunity would insult providence.",
+          "Another companion asks whether the same reasoning would survive if obedience produced loss.",
+          "They change the subject from truth to strategy.",
+        ],
+      },
+      {
+        id: "profit-question",
+        objective: "Separate honest work from using faith as leverage",
+        action: "Weigh the argument",
+        kind: "market",
+        position: [3, 5],
+        dialogue: [
+          "Christian and Hopeful distinguish receiving good through honest work from reshaping belief to obtain it.",
+          "A benefit does not make an action wrong; making benefit the master of conviction does.",
+        ],
+      },
+      {
+        id: "refuse-company",
+        objective: "Decide whether By-Ends can share the pilgrims’ rule of travel",
+        action: "Set the boundary",
+        kind: "companion",
+        position: [-3, 4],
+        dialogue: [],
+        choices: [
+          {
+            label: "Invite him to walk by the same rule",
+            response: [
+              "CHRISTIAN: Come with us if truth keeps its authority in rain and sun, honor and shame, profit and loss.",
+              "By-Ends declines a road whose terms he cannot renegotiate.",
+            ],
+          },
+          {
+            label: "Refuse convenient fellowship",
+            response: [
+              "HOPEFUL: Agreement in destination words is not enough when every difficult mile changes your destination.",
+              "The pilgrims leave without abuse or false unity.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "parting-marker",
+        objective: "Mark the difference between adaptability and compromise",
+        action: "Record the lesson",
+        kind: "book",
+        position: [0, 1],
+        dialogue: [
+          "The journal records that wisdom adapts methods to serve truth; compromise adapts truth to serve advantage.",
+          "Behind them, By-Ends waits for a larger and more fashionable company.",
+        ],
+        journal:
+          "Convenience and Conviction — Flexibility can serve love and wisdom. It becomes corruption when truth itself changes to protect advantage.",
+      },
+    ],
+  },
+  {
+    id: "demas",
+    number: "CHAPTER XXII",
+    title: "Demas and the Silver Mine",
+    subtitle: "The detour glitters because the collapse remains below the surface.",
+    meaning:
+      "Demas offers wealth as a harmless side path while hiding instability, divided desire, and the travelers who never returned.",
+    palette: {
+      sky: "#788a91",
+      ground: "#67665d",
+      light: "#d9d2aa",
+      fog: "#747d7d",
+    },
+    steps: [
+      {
+        id: "silver-glint",
+        objective: "Investigate the silver light flashing beyond the road",
+        action: "Study the glint",
+        kind: "light",
+        position: [0, -5],
+        dialogue: [
+          "A bright seam catches sunlight from a hill called Lucre. The highway bends away; a narrow track climbs toward it.",
+          "Hopeful slows. Beauty is not proof of danger, but neither is it proof of safety.",
+        ],
+      },
+      {
+        id: "demas-invite",
+        objective: "Hear Demas describe the mine without naming its losses",
+        action: "Speak with Demas",
+        kind: "person",
+        position: [-4, -2],
+        dialogue: [
+          "DEMAS: Friends, one short visit can provide for your entire journey. Many honorable travelers have improved themselves here.",
+          "CHRISTIAN: Where are those travelers now?",
+          "DEMAS: Serious opportunities always include uncertainty. Do not let fearful people name courage for you.",
+        ],
+      },
+      {
+        id: "hopeful-curiosity",
+        objective: "Respond honestly to Hopeful’s curiosity about the mine",
+        action: "Counsel Hopeful",
+        kind: "companion",
+        position: [4, -2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Admit the silver is attractive",
+            response: [
+              "CHRISTIAN: I feel the attraction too. Honesty about desire makes caution possible.",
+              "Hopeful stops defending a curiosity Christian has not condemned him for feeling.",
+            ],
+          },
+          {
+            label: "Ask what the journey requires",
+            response: [
+              "HOPEFUL: We have food, equipment, and the road. The mine offers abundance by risking the things already entrusted to us.",
+              "Need and appetite separate under examination.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "inspect-shaft",
+        objective: "Test the mine entrance without crossing its warning line",
+        action: "Inspect the shaft",
+        kind: "path",
+        position: [5, 2],
+        dialogue: [
+          "Pebbles fall from the lip into a shaft too deep for their landing to be heard.",
+          "Broken tools bear names scratched by previous visitors. The silver light comes from unstable walls, not treasure laid safely at hand.",
+        ],
+      },
+      {
+        id: "hidden-cost",
+        objective: "Reveal the structural cost hidden beneath the glitter",
+        action: "Read the fault lines",
+        kind: "path",
+        position: [3, 5],
+        dialogue: [
+          "Christian traces fractures running beneath the inviting ledge. One removed piece would shift the weight onto everyone below.",
+          "The mine’s promise depends upon each visitor assuming collapse will happen after someone else profits.",
+        ],
+        journal:
+          "Lucre Mine — Temptation often privatizes reward and hides shared cost. Glitter can be real while the bargain remains destructive.",
+      },
+      {
+        id: "pillar-salt",
+        objective: "Examine the silent pillar beside the highway",
+        action: "Read the warning",
+        kind: "portrait",
+        position: [-3, 4],
+        dialogue: [
+          "A weathered pillar of salt stands facing the abandoned country behind it.",
+          "The warning is not that looking is physically fatal; it is that longing can keep a person turned toward the life they were called to leave.",
+        ],
+      },
+      {
+        id: "leave-mine",
+        objective: "Return to the highway with Hopeful",
+        action: "Leave Lucre",
+        kind: "companion",
+        position: [0, 1],
+        dialogue: [
+          "Demas calls caution cowardice as the pilgrims descend. The mine continues shining after they refuse it.",
+          "A temptation does not need to become ugly before it can be left behind.",
+        ],
+        journal:
+          "Demas Refused — Christian and Hopeful reject a detour whose reward is unnecessary and whose concealed cost threatens the journey itself.",
+      },
+    ],
+  },
+  {
+    id: "bypath",
+    number: "CHAPTER XXIII",
+    title: "By-Path Meadow",
+    subtitle: "Christian chooses easier ground, then learns that comfort can carry a hidden direction.",
+    meaning:
+      "By-Path Meadow represents leaving the appointed way for comfort; Christian, not Hopeful, owns the decision and its consequences.",
+    palette: {
+      sky: "#637887",
+      ground: "#52684d",
+      light: "#d7c889",
+      fog: "#65746f",
+    },
+    steps: [
+      {
+        id: "rocky-road",
+        objective: "Cross the rough stones where the highway becomes painful",
+        action: "Keep to the road",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "Sharp stones slow every step. Christian’s shoes protect him without making the road comfortable.",
+          "Hopeful suggests patience; Christian begins studying the soft meadow beyond a low fence.",
+        ],
+      },
+      {
+        id: "meadow-view",
+        objective: "Compare the soft meadow with the highway’s direction",
+        action: "Survey both paths",
+        kind: "path",
+        position: [-4, -2],
+        dialogue: [
+          "The meadow runs beside the highway and appears to meet it again beyond the bend.",
+          "Its first steps promise relief. Distance, weather, and the unseen fence line remain unexamined.",
+        ],
+      },
+      {
+        id: "christian-proposes",
+        objective: "Let Christian own the proposal to leave the road",
+        action: "Speak to Hopeful",
+        kind: "companion",
+        position: [4, -2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Argue the paths remain parallel",
+            response: [
+              "CHRISTIAN: The meadow follows the road. We can spare our feet without changing our destination.",
+              "HOPEFUL: I am uneasy, but I will not pretend this was my counsel.",
+            ],
+          },
+          {
+            label: "Admit comfort is deciding",
+            response: [
+              "CHRISTIAN: I want relief enough to treat resemblance as proof. Still, I choose the meadow.",
+              "Naming the motive does not make the choice wise; it preserves responsibility for what follows.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "cross-fence",
+        objective: "Cross the low fence into By-Path Meadow",
+        action: "Enter the meadow",
+        kind: "path",
+        position: [5, 1],
+        dialogue: [
+          "The grass is soft and the first mile easy. The highway remains visible through gaps in the hedge.",
+          "Then the ground curves downward and the hedge grows too high to see across.",
+        ],
+        journal:
+          "By-Path Meadow — A wrong direction may begin beside the right one. Immediate ease cannot prove the paths share an ending.",
+      },
+      {
+        id: "vain-confidence",
+        objective: "Question the traveler who claims certainty without a map",
+        action: "Follow Vain-confidence",
+        kind: "person",
+        position: [4, 4],
+        dialogue: [
+          "VAIN-CONFIDENCE: I know this country perfectly. The road is just ahead; follow quickly before the light fails.",
+          "He mistakes confident movement for informed direction and refuses to slow for questions.",
+        ],
+      },
+      {
+        id: "hidden-pit",
+        objective: "Stop when Vain-confidence disappears ahead",
+        action: "Check the ground",
+        kind: "path",
+        position: [0, 5],
+        dialogue: [
+          "A cry breaks off. The guide’s lantern vanishes into a concealed pit.",
+          "Christian and Hopeful halt before the same edge. Confidence did not make the ground solid.",
+        ],
+      },
+      {
+        id: "storm-return",
+        objective: "Find the highway through rain and rising water",
+        action: "Search for the fence",
+        kind: "water",
+        position: [-4, 4],
+        dialogue: [
+          "Rain erases their footprints and fills the low meadow. The fence is somewhere beyond the dark hedge.",
+          "Each attempt to climb toward the highway meets a flooded ditch.",
+        ],
+      },
+      {
+        id: "admit-fault",
+        objective: "Apologize to Hopeful without blaming the road or weather",
+        action: "Own the mistake",
+        kind: "companion",
+        position: [-5, 1],
+        dialogue: [
+          "CHRISTIAN: I led us here. The stones were hard, but they did not force me across the fence.",
+          "HOPEFUL: I followed against my concern. We can tell the truth about both choices while seeking the way back together.",
+        ],
+        journal:
+          "Christian’s Error — Repentance names agency clearly. Christian does not blame Hopeful, discomfort, Vain-confidence, or the storm for his proposal.",
+      },
+      {
+        id: "seek-shelter",
+        objective: "Find shelter before exhaustion overtakes the companions",
+        action: "Shelter beneath the ledge",
+        kind: "path",
+        position: [0, 1],
+        dialogue: [
+          "They find a stone ledge above the flood and wait for morning, wet and exhausted.",
+          "Before dawn, heavy steps cross the meadow. The land has an owner who does not welcome trespassers.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "doubting",
+    number: "CHAPTER XXIV",
+    title: "Doubting Castle",
+    subtitle: "Despair imprisons the companions until remembered promise becomes a usable key.",
+    meaning:
+      "Doubting Castle embodies crushing hopelessness; escape comes through companionship, prayer, remembered truth, and a key already possessed.",
+    palette: {
+      sky: "#2d3340",
+      ground: "#3f4548",
+      light: "#9ca9b9",
+      fog: "#292d36",
+    },
+    steps: [
+      {
+        id: "giant-captures",
+        objective: "Face Giant Despair after waking in his meadow",
+        action: "Stand together",
+        kind: "enemy",
+        position: [0, -5],
+        dialogue: [
+          "GIANT DESPAIR: This ground belongs to me. Trespassers enter Doubting Castle and do not leave by argument.",
+          "Christian does not deny the trespass. Hopeful refuses the Giant’s claim that one wrong choice gives him rightful ownership of their future.",
+        ],
+      },
+      {
+        id: "wake-cell",
+        objective: "Explore the cell and account for what remains",
+        action: "Search the cell",
+        kind: "prison",
+        position: [-4, -2],
+        dialogue: [
+          "The cell contains stone, straw, a barred door, and no visible tool. Christian still has the sealed roll and armor beneath damaged straps.",
+          "Hopeful is bruised but present. The Giant has controlled their location, not erased every resource or relationship.",
+        ],
+        journal:
+          "Doubting Castle — Despair speaks as though confinement is total. Careful inventory reveals limits to its claim.",
+      },
+      {
+        id: "despair-visits",
+        objective: "Refuse Giant Despair’s claim that no future remains",
+        action: "Answer the Giant",
+        kind: "enemy",
+        position: [4, -2],
+        dialogue: [
+          "Giant Despair urges the prisoners to abandon hope and consent to their own destruction.",
+          "HOPEFUL: Your forecast is not a command. Night is real; it is not proof that morning has ceased to exist.",
+          "The presentation remains symbolic: a closing wall, a dimmed window, and words resisted together.",
+        ],
+      },
+      {
+        id: "diffidence-counsel",
+        objective: "Overhear Diffidence shaping despair into certainty",
+        action: "Listen at the door",
+        kind: "person",
+        position: [5, 2],
+        dialogue: [
+          "DIFFIDENCE: Do not merely frighten them. Repeat that no one remembers them and no door has ever opened.",
+          "Hopeful whispers that repeated certainty is still not evidence.",
+        ],
+      },
+      {
+        id: "measure-days",
+        objective: "Track changing light so the cell cannot erase time",
+        action: "Mark the wall",
+        kind: "light",
+        position: [3, 5],
+        dialogue: [
+          "A narrow window changes from gray to black and back again. Christian marks each dawn with a small line.",
+          "Despair says suffering is endless; measured time proves it has sequence, interruption, and change.",
+        ],
+      },
+      {
+        id: "hopeful-resists",
+        objective: "Let Hopeful carry courage while Christian cannot",
+        action: "Listen to Hopeful",
+        kind: "companion",
+        position: [0, 5],
+        dialogue: [
+          "CHRISTIAN: I led you from the road. Perhaps every later loss began there.",
+          "HOPEFUL: Your fault is real, but despair adds a false conclusion—that mercy therefore has no road back.",
+          "For this hour, Hopeful remembers what Christian cannot hold steadily.",
+        ],
+        journal:
+          "Borrowed Courage — Companionship allows one person to hold hope temporarily when another cannot. Dependence is not failure.",
+      },
+      {
+        id: "prayer-night",
+        objective: "Pray through the night without demanding instant relief",
+        action: "Pray together",
+        kind: "prayer",
+        position: [-4, 4],
+        dialogue: [
+          "They pray first for release, then for endurance, memory, and clarity. Nothing visible changes at once.",
+          "Near dawn, Christian’s hand rests against something sewn inside his coat.",
+        ],
+      },
+      {
+        id: "remember-key",
+        objective: "Recover the Key of Promise that was already carried",
+        action: "Take out the key",
+        kind: "roll",
+        position: [-5, 1],
+        dialogue: [
+          "CHRISTIAN: What a fool I have been. I carry a key called Promise, and I believe it will open any lock in Doubting Castle.",
+          "The key did not arrive after despair ended. It was present, forgotten, while despair claimed there was nothing to remember.",
+        ],
+        journal:
+          "Key of Promise — The way of escape was not manufactured by optimism. Remembered promise becomes practical when taken up and tried.",
+        keyOfPromise: true,
+      },
+      {
+        id: "unlock-cell",
+        objective: "Fit the Key of Promise to the cell and passage locks",
+        action: "Turn the key",
+        kind: "gate",
+        position: [-5, -2],
+        dialogue: [
+          "The first lock turns easily. The second resists until both companions steady the key.",
+          "A lock can be real without being final. The opened door does not erase the nights spent behind it.",
+        ],
+      },
+      {
+        id: "courtyard-escape",
+        objective: "Cross the courtyard while Giant Despair searches",
+        action: "Escape quietly",
+        kind: "path",
+        position: [0, -1],
+        dialogue: [
+          "The Giant’s steps shake dust from the walls. Christian and Hopeful move between shadowed buttresses and unlock the outer gate.",
+          "At the threshold, Giant Despair cannot follow into the morning highway.",
+        ],
+      },
+      {
+        id: "warning-monument",
+        objective: "Raise a warning for travelers near the meadow fence",
+        action: "Set the warning stone",
+        kind: "book",
+        position: [0, 2],
+        dialogue: [
+          "They build a marker: Beyond this fence stands Doubting Castle, kept by Giant Despair. Many who entered were never seen again.",
+          "Christian names his own error in the warning so later travelers receive truth rather than a heroic disguise.",
+        ],
+        journal:
+          "Escape from Doubting Castle — Prayer, companionship, remembered promise, practical action, and honest warning turn private rescue toward the good of others.",
       },
     ],
   },

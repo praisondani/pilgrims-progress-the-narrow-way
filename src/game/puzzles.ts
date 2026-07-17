@@ -321,6 +321,120 @@ export const puzzles: Record<string, Puzzle> = {
     low: "Marker in shadow",
     high: "Glare on the roll",
   },
+  "byends:profit-question": {
+    type: "sequence",
+    title: "Separate work from leverage",
+    instruction:
+      "A good result does not justify reshaping conviction to obtain it.",
+    options: ["Name the honest work", "Identify who rules the choice", "Measure the possible gain"],
+    solution: [0, 2, 1],
+  },
+  "demas:inspect-shaft": {
+    type: "focus",
+    title: "Look beneath the silver",
+    instruction:
+      "Hold the glitter in view while bringing the fractured shaft edge into focus.",
+    target: 28,
+    tolerance: 5,
+    low: "Fractured ledge",
+    high: "Silver glare",
+  },
+  "demas:hidden-cost": {
+    type: "sequence",
+    title: "Trace the collapse",
+    instruction:
+      "Follow how one profitable removal transfers danger to everyone below.",
+    options: ["Mark the support", "Trace the fault", "Remove the bright piece"],
+    solution: [1, 0],
+  },
+  "bypath:rocky-road": {
+    type: "focus",
+    title: "Walk rough ground",
+    instruction:
+      "Choose a steady pace that protects the feet without abandoning the road.",
+    target: 43,
+    tolerance: 6,
+    low: "Stop entirely",
+    high: "Rush carelessly",
+  },
+  "bypath:meadow-view": {
+    type: "sequence",
+    title: "Compare more than the first mile",
+    instruction:
+      "Immediate softness cannot prove the meadow keeps the highway’s direction.",
+    options: ["Check the distant fence", "Feel the first grass", "Trace the highway marker"],
+    solution: [2, 0, 1],
+  },
+  "bypath:hidden-pit": {
+    type: "sequence",
+    title: "Stop before the unseen edge",
+    instruction:
+      "Vain-confidence’s speed is no substitute for testing the ground.",
+    options: ["Probe the darkness", "Follow his lantern", "Brace Hopeful"],
+    solution: [0, 2],
+  },
+  "bypath:storm-return": {
+    type: "focus",
+    title: "Find the fence through rain",
+    instruction:
+      "Listen for water striking wood rather than chasing every flash of lightning.",
+    target: 71,
+    tolerance: 6,
+    low: "Flooded hollow",
+    high: "Fence echo",
+  },
+  "doubting:wake-cell": {
+    type: "sequence",
+    title: "Inventory what remains",
+    instruction:
+      "Despair claims nothing remains. Account carefully before accepting its conclusion.",
+    options: ["Find Hopeful", "Check the sealed roll", "Count the locked doors"],
+    solution: [0, 1, 2],
+  },
+  "doubting:measure-days": {
+    type: "focus",
+    title: "Mark returning light",
+    instruction:
+      "Hold attention on the narrow window until gray distinguishes itself from endless dark.",
+    target: 62,
+    tolerance: 5,
+    low: "Night’s claim",
+    high: "Dawn’s change",
+  },
+  "doubting:prayer-night": {
+    type: "focus",
+    title: "Pray without forcing the hour",
+    instruction:
+      "Balance honest desire for release with endurance, memory, and attention.",
+    target: 47,
+    tolerance: 5,
+    low: "Demand instant relief",
+    high: "Stop asking entirely",
+  },
+  "doubting:remember-key": {
+    type: "sequence",
+    title: "Recover forgotten promise",
+    instruction:
+      "Search what Christian already carries before accepting that no key exists.",
+    options: ["Feel the inner coat", "Rehearse the promise", "Search the empty straw"],
+    solution: [1, 0],
+  },
+  "doubting:unlock-cell": {
+    type: "sequence",
+    title: "Open the castle locks",
+    instruction:
+      "Try promise practically, steady it together, and continue through resistance.",
+    options: ["Fit the key", "Hopeful steadies it", "Turn through resistance"],
+    solution: [0, 1, 2],
+  },
+  "doubting:courtyard-escape": {
+    type: "sequence",
+    title: "Cross the searching courtyard",
+    instruction:
+      "Move between the Giant’s steps and use shadow as cover without losing the outer gate.",
+    options: ["Wait behind the buttress", "Cross to the gate", "Run toward the Giant"],
+    solution: [0, 1, 0, 1],
+  },
 };
 export const puzzleFor = (sceneId: string, stepId: string) =>
   puzzles[`${sceneId}:${stepId}`];

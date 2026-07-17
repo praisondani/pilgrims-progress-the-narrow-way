@@ -79,9 +79,9 @@ function Title() {
         </h1>
         <p className="subtitle">The Narrow Way</p>
         <p className="intro">
-          A detailed story journey from the City of Destruction through Vanity
-          Fair. Explore, listen, discern, defend, endure, and carry Christian
-          through each symbolic trial.
+          A detailed story journey from the City of Destruction through
+          Doubting Castle. Explore, listen, discern, defend, endure, and carry
+          Christian through each symbolic trial.
         </p>
         <button
           className="primary"
@@ -205,11 +205,12 @@ function Overlay() {
                 : "✦ Burden released"}
           </span>
           {game.hasRoll && <span>▣ Sealed roll secured</span>}
+          {game.hasKeyOfPromise && <span>◇ Key of Promise remembered</span>}
           {scene.id === "arbor" && !game.hasRoll && (
             <span className="warning">□ Sealed roll missing</span>
           )}
           {game.equipment.length > 0 && <span>⚔ Equipped for valleys</span>}
-          {scene.id === "hopeful" && <span>◇ Hopeful travels with you</span>}
+          {game.sceneIndex >= 20 && <span>◇ Hopeful travels with you</span>}
         </div>
         <NavigationCue
           target={step.position}
@@ -267,7 +268,7 @@ function Overlay() {
             </div>
             <button className="primary" onClick={game.continueScene}>
               {game.sceneIndex === storyScenes.length - 1
-                ? "Continue beyond Vanity"
+                ? "Leave Doubting Castle"
                 : "Continue the journey"}{" "}
               →
             </button>
@@ -277,16 +278,16 @@ function Overlay() {
       {game.gameComplete && (
         <div className="modal ending">
           <section>
-            <p className="eyebrow">FAITHFUL REMEMBERED · HOPE RENEWED</p>
-            <h2>The road continues.</h2>
+            <p className="eyebrow">PROMISE REMEMBERED · DESPAIR ESCAPED</p>
+            <h2>The mountains rise ahead.</h2>
             <p>
-              Christian has resisted Apollyon, crossed the Shadow, received
-              Faithful’s friendship and witness, escaped Vanity Fair, and
-              welcomed Hopeful to the road.
+              Christian and Hopeful refused convenient religion and Lucre,
+              owned the error of By-Path Meadow, remembered the Key of Promise,
+              and escaped Doubting Castle together.
             </p>
             <div className="ending-road">
-              By-Ends · By-Path Meadow · Doubting Castle · Delectable Mountains
-              · Beulah · River · Celestial City
+              Delectable Mountains · Ignorance · Little-Faith · Flatterer ·
+              Enchanted Ground · Beulah · River · Celestial City
             </div>
             <button className="primary" onClick={game.reset}>
               Dream again

@@ -11,6 +11,7 @@ type GameState = {
   stepIndex: number;
   burden: number;
   hasRoll: boolean;
+  hasKeyOfPromise: boolean;
   equipment: string[];
   nearby: boolean;
   message?: string;
@@ -59,6 +60,7 @@ function finishStep(state: GameState) {
       : state.journal;
   const burden = step.burden ?? state.burden;
   const hasRoll = step.roll ?? state.hasRoll;
+  const hasKeyOfPromise = step.keyOfPromise ?? state.hasKeyOfPromise;
   const equipment = step.equipment ?? state.equipment;
   if (state.stepIndex === scene.steps.length - 1)
     return {
@@ -70,6 +72,7 @@ function finishStep(state: GameState) {
       journal,
       burden,
       hasRoll,
+      hasKeyOfPromise,
       equipment,
       puzzleSolvedCurrent: false,
       puzzleActive: false,
@@ -84,6 +87,7 @@ function finishStep(state: GameState) {
     journal,
     burden,
     hasRoll,
+    hasKeyOfPromise,
     equipment,
     puzzleSolvedCurrent: false,
     puzzleActive: false,
@@ -101,6 +105,7 @@ export const useGame = create<GameState>()(
       stepIndex: 0,
       burden: 0,
       hasRoll: false,
+      hasKeyOfPromise: false,
       equipment: [],
       nearby: false,
       dialogueIndex: 0,
@@ -127,6 +132,7 @@ export const useGame = create<GameState>()(
           stepIndex: 0,
           burden: 0,
           hasRoll: false,
+          hasKeyOfPromise: false,
           equipment: [],
           nearby: false,
           dialogue: undefined,
@@ -243,13 +249,14 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 5,
+      version: 6,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
         stepIndex: state.stepIndex,
         burden: state.burden,
         hasRoll: state.hasRoll,
+        hasKeyOfPromise: state.hasKeyOfPromise,
         equipment: state.equipment,
         journal: state.journal,
         gameComplete: state.gameComplete,
@@ -265,8 +272,14 @@ export const useGame = create<GameState>()(
         const priorStepIndex = Number(saved.stepIndex) || 0;
         const palaceWasComplete =
           version === 4 && priorSceneIndex === 13 && saved.gameComplete;
-        const sceneIndex = palaceWasComplete ? 14 : priorSceneIndex;
-        const stepIndex = palaceWasComplete ? 0 : priorStepIndex;
+        const hopefulWasComplete =
+          version === 5 && priorSceneIndex === 20 && saved.gameComplete;
+        const sceneIndex = hopefulWasComplete
+          ? 21
+          : palaceWasComplete
+            ? 14
+            : priorSceneIndex;
+        const stepIndex = palaceWasComplete || hopefulWasComplete ? 0 : priorStepIndex;
         return {
           started: saved.started ?? false,
           sceneIndex,
@@ -276,12 +289,14 @@ export const useGame = create<GameState>()(
             version < 4
               ? sceneIndex > 7 || (sceneIndex === 7 && stepIndex >= 5)
               : (saved.hasRoll ?? false),
+          hasKeyOfPromise:
+            version < 6 ? false : (saved.hasKeyOfPromise ?? false),
           equipment:
             version < 4 || !Array.isArray(saved.equipment)
               ? []
               : saved.equipment,
           journal: Array.isArray(saved.journal) ? saved.journal : [],
-          gameComplete: version < 5 ? false : (saved.gameComplete ?? false),
+          gameComplete: version < 6 ? false : (saved.gameComplete ?? false),
           soundEnabled: saved.soundEnabled ?? true,
           visibility: saved.visibility ?? "bright",
           textSize: saved.textSize ?? "normal",

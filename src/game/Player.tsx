@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import {
   CapsuleCollider,
   RapierRigidBody,
@@ -15,6 +15,51 @@ import { cameraControl, playerMotion } from "./camera";
 const keys = new Set<string>();
 export const mobileInput = { x: 0, z: 0 };
 export const playerPosition = new Vector3(0, 1.2, 7);
+const companionTarget = new Vector3();
+
+export function HopefulCompanion() {
+  const group = useRef<Group>(null);
+  const [walking, setWalking] = useState(false);
+  const walkingRef = useRef(false);
+  const { gl } = useThree();
+  const { sceneIndex, stepIndex, gameComplete } = useGame();
+  const visible =
+    sceneIndex > 20 || (sceneIndex === 20 && (stepIndex >= 2 || gameComplete));
+  useEffect(() => {
+    gl.domElement.dataset.companion = visible ? "hopeful" : "";
+    return () => {
+      delete gl.domElement.dataset.companion;
+    };
+  }, [gl, visible]);
+  useFrame((_, delta) => {
+    if (!group.current || !visible) return;
+    const forwardX = Math.sin(playerMotion.yaw);
+    const forwardZ = Math.cos(playerMotion.yaw);
+    companionTarget.set(
+      playerPosition.x - forwardX * 1.5 + forwardZ * 0.8,
+      Math.max(0, playerPosition.y - 1.2),
+      playerPosition.z - forwardZ * 1.5 - forwardX * 0.8,
+    );
+    if (group.current.position.distanceTo(companionTarget) > 6)
+      group.current.position.copy(companionTarget);
+    else
+      group.current.position.lerp(
+        companionTarget,
+        1 - Math.exp(-5.5 * delta),
+      );
+    group.current.rotation.y = playerMotion.yaw;
+    if (walkingRef.current !== playerMotion.moving) {
+      walkingRef.current = playerMotion.moving;
+      setWalking(playerMotion.moving);
+    }
+  });
+  if (!visible) return null;
+  return (
+    <group ref={group} position={[0.8, 0, 5.5]}>
+      <Character variant="hopeful" walking={walking} hasRoll={false} />
+    </group>
+  );
+}
 
 export function Player() {
   const body = useRef<RapierRigidBody>(null);

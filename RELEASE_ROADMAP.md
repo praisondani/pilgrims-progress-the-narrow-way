@@ -39,6 +39,8 @@ Status: complete
 
 ## 5. Doubting Castle through Beulah
 
+Status: in progress — Hopeful through Doubting Castle complete
+
 - By-Ends, Demas, By-Path Meadow, Giant Despair
 - Delectable Mountains, Ignorance, Little-Faith
 - Flatterer, Atheist, Enchanted Ground, Beulah

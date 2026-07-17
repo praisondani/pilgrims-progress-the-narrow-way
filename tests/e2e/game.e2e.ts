@@ -208,7 +208,7 @@ test("migrates an old Palace ending into the expanded valley journey", async ({
   await expect(page.locator(".ending")).toBeHidden();
 });
 
-test("completes Hopeful’s road beyond Vanity", async ({ page }) => {
+test("continues Hopeful’s road into the By-Ends encounter", async ({ page }) => {
   test.setTimeout(90_000);
   await page.evaluate(() =>
     localStorage.setItem(
@@ -229,11 +229,18 @@ test("completes Hopeful’s road beyond Vanity", async ({ page }) => {
           reducedMotion: false,
           cinematicCamera: true,
         },
-        version: 5,
+        version: 6,
       }),
     ),
   );
   await page.reload();
+  await expect(page.locator("canvas")).toHaveAttribute(
+    "data-companion",
+    "hopeful",
+  );
+  await expect(page.locator(".inventory-status")).toContainText(
+    "Hopeful travels with you",
+  );
   const cue = page.locator(".navigation-cue");
   const interactPrompt = page.locator(".interact-prompt");
   await cue.evaluate((element) => (element as HTMLButtonElement).click());
@@ -244,15 +251,95 @@ test("completes Hopeful’s road beyond Vanity", async ({ page }) => {
   await spoken.click();
   await spoken.click();
   const chapterCta = page.locator(".chapter-card .primary");
-  await expect(chapterCta).toContainText("Continue beyond Vanity");
+  await expect(chapterCta).toContainText("Continue the journey");
   await chapterCta.click();
-  await expect(page.locator(".ending")).toContainText("The road continues");
+  await expect(page.getByTestId("game-hud")).toContainText("By-Ends");
 });
 
-test("completes the full Dream-to-Hopeful journey through real controls", async ({
+test("migrates an old Hopeful ending into the By-Ends encounter", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 20,
+          stepIndex: 6,
+          burden: 0,
+          hasRoll: true,
+          equipment: ["sword", "shield", "helmet", "breastplate", "shoes"],
+          gameComplete: true,
+        },
+        version: 5,
+      }),
+    ),
+  );
+  await page.reload();
+  await expect(page.getByTestId("game-hud")).toContainText("By-Ends");
+  await expect(page.locator("canvas")).toHaveAttribute(
+    "data-companion",
+    "hopeful",
+  );
+  await expect(page.locator(".ending")).toBeHidden();
+});
+
+test("escapes Doubting Castle with the Key of Promise", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 24,
+          stepIndex: 10,
+          burden: 0,
+          hasRoll: true,
+          hasKeyOfPromise: true,
+          equipment: ["sword", "shield", "helmet", "breastplate", "shoes"],
+          journal: [],
+          gameComplete: false,
+          soundEnabled: false,
+          visibility: "bright",
+          textSize: "normal",
+          reducedMotion: false,
+          cinematicCamera: true,
+        },
+        version: 6,
+      }),
+    ),
+  );
+  await page.reload();
+  await expect(page.locator(".inventory-status")).toContainText(
+    "Key of Promise remembered",
+  );
+  const cue = page.locator(".navigation-cue");
+  const interactPrompt = page.locator(".interact-prompt");
+  await cue.evaluate((element) => (element as HTMLButtonElement).click());
+  await expect(interactPrompt).toBeVisible({ timeout: 24_000 });
+  await interactPrompt.click({ force: true });
+  const spoken = page.locator(".spoken");
+  await expect(spoken).toBeVisible();
+  await spoken.click();
+  await spoken.click();
+  const chapterCta = page.locator(".chapter-card .primary");
+  await expect(chapterCta).toContainText("Leave Doubting Castle");
+  await chapterCta.click();
+  await expect(page.locator(".ending")).toContainText(
+    "The mountains rise ahead",
+  );
+});
+
+test("completes the full Dream-to-Doubting journey through real controls", async ({
   page,
   isMobile,
 }) => {
+  test.skip(
+    Boolean(process.env.CI),
+    "Exhaustive 45-minute physics journey runs locally; CI covers focused flows and story invariants.",
+  );
   test.skip(
     Boolean(isMobile),
     "Full keyboard journey runs in desktop project; mobile retains smoke coverage.",
@@ -340,7 +427,7 @@ test("completes the full Dream-to-Hopeful journey through real controls", async 
     await expect(chapterCta).toBeVisible();
     await expect(chapterCta).toContainText(
       sceneIndex === storyScenes.length - 1
-        ? "Continue beyond Vanity"
+        ? "Leave Doubting Castle"
         : "Continue the journey",
     );
     await expect
@@ -355,7 +442,9 @@ test("completes the full Dream-to-Hopeful journey through real controls", async 
   }
 
   await expect(page.locator(".ending")).toBeVisible();
-  await expect(page.locator(".ending")).toContainText("The road continues");
+  await expect(page.locator(".ending")).toContainText(
+    "The mountains rise ahead",
+  );
   console.info(
     `[journey] complete (${Math.round((Date.now() - journeyStartedAt) / 1000)}s)`,
   );

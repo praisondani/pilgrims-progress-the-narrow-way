@@ -39,7 +39,13 @@ export type CharacterVariant =
   | "hategood"
   | "envy"
   | "superstition"
-  | "pickthank";
+  | "pickthank"
+  | "byends"
+  | "moneylove"
+  | "demas"
+  | "vainconfidence"
+  | "despair"
+  | "diffidence";
 const clothes: Record<CharacterVariant, [string, string, string]> = {
   christian: ["#8f4939", "#493349", "#b97855"],
   dreamer: ["#4b556d", "#292b3a", "#9f7159"],
@@ -77,6 +83,12 @@ const clothes: Record<CharacterVariant, [string, string, string]> = {
   envy: ["#436346", "#8fa35b", "#9f6954"],
   superstition: ["#564d78", "#9790ac", "#a97058"],
   pickthank: ["#825c43", "#c89e55", "#b0775a"],
+  byends: ["#526979", "#d2aa63", "#ae755b"],
+  moneylove: ["#6f563b", "#d1b05d", "#a96f55"],
+  demas: ["#596b70", "#c7c48d", "#aa7259"],
+  vainconfidence: ["#7c6547", "#d1a84f", "#a96e55"],
+  despair: ["#3f4651", "#707785", "#93624f"],
+  diffidence: ["#514357", "#79667d", "#a36c56"],
 };
 
 export function Character({

@@ -3,7 +3,7 @@ import { storyScenes, totalStoryBeats } from "./story";
 import { puzzles } from "./puzzles";
 
 describe("Part One story journey", () => {
-  it("covers the complete planned journey through Vanity Fair and Hopeful", () => {
+  it("covers the complete planned journey through Doubting Castle", () => {
     expect(storyScenes.map((scene) => scene.id)).toEqual([
       "dream",
       "city",
@@ -26,8 +26,12 @@ describe("Part One story journey", () => {
       "warning",
       "vanity",
       "hopeful",
+      "byends",
+      "demas",
+      "bypath",
+      "doubting",
     ]);
-    expect(totalStoryBeats).toBeGreaterThanOrEqual(155);
+    expect(totalStoryBeats).toBeGreaterThanOrEqual(190);
   });
 
   it("gates every beat behind a meaningful interaction", () => {
@@ -61,10 +65,10 @@ describe("Part One story journey", () => {
   });
 
   it("adds mechanical trials to every major journey phase", () => {
-    expect(Object.keys(puzzles).length).toBeGreaterThanOrEqual(34);
+    expect(Object.keys(puzzles).length).toBeGreaterThanOrEqual(47);
     expect(
       new Set(Object.keys(puzzles).map((key) => key.split(":")[0])).size,
-    ).toBeGreaterThanOrEqual(18);
+    ).toBeGreaterThanOrEqual(22);
   });
 
   it("preserves the full Apollyon encounter and recovery arc", () => {
@@ -108,7 +112,20 @@ describe("Part One story journey", () => {
     )!;
     expect(martyrdom.dialogue.join(" ")).toContain("silhouette and sound");
     expect(martyrdom.dialogue.join(" ")).not.toMatch(/\b(?:blood|gore|dismember)\b/i);
-    expect(storyScenes.at(-1)?.id).toBe("hopeful");
-    expect(storyScenes.at(-1)?.steps.at(-1)?.id).toBe("road-beyond-vanity");
+    expect(
+      storyScenes.find((scene) => scene.id === "hopeful")?.steps.at(-1)?.id,
+    ).toBe("road-beyond-vanity");
+  });
+
+  it("presents Doubting Castle safely and preserves the Key of Promise", () => {
+    const castle = storyScenes.find((scene) => scene.id === "doubting")!;
+    const text = castle.steps
+      .flatMap((step) => [step.objective, ...step.dialogue])
+      .join(" ");
+    expect(text).not.toMatch(/\b(?:blood|gore|method|weapon against himself)\b/i);
+    expect(castle.steps.find((step) => step.id === "remember-key")).toMatchObject({
+      keyOfPromise: true,
+    });
+    expect(castle.steps.at(-1)?.id).toBe("warning-monument");
   });
 });
