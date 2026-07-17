@@ -9,7 +9,7 @@ test("loads the first playable frame under production CSP", async ({ page }) => 
   });
 
   await page.goto("/");
-  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await page.getByRole("button", { name: "Begin the journey" }).click();
 
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible();

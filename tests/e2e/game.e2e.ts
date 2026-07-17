@@ -14,7 +14,7 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   const title = page.getByTestId("title-screen");
   await expect(title).toBeVisible();
   await expect(title).toContainText("WASD or arrow keys");
-  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await page.getByRole("button", { name: "Begin the journey" }).click();
   await expect(page.getByTestId("game-screen")).toBeVisible();
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
   await expect(page.locator("canvas")).toBeVisible();
@@ -26,10 +26,39 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await page.keyboard.press("ArrowUp");
 });
 
+test("credits the original work and offers the source edition", async ({
+  page,
+}) => {
+  await page.getByRole("link", { name: "About this adaptation" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "A seventeenth-century pilgrimage, rebuilt as a world to explore.",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("First published in 1678")).toBeVisible();
+
+  const download = page.getByRole("link", { name: "Download the book" });
+  await expect(download).toHaveAttribute(
+    "href",
+    "/downloads/the-pilgrims-progress-john-bunyan.pdf",
+  );
+  await expect(download).toHaveAttribute("download", "");
+  await expect(
+    page.getByRole("link", { name: "Courtesy and support" }),
+  ).toHaveAttribute("href", "https://johnbunyan.org/donate/");
+
+  const response = await page.request.get(
+    "/downloads/the-pilgrims-progress-john-bunyan.pdf",
+  );
+  expect(response.ok()).toBe(true);
+  expect(response.headers()["content-type"]).toContain("application/pdf");
+  expect((await response.body()).byteLength).toBe(870_838);
+});
+
 test("offers brighter visibility and persists the selection", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await page.getByRole("button", { name: "Begin the journey" }).click();
   const visibility = page.getByRole("button", { name: /Visibility:/ });
   await expect(visibility).toContainText("bright");
   await visibility.evaluate((element) =>
@@ -82,7 +111,7 @@ test("shows a readable continue action on chapter completion", async ({
 test("rotates the camera and moves relative to its heading", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await page.getByRole("button", { name: "Begin the journey" }).click();
   const canvas = page.locator("canvas");
   await expect(canvas).toHaveAttribute("data-camera-yaw", "0.000");
   const bounds = await canvas.boundingBox();
@@ -378,7 +407,7 @@ test("completes the full Dream-to-Doubting journey through real controls", async
     "Full keyboard journey runs in desktop project; mobile retains smoke coverage.",
   );
   test.setTimeout(3_600_000);
-  await page.getByRole("button", { name: "Enter the dream" }).click();
+  await page.getByRole("button", { name: "Begin the journey" }).click();
   await expect(page.locator("canvas")).toBeVisible();
   const journeyStartedAt = Date.now();
   const cue = page.locator(".navigation-cue");

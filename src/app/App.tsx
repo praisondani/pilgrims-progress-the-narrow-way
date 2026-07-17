@@ -69,37 +69,137 @@ function Title() {
   const start = useGame((s) => s.start);
   return (
     <main className="title-screen" data-testid="title-screen">
-      <div className="title-vignette" />
-      <section className="title-copy">
-        <p className="eyebrow">AN INTERACTIVE DREAM</p>
-        <h1>
-          Pilgrim’s
-          <br />
-          <em>Progress</em>
-        </h1>
-        <p className="subtitle">The Narrow Way</p>
-        <p className="intro">
-          A detailed story journey from the City of Destruction through
-          Doubting Castle. Explore, listen, discern, defend, endure, and carry
-          Christian through each symbolic trial.
-        </p>
-        <button
-          className="primary"
-          onClick={() => {
-            gameAudio.start();
-            start();
-          }}
-        >
-          Enter the dream <span>→</span>
-        </button>
-        <p className="hint">
-          WASD or arrow keys to walk · E to interact · Shift to jog · Space to
-          jump · Drag to look 360° · Scroll to zoom · R to recenter
-        </p>
+      <section className="title-hero" aria-labelledby="game-title">
+        <div className="title-copy">
+          <p className="eyebrow">AN INTERACTIVE DREAM</p>
+          <h1 id="game-title">
+            Pilgrim’s
+            <br />
+            <em>Progress</em>
+          </h1>
+          <p className="subtitle">The Narrow Way</p>
+          <p className="intro">
+            A story-driven 3D adaptation of John Bunyan’s 1678 allegory. Walk
+            with Christian from the City of Destruction through Doubting
+            Castle, where every person, place, and trial carries a deeper
+            meaning.
+          </p>
+          <div className="title-actions">
+            <button
+              className="primary"
+              onClick={() => {
+                gameAudio.start();
+                start();
+              }}
+            >
+              Begin the journey <span>→</span>
+            </button>
+            <a href="#about-the-work">About this adaptation</a>
+          </div>
+          <p className="hint">
+            Move with WASD or arrow keys · Interact with E · Drag to look 360°
+            · Press R to recenter
+          </p>
+        </div>
+        <div className="title-art" aria-label="Journey overview">
+          <div className="title-vignette" aria-hidden="true" />
+          <dl className="journey-facts">
+            <div>
+              <dt>25</dt>
+              <dd>chapters playable</dd>
+            </div>
+            <div>
+              <dt>191</dt>
+              <dd>story beats</dd>
+            </div>
+            <div>
+              <dt>47</dt>
+              <dd>symbolic trials</dd>
+            </div>
+          </dl>
+          <blockquote>
+            “I saw a man clothed with rags… and a great burden upon his back.”
+            <cite>John Bunyan, The Pilgrim’s Progress</cite>
+          </blockquote>
+        </div>
       </section>
-      <blockquote>
-        “I saw a man clothed with rags… and a great burden upon his back.”
-      </blockquote>
+
+      <section className="story-about" id="about-the-work">
+        <header>
+          <p className="eyebrow">BOOK, DREAM, AND PLAYABLE JOURNEY</p>
+          <h2>A seventeenth-century pilgrimage, rebuilt as a world to explore.</h2>
+          <p>
+            The Narrow Way invites new readers into Bunyan’s allegory without
+            pretending to replace it. Play the journey here, then meet the
+            original work in its own words.
+          </p>
+        </header>
+
+        <div className="about-grid">
+          <article>
+            <span>01</span>
+            <p className="eyebrow">THE ORIGINAL WORK</p>
+            <h3>The Pilgrim’s Progress by John Bunyan</h3>
+            <p>
+              First published in 1678, Part One is told under the similitude of
+              a dream. It follows Christian from the City of Destruction toward
+              the Celestial City. Along the road, characters and landscapes
+              embody fear, pride, compromise, grace, perseverance, fellowship,
+              and hope.
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <p className="eyebrow">OUR ADAPTATION</p>
+            <h3>From allegorical page to interactive place</h3>
+            <p>
+              We preserved Bunyan’s route, major characters, symbols, and
+              Christian theological arc, then translated them into 3D
+              exploration, conversations, discernment puzzles, conflict,
+              companionship, and a pilgrim’s journal. Dialogue is sometimes
+              condensed or newly written for play, while environments are
+              visual interpretations of the text.
+            </p>
+          </article>
+        </div>
+
+        <aside className="reader-card">
+          <div>
+            <p className="eyebrow">READ THE SOURCE</p>
+            <h3>The Pilgrim’s Progress — Part One</h3>
+            <p>
+              Complete, unabridged reading edition · 66 pages · PDF · 850 KB
+            </p>
+          </div>
+          <div className="reader-actions">
+            <a
+              className="primary"
+              href="/downloads/the-pilgrims-progress-john-bunyan.pdf"
+              download
+            >
+              Download the book <span>↓</span>
+            </a>
+            <a
+              href="https://johnbunyan.org/donate/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Courtesy and support ↗
+            </a>
+          </div>
+          <small>
+            PDF supplied through the John Bunyan Museum website; this edition
+            was published by Chapel Library. Its reproduction notice remains
+            included in the unchanged file.
+          </small>
+        </aside>
+
+        <footer>
+          This independent browser adaptation is a work in progress. The
+          current journey reaches Doubting Castle; later chapters toward the
+          Celestial City are in development.
+        </footer>
+      </section>
     </main>
   );
 }
