@@ -92,16 +92,16 @@ function CameraRig() {
   });
   return (
     <>
-      <PerspectiveCamera ref={rig} makeDefault fov={48} position={[0, 5, 12]} />
+      <PerspectiveCamera ref={rig} makeDefault fov={44} position={[0, 5.8, 11.5]} />
       <OrbitControls
         ref={controls}
         enablePan={false}
         enableDamping
-        dampingFactor={0.08}
+        dampingFactor={0.07}
         minDistance={5.2}
         maxDistance={12.5}
-        minPolarAngle={0.2}
-        maxPolarAngle={1.35}
+        minPolarAngle={0.42}
+        maxPolarAngle={1.28}
         onStart={() => {
           dragging.current = true;
           lastLook.current = performance.now();

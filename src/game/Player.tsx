@@ -169,7 +169,7 @@ export function Player() {
       enabledRotations={[false, false, false]}
     >
       <CapsuleCollider args={[0.42, 0.38]} />
-      <group ref={model} rotation={[0, Math.PI, 0]}>
+      <group ref={model} position={[0, -0.58, 0]} rotation={[0, Math.PI, 0]}>
         <Character
           variant="christian"
           walking={walking}

@@ -379,23 +379,21 @@ export function World() {
   const scene = storyScenes[sceneIndex];
   const bright = visibility !== "standard";
   const ground = new Color(scene.palette.ground).lerp(
-    new Color("#b9ad98"),
-    bright ? 0.14 : 0.06,
+    new Color("#7faa61"),
+    bright ? 0.28 : 0.16,
   );
+  const sky = new Color(scene.palette.sky).lerp(
+    new Color("#9ccbd8"),
+    bright ? 0.24 : 0.13,
+  );
+  const earth = ground.clone().lerp(new Color("#75533a"), 0.62);
+  const path = ground.clone().lerp(new Color("#e4c887"), 0.28);
   return (
     <>
-      <color
-        attach="background"
-        args={[
-          new Color(scene.palette.sky).lerp(
-            new Color("#887f87"),
-            bright ? 0.13 : 0.04,
-          ),
-        ]}
-      />
+      <color attach="background" args={[sky]} />
       <fog
         attach="fog"
-        args={[scene.palette.fog, bright ? 18 : 15, bright ? 48 : 40]}
+        args={[sky.clone().lerp(new Color(scene.palette.fog), 0.45), bright ? 20 : 17, bright ? 52 : 44]}
       />
       <hemisphereLight
         intensity={bright ? 2.25 : 1.75}
@@ -408,6 +406,8 @@ export function World() {
         intensity={bright ? 3.6 : 3.1}
         color={scene.palette.light}
         shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0004}
+        shadow-radius={5}
       />
       <pointLight
         position={[
@@ -421,9 +421,17 @@ export function World() {
       />
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider args={[8, 0.25, 8]} position={[0, -0.25, 0]} />
-        <mesh receiveShadow position={[0, -0.3, 0]}>
-          <boxGeometry args={[40, 0.5, 40]} />
+        <mesh receiveShadow position={[0, -0.34, 0]}>
+          <cylinderGeometry args={[10.7, 11.35, 0.68, 64]} />
+          <meshStandardMaterial color={earth} roughness={1} />
+        </mesh>
+        <mesh receiveShadow position={[0, 0.005, 0]}>
+          <cylinderGeometry args={[10.7, 10.7, 0.04, 64]} />
           <meshStandardMaterial color={ground} roughness={0.96} />
+        </mesh>
+        <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[9.72, 10.54, 64]} />
+          <meshStandardMaterial color={path} roughness={1} transparent opacity={0.2} />
         </mesh>
       </RigidBody>
       <SceneEnvironment

@@ -115,10 +115,10 @@ export function Character({
   const [cloth, accent, skin] = clothes[variant];
   const torsoScale: [number, number, number] =
     variant === "faithful"
-      ? [0.74, 1.04, 0.52]
+      ? [0.86, 0.88, 0.64]
       : variant === "hopeful"
-        ? [0.82, 1.02, 0.57]
-        : [0.86, 1, 0.58];
+        ? [0.92, 0.86, 0.68]
+        : [0.98, 0.84, 0.7];
   const reducedMotion = useGame((s) => s.reducedMotion);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
@@ -160,11 +160,11 @@ export function Character({
     <group ref={root} scale={scale}>
       <group ref={torso}>
         <mesh castShadow position={[0, 1.02, 0]} scale={torsoScale}>
-          <capsuleGeometry args={[0.32, 0.52, 8, 16]} />
+          <capsuleGeometry args={[0.38, 0.42, 10, 18]} />
           <meshStandardMaterial color={cloth} roughness={0.88} />
         </mesh>
-        <mesh castShadow position={[0, 0.76, 0]}>
-          <cylinderGeometry args={[0.33, 0.39, 0.48, 12]} />
+        <mesh castShadow position={[0, 0.75, 0]}>
+          <cylinderGeometry args={[0.38, 0.45, 0.48, 18]} />
           <meshStandardMaterial color={cloth} roughness={0.92} />
         </mesh>
         <mesh position={[0, 1.18, 0.29]} scale={[1, 0.65, 0.3]}>
@@ -185,43 +185,55 @@ export function Character({
         )}
       </group>
 
-      <mesh castShadow position={[0, 1.48, 0]}>
-        <cylinderGeometry args={[0.1, 0.12, 0.18, 10]} />
+      <mesh castShadow position={[0, 1.39, 0]}>
+        <cylinderGeometry args={[0.11, 0.13, 0.16, 12]} />
         <meshStandardMaterial color={skin} roughness={0.78} />
       </mesh>
-      <group position={[0, 1.7, 0]}>
-        <mesh castShadow scale={[0.92, 1.08, 0.9]}>
-          <sphereGeometry args={[0.27, 18, 14]} />
+      <group position={[0, 1.65, 0]}>
+        <mesh castShadow scale={[1, 1.04, 0.94]}>
+          <sphereGeometry args={[0.37, 22, 18]} />
           <meshStandardMaterial color={skin} roughness={0.76} />
         </mesh>
-        <mesh castShadow position={[0, 0.16, -0.025]} scale={[1, 0.55, 1]}>
-          <sphereGeometry args={[0.285, 16, 10]} />
+        <mesh castShadow position={[0, 0.22, -0.035]} scale={[1, 0.58, 1]}>
+          <sphereGeometry args={[0.38, 20, 14]} />
           <meshStandardMaterial color={darkHair} roughness={0.95} />
         </mesh>
-        <mesh position={[0, -0.015, 0.255]} scale={[0.55, 0.8, 0.75]}>
-          <sphereGeometry args={[0.065, 10, 8]} />
+        {([-1, 1] as const).map((side) => (
+          <mesh key={`ear-${side}`} position={[side * 0.355, 0, 0]} scale={[0.65, 1, 0.5]}>
+            <sphereGeometry args={[0.09, 12, 9]} />
+            <meshStandardMaterial color={skin} roughness={0.8} />
+          </mesh>
+        ))}
+        <mesh position={[0, -0.015, 0.352]} scale={[0.6, 0.82, 0.72]}>
+          <sphereGeometry args={[0.075, 12, 9]} />
           <meshStandardMaterial color={skin} roughness={0.8} />
         </mesh>
-        {[-0.095, 0.095].map((x) => (
-          <group key={x} position={[x, 0.055, 0.247]}>
-            <mesh scale={[1, 0.7, 0.35]}>
-              <sphereGeometry args={[0.032, 10, 8]} />
+        {[-0.13, 0.13].map((x) => (
+          <group key={x} position={[x, 0.065, 0.342]}>
+            <mesh scale={[1, 0.78, 0.4]}>
+              <sphereGeometry args={[0.052, 12, 9]} />
               <meshStandardMaterial color="#f1dfcf" />
             </mesh>
             <mesh position={[0, 0, 0.012]}>
-              <sphereGeometry args={[0.013, 8, 6]} />
+              <sphereGeometry args={[0.023, 10, 8]} />
               <meshStandardMaterial color="#29241f" />
             </mesh>
           </group>
         ))}
+        {[-0.21, 0.21].map((x) => (
+          <mesh key={`cheek-${x}`} position={[x, -0.07, 0.326]} scale={[1.5, 0.7, 0.35]}>
+            <sphereGeometry args={[0.04, 10, 8]} />
+            <meshStandardMaterial color="#d98b79" transparent opacity={0.48} />
+          </mesh>
+        ))}
         {hasBeard && (
-          <mesh position={[0, -0.145, 0.19]} scale={[0.75, 0.9, 0.45]}>
-            <sphereGeometry args={[0.19, 12, 9]} />
+          <mesh position={[0, -0.19, 0.255]} scale={[0.8, 0.82, 0.42]}>
+            <sphereGeometry args={[0.23, 14, 10]} />
             <meshStandardMaterial color={darkHair} roughness={1} />
           </mesh>
         )}
-        <mesh position={[0, -0.085, 0.264]} rotation={[0.12, 0, 0]}>
-          <torusGeometry args={[0.055, 0.012, 6, 16, Math.PI]} />
+        <mesh position={[0, -0.105, 0.365]} rotation={[0.12, 0, 0]}>
+          <torusGeometry args={[0.065, 0.013, 7, 18, Math.PI]} />
           <meshStandardMaterial color="#70423d" />
         </mesh>
         {variant === "hategood" && (
@@ -242,18 +254,18 @@ export function Character({
         <group
           key={`arm-${side}`}
           ref={side < 0 ? leftArm : rightArm}
-          position={[side * 0.39, 1.25, 0]}
+          position={[side * 0.45, 1.21, 0]}
         >
-          <mesh castShadow position={[0, -0.21, 0]}>
-            <capsuleGeometry args={[0.105, 0.3, 6, 10]} />
+          <mesh castShadow position={[0, -0.17, 0]}>
+            <capsuleGeometry args={[0.125, 0.22, 8, 12]} />
             <meshStandardMaterial color={cloth} roughness={0.88} />
           </mesh>
-          <mesh castShadow position={[0, -0.51, 0.015]}>
-            <capsuleGeometry args={[0.085, 0.25, 6, 10]} />
+          <mesh castShadow position={[0, -0.42, 0.015]}>
+            <capsuleGeometry args={[0.1, 0.18, 8, 12]} />
             <meshStandardMaterial color={skin} roughness={0.78} />
           </mesh>
-          <mesh castShadow position={[0, -0.72, 0.025]} scale={[0.8, 1.1, 0.7]}>
-            <sphereGeometry args={[0.1, 10, 8]} />
+          <mesh castShadow position={[0, -0.59, 0.025]} scale={[0.86, 1, 0.74]}>
+            <sphereGeometry args={[0.13, 12, 9]} />
             <meshStandardMaterial color={skin} roughness={0.78} />
           </mesh>
         </group>
@@ -263,18 +275,18 @@ export function Character({
         <group
           key={`leg-${side}`}
           ref={side < 0 ? leftLeg : rightLeg}
-          position={[side * 0.17, 0.68, 0]}
+          position={[side * 0.19, 0.63, 0]}
         >
-          <mesh castShadow position={[0, -0.24, 0]}>
-            <capsuleGeometry args={[0.12, 0.3, 6, 10]} />
+          <mesh castShadow position={[0, -0.17, 0]}>
+            <capsuleGeometry args={[0.145, 0.2, 8, 12]} />
             <meshStandardMaterial color={accent} roughness={0.9} />
           </mesh>
-          <mesh castShadow position={[0, -0.56, 0]}>
-            <capsuleGeometry args={[0.105, 0.29, 6, 10]} />
+          <mesh castShadow position={[0, -0.4, 0]}>
+            <capsuleGeometry args={[0.125, 0.16, 8, 12]} />
             <meshStandardMaterial color={accent} roughness={0.92} />
           </mesh>
-          <mesh castShadow position={[0, -0.77, 0.08]} scale={[1, 0.7, 1.65]}>
-            <sphereGeometry args={[0.13, 10, 8]} />
+          <mesh castShadow position={[0, -0.56, 0.1]} scale={[1.05, 0.72, 1.65]}>
+            <sphereGeometry args={[0.15, 12, 9]} />
             <meshStandardMaterial color="#302820" roughness={1} />
           </mesh>
         </group>

@@ -367,19 +367,22 @@ button {
   display: flex;
   justify-content: space-between;
   padding: 1.1rem 1.4rem;
-  background: linear-gradient(#0a0710bb, transparent);
+  background: linear-gradient(#2635288f, transparent);
   pointer-events: none;
 }
 .hud p {
   margin: 0;
   font-size: 0.58rem;
   letter-spacing: 0.2em;
-  color: #a99782;
+  color: #fff4d8;
+  text-shadow: 0 1px 4px #17221b;
 }
 .hud strong {
   font:
     600 1.05rem "Cormorant Garamond",
     serif;
+  color: #fffaf0;
+  text-shadow: 0 2px 6px #17221b;
 }
 .hud-actions {
   display: flex;
@@ -388,11 +391,14 @@ button {
 }
 .hud button,
 .modal button {
-  border: 1px solid #ac936755;
-  background: #15111acb;
-  padding: 0.55rem 0.8rem;
+  border: 2px solid #fffaf0;
+  background: #fff4dfea;
+  color: #493d34;
+  padding: 0.55rem 0.85rem;
   border-radius: 99px;
   font-size: 0.72rem;
+  box-shadow: 0 4px 14px #27322733;
+  backdrop-filter: blur(10px);
 }
 .modal button.primary {
   border-color: #e5b864;
@@ -407,18 +413,21 @@ button {
   z-index: 3;
   left: 1.4rem;
   bottom: 1.4rem;
-  background: #100d18d9;
-  border: 1px solid #d2ad7044;
-  border-left: 2px solid #e0ab53;
-  padding: 0.8rem 1rem;
+  background: #fff8e9ed;
+  border: 3px solid #fffdf5;
+  border-left: 7px solid #e8a84d;
+  border-radius: 22px 22px 22px 7px;
+  padding: 0.85rem 1.05rem;
   width: min(340px, calc(100vw - 2.8rem));
   backdrop-filter: blur(12px);
+  box-shadow: 0 12px 30px #2433283d;
+  color: #453a32;
 }
 .objective span {
   font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #9d8b72;
+  color: #876e55;
 }
 .objective p {
   margin: 0.3rem 0;
@@ -430,7 +439,7 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 0.8rem;
-  color: #e6bd72;
+  color: #8b6429;
   font-size: 0.68rem;
 }
 .inventory-status .warning {
@@ -444,19 +453,20 @@ button {
   transform: translateX(-50%);
   width: min(680px, 88vw);
   padding: 1.15rem 1.4rem;
-  background: #15111af2;
-  border: 1px solid #e8bd7788;
+  background: #fff8eaf5;
+  border: 3px solid #fffdf7;
+  border-radius: 28px 28px 28px 8px;
   font:
     600 1.2rem/1.5 "Cormorant Garamond",
     serif;
-  box-shadow: 0 15px 60px #000a;
+  box-shadow: 0 16px 44px #25322755;
   text-align: left;
-  color: #f6ead0;
+  color: #40362f;
 }
 .dialogue small {
   display: block;
   font: 400 0.58rem Inter;
-  color: #948983;
+  color: #8b7567;
   margin-top: 0.4rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -469,7 +479,7 @@ button {
 }
 .choice p {
   margin: 0.1rem 0 0.8rem;
-  color: #b8aaa3;
+  color: #79695f;
   font: 500 0.72rem Inter;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -478,14 +488,16 @@ button {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  border: 1px solid #a88c6044;
-  background: #251c27;
+  border: 2px solid #d9c8a8;
+  background: #f2e4c9;
+  color: #453a32;
+  border-radius: 16px;
   padding: 0.85rem;
   margin-top: 0.45rem;
 }
 .choice button:hover {
-  border-color: #ddb169;
-  background: #302331;
+  border-color: #83a75f;
+  background: #e4eed3;
 }
 .modal {
   position: fixed;
@@ -541,8 +553,10 @@ button {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid #d9ba8155;
-  background: #17121cbf;
+  border: 2px solid #fffdf5;
+  background: #fff5dfed;
+  color: #4d4037;
+  box-shadow: 0 5px 16px #26332840;
 }
 .story-progress {
   position: absolute;
@@ -551,19 +565,24 @@ button {
   transform: translateX(-50%);
   width: min(240px, 24vw);
   height: 3px;
-  background: #ffffff18;
+  height: 5px;
+  border-radius: 99px;
+  background: #fffdf266;
+  box-shadow: 0 2px 7px #1d2a223d;
 }
 .story-progress i {
   display: block;
   height: 100%;
-  background: #dca753;
+  border-radius: 99px;
+  background: #9bc36b;
   transition: width 0.5s;
 }
 .story-progress span {
   position: absolute;
   right: 0;
   top: 0.4rem;
-  color: #998c7e;
+  color: #fff8e7;
+  text-shadow: 0 1px 4px #17221b;
   font-size: 0.55rem;
   letter-spacing: 0.1em;
 }
@@ -584,11 +603,12 @@ button {
   left: 50%;
   bottom: 24%;
   transform: translateX(-50%);
-  border: 1px solid #e1b56d88;
-  background: #17121de8;
+  border: 3px solid #fffdf5;
+  background: #fff6e7f2;
+  color: #493c33;
   border-radius: 99px;
   padding: 0.65rem 1rem;
-  box-shadow: 0 8px 30px #0008;
+  box-shadow: 0 10px 28px #25322752;
 }
 .interact-prompt kbd {
   display: inline-grid;
@@ -596,8 +616,8 @@ button {
   width: 1.55rem;
   height: 1.55rem;
   margin-right: 0.4rem;
-  background: #e2b467;
-  color: #17111a;
+  background: #88ad64;
+  color: #fffdf5;
   border-radius: 50%;
   font: 700 0.7rem Inter;
 }
@@ -607,10 +627,12 @@ button {
   top: 5.2rem;
   left: 50%;
   transform: translateX(-50%);
-  background: #17121dea;
-  border: 1px solid #aa8c5d55;
+  background: #fff6e7ef;
+  border: 2px solid #fffdf5;
+  border-radius: 16px;
   padding: 0.65rem 1rem;
-  color: #cbbfb3;
+  color: #4c4038;
+  box-shadow: 0 8px 24px #25322740;
   font-size: 0.75rem;
 }
 .chapter-card section {

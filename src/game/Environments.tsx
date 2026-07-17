@@ -112,10 +112,16 @@ function Field({ target }: { target: Target }) {
     <>
       <Stars radius={35} depth={20} count={450} factor={1.5} fade />
       <GrassMeadow count={82} color="#536b45" />
-      <mesh position={[0, -1, -8]} scale={[2, 1, 1]}>
-        <sphereGeometry args={[6, 24, 12]} />
-        <meshStandardMaterial color="#344660" roughness={1} />
-      </mesh>
+      <group position={[0, 0, -8.5]}>
+        <mesh position={[-3.8, -1.65, 0]} scale={[1.35, 0.42, 0.72]}>
+          <sphereGeometry args={[6, 24, 12]} />
+          <meshStandardMaterial color="#536b65" roughness={1} />
+        </mesh>
+        <mesh position={[4.2, -1.9, -1.2]} scale={[1.15, 0.36, 0.64]}>
+          <sphereGeometry args={[6, 24, 12]} />
+          <meshStandardMaterial color="#5e7468" roughness={1} />
+        </mesh>
+      </group>
       {[
         [-6, 0, -4],
         [6, 0, -2],
