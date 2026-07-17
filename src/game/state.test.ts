@@ -74,4 +74,35 @@ describe("story progression state machine", () => {
       checkpointRevision: 1,
     });
   });
+
+  it("tracks the sealed roll through loss and recovery", () => {
+    useGame.setState({
+      sceneIndex: 11,
+      stepIndex: 1,
+      hasRoll: true,
+      nearby: true,
+    });
+    useGame.getState().interact();
+    while (useGame.getState().dialogue) useGame.getState().advanceDialogue();
+    expect(useGame.getState().hasRoll).toBe(false);
+    useGame.setState({ stepIndex: 6, nearby: true });
+    useGame.getState().interact();
+    while (useGame.getState().dialogue) useGame.getState().advanceDialogue();
+    expect(useGame.getState().hasRoll).toBe(true);
+  });
+
+  it("equips Christian at Palace Beautiful", () => {
+    useGame.setState({ sceneIndex: 13, stepIndex: 7, nearby: true });
+    useGame.getState().interact();
+    expect(useGame.getState().puzzleActive).toBe(true);
+    useGame.getState().completePuzzle();
+    while (useGame.getState().dialogue) useGame.getState().advanceDialogue();
+    expect(useGame.getState().equipment).toEqual([
+      "sword",
+      "shield",
+      "helmet",
+      "breastplate",
+      "shoes",
+    ]);
+  });
 });

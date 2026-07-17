@@ -10,6 +10,8 @@ type GameState = {
   sceneIndex: number;
   stepIndex: number;
   burden: number;
+  hasRoll: boolean;
+  equipment: string[];
   nearby: boolean;
   message?: string;
   dialogue?: string[];
@@ -56,6 +58,8 @@ function finishStep(state: GameState) {
       ? [...state.journal, step.journal]
       : state.journal;
   const burden = step.burden ?? state.burden;
+  const hasRoll = step.roll ?? state.hasRoll;
+  const equipment = step.equipment ?? state.equipment;
   if (state.stepIndex === scene.steps.length - 1)
     return {
       dialogue: undefined,
@@ -65,6 +69,8 @@ function finishStep(state: GameState) {
       nearby: false,
       journal,
       burden,
+      hasRoll,
+      equipment,
       puzzleSolvedCurrent: false,
       puzzleActive: false,
       guidedTravel: false,
@@ -77,6 +83,8 @@ function finishStep(state: GameState) {
     nearby: false,
     journal,
     burden,
+    hasRoll,
+    equipment,
     puzzleSolvedCurrent: false,
     puzzleActive: false,
     guidedTravel: false,
@@ -92,6 +100,8 @@ export const useGame = create<GameState>()(
       sceneIndex: 0,
       stepIndex: 0,
       burden: 0,
+      hasRoll: false,
+      equipment: [],
       nearby: false,
       dialogueIndex: 0,
       choosing: false,
@@ -116,6 +126,8 @@ export const useGame = create<GameState>()(
           sceneIndex: 0,
           stepIndex: 0,
           burden: 0,
+          hasRoll: false,
+          equipment: [],
           nearby: false,
           dialogue: undefined,
           dialogueIndex: 0,
@@ -231,12 +243,14 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 3,
+      version: 4,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
         stepIndex: state.stepIndex,
         burden: state.burden,
+        hasRoll: state.hasRoll,
+        equipment: state.equipment,
         journal: state.journal,
         gameComplete: state.gameComplete,
         soundEnabled: state.soundEnabled,
@@ -245,6 +259,32 @@ export const useGame = create<GameState>()(
         reducedMotion: state.reducedMotion,
         cinematicCamera: state.cinematicCamera,
       }),
+      migrate: (persisted, version) => {
+        const saved = persisted as Partial<GameState>;
+        const sceneIndex = Number(saved.sceneIndex) || 0;
+        const stepIndex = Number(saved.stepIndex) || 0;
+        return {
+          started: saved.started ?? false,
+          sceneIndex,
+          stepIndex,
+          burden: Number(saved.burden) || 0,
+          hasRoll:
+            version < 4
+              ? sceneIndex > 7 || (sceneIndex === 7 && stepIndex >= 5)
+              : (saved.hasRoll ?? false),
+          equipment:
+            version < 4 || !Array.isArray(saved.equipment)
+              ? []
+              : saved.equipment,
+          journal: Array.isArray(saved.journal) ? saved.journal : [],
+          gameComplete: version < 4 ? false : (saved.gameComplete ?? false),
+          soundEnabled: saved.soundEnabled ?? true,
+          visibility: saved.visibility ?? "bright",
+          textSize: saved.textSize ?? "normal",
+          reducedMotion: saved.reducedMotion ?? false,
+          cinematicCamera: saved.cinematicCamera ?? true,
+        };
+      },
       merge: (persisted, current) => {
         const saved = persisted as Partial<GameState>;
         const sceneIndex = Math.max(

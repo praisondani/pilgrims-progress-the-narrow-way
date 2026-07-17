@@ -79,9 +79,9 @@ function Title() {
         </h1>
         <p className="subtitle">The Narrow Way</p>
         <p className="intro">
-          A detailed story journey from the City of Destruction to the Cross.
-          Explore, listen, discern, and carry Christian through each symbolic
-          trial.
+          A detailed story journey from the City of Destruction through Palace
+          Beautiful. Explore, listen, discern, and carry Christian through each
+          symbolic trial.
         </p>
         <button
           className="primary"
@@ -196,12 +196,19 @@ function Overlay() {
       <aside className="objective">
         <span>Current objective</span>
         <p>{step.objective}</p>
-        <div className="light-count">
-          {game.burden
-            ? "◆ Burden carried"
-            : scene.id === "dream"
-              ? "◇ The dream begins"
-              : "✦ Burden released"}
+        <div className="inventory-status">
+          <span>
+            {game.burden
+              ? "◆ Burden carried"
+              : scene.id === "dream"
+                ? "◇ The dream begins"
+                : "✦ Burden released"}
+          </span>
+          {game.hasRoll && <span>▣ Sealed roll secured</span>}
+          {scene.id === "arbor" && !game.hasRoll && (
+            <span className="warning">□ Sealed roll missing</span>
+          )}
+          {game.equipment.length > 0 && <span>⚔ Equipped for valleys</span>}
         </div>
         <NavigationCue
           target={step.position}
@@ -259,7 +266,7 @@ function Overlay() {
             </div>
             <button className="primary" onClick={game.continueScene}>
               {game.sceneIndex === storyScenes.length - 1
-                ? "Complete MVP"
+                ? "Complete palace stay"
                 : "Continue the journey"}{" "}
               →
             </button>
@@ -269,16 +276,16 @@ function Overlay() {
       {game.gameComplete && (
         <div className="modal ending">
           <section>
-            <p className="eyebrow">THE BURDEN HAS FALLEN</p>
-            <h2>The road continues.</h2>
+            <p className="eyebrow">RESTED AND EQUIPPED</p>
+            <h2>The valley waits.</h2>
             <p>
-              Christian has reached the Cross, received clean clothing and the
-              sealed roll, and now sees the greater journey toward the Celestial
-              City.
+              Christian has passed the Cross, recovered his sealed roll, faced
+              the chained lions, and received fellowship and armor at Palace
+              Beautiful.
             </p>
             <div className="ending-road">
-              Hill Difficulty · Palace Beautiful · Valley of Humiliation ·
-              Vanity Fair · Doubting Castle · Celestial City
+              Valley of Humiliation · Apollyon · Shadow of Death · Faithful ·
+              Vanity Fair · Celestial City
             </div>
             <button className="primary" onClick={game.reset}>
               Dream again

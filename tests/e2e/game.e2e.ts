@@ -112,7 +112,77 @@ test("rotates the camera and moves relative to its heading", async ({
   await page.keyboard.press("r");
 });
 
-test("completes the full Dream-to-Cross journey through real controls", async ({
+test("migrates an old Cross ending into the expanded journey", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 7,
+          stepIndex: 6,
+          burden: 0,
+          gameComplete: true,
+        },
+        version: 3,
+      }),
+    ),
+  );
+  await page.reload();
+  await expect(page.getByTestId("game-hud")).toContainText("The Cross");
+  await expect(page.locator(".ending")).toBeHidden();
+  await expect(page.locator(".inventory-status")).toContainText(
+    "Sealed roll secured",
+  );
+});
+
+test("completes Palace Beautiful and prepares the valley journey", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 13,
+          stepIndex: 8,
+          burden: 0,
+          hasRoll: true,
+          equipment: ["sword", "shield", "helmet", "breastplate", "shoes"],
+          journal: [],
+          gameComplete: false,
+          soundEnabled: false,
+          visibility: "bright",
+          textSize: "normal",
+          reducedMotion: false,
+          cinematicCamera: true,
+        },
+        version: 4,
+      }),
+    ),
+  );
+  await page.reload();
+  const cue = page.locator(".navigation-cue");
+  const interactPrompt = page.locator(".interact-prompt");
+  await cue.evaluate((element) => (element as HTMLButtonElement).click());
+  await expect(interactPrompt).toBeVisible({ timeout: 18_000 });
+  await page.evaluate(() =>
+    document.querySelector<HTMLButtonElement>(".interact-prompt")?.click(),
+  );
+  const spoken = page.locator(".spoken");
+  await expect(spoken).toBeVisible();
+  for (let line = 0; line < 3; line++) await spoken.click({ force: true });
+  const chapterCta = page.locator(".chapter-card .primary");
+  await expect(chapterCta).toContainText("Complete palace stay");
+  await chapterCta.click();
+  await expect(page.locator(".ending")).toContainText("The valley waits");
+});
+
+test("completes the full Dream-to-Palace journey through real controls", async ({
   page,
   isMobile,
 }) => {
@@ -120,9 +190,10 @@ test("completes the full Dream-to-Cross journey through real controls", async ({
     Boolean(isMobile),
     "Full keyboard journey runs in desktop project; mobile retains smoke coverage.",
   );
-  test.setTimeout(720_000);
+  test.setTimeout(1_800_000);
   await page.getByRole("button", { name: "Enter the dream" }).click();
   await expect(page.locator("canvas")).toBeVisible();
+  const journeyStartedAt = Date.now();
   const cue = page.locator(".navigation-cue");
   const interactPrompt = page.locator(".interact-prompt");
   const walkToTarget = async () => {
@@ -145,6 +216,9 @@ test("completes the full Dream-to-Cross journey through real controls", async ({
 
   for (let sceneIndex = 0; sceneIndex < storyScenes.length; sceneIndex++) {
     const scene = storyScenes[sceneIndex];
+    console.info(
+      `[journey] ${sceneIndex + 1}/${storyScenes.length} ${scene.id} (${Math.round((Date.now() - journeyStartedAt) / 1000)}s)`,
+    );
     await expect(page.getByTestId("game-hud")).toContainText(scene.title);
 
     for (const step of scene.steps) {
@@ -204,7 +278,7 @@ test("completes the full Dream-to-Cross journey through real controls", async ({
     await expect(chapterCta).toBeVisible();
     await expect(chapterCta).toContainText(
       sceneIndex === storyScenes.length - 1
-        ? "Complete MVP"
+        ? "Complete palace stay"
         : "Continue the journey",
     );
     await expect
@@ -219,5 +293,8 @@ test("completes the full Dream-to-Cross journey through real controls", async ({
   }
 
   await expect(page.locator(".ending")).toBeVisible();
-  await expect(page.locator(".ending")).toContainText("The road continues");
+  await expect(page.locator(".ending")).toContainText("The valley waits");
+  console.info(
+    `[journey] complete (${Math.round((Date.now() - journeyStartedAt) / 1000)}s)`,
+  );
 });

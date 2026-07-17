@@ -24,6 +24,8 @@ export function Player() {
   const {
     paused,
     burden,
+    hasRoll,
+    equipment,
     sceneIndex,
     puzzleActive,
     dialogue,
@@ -130,7 +132,13 @@ export function Player() {
     >
       <CapsuleCollider args={[0.42, 0.38]} />
       <group ref={model} rotation={[0, Math.PI, 0]}>
-        <Character variant="christian" walking={walking} burden={burden > 0} />
+        <Character
+          variant="christian"
+          walking={walking}
+          burden={burden > 0}
+          hasRoll={hasRoll}
+          equipped={equipment.length > 0}
+        />
       </group>
     </RigidBody>
   );

@@ -7,6 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "check:bundle": "node tools/check-bundle.mjs",
+    "check:secrets": "node tools/check-secrets.mjs",
     "e2e": "playwright test",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run"

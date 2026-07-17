@@ -21,6 +21,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run check:bundle
+      - run: npm run check:secrets
 
   browser:
     runs-on: ubuntu-latest

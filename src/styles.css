@@ -204,9 +204,15 @@ button {
     600 1.15rem "Cormorant Garamond",
     serif;
 }
-.light-count {
+.inventory-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
   color: #e6bd72;
   font-size: 0.68rem;
+}
+.inventory-status .warning {
+  color: #f2a46f;
 }
 .dialogue {
   position: fixed;

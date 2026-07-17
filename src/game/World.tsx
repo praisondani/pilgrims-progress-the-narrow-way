@@ -24,6 +24,18 @@ function personFor(id: string): CharacterVariant {
   if (id === "goodwill") return "goodwill";
   if (id === "cage") return "caged";
   if (id === "new-clothing") return "shining";
+  if (id === "simple") return "simple";
+  if (id === "sloth") return "sloth";
+  if (id === "presumption") return "presumption";
+  if (id.includes("formalist")) return "formalist";
+  if (id.includes("hypocrisy")) return "hypocrisy";
+  if (id === "timorous") return "timorous";
+  if (id === "mistrust") return "mistrust";
+  if (id.includes("watchful")) return "watchful";
+  if (id === "discretion") return "discretion";
+  if (id === "prudence") return "prudence";
+  if (id === "piety") return "piety";
+  if (id === "charity") return "charity";
   return "interpreter";
 }
 function TargetShape({
@@ -35,6 +47,34 @@ function TargetShape({
   light: string;
   id: string;
 }) {
+  if (
+    [
+      "simple",
+      "sloth",
+      "presumption",
+      "formalist-arrives",
+      "hypocrisy-arrives",
+      "watchful-gate",
+      "discretion",
+      "prudence",
+      "piety",
+      "charity",
+    ].includes(id)
+  )
+    return <group />;
+  if (id === "observe-lions")
+    return (
+      <group position={[0, 0.65, 0]}>
+        <mesh castShadow scale={[1.35, 0.8, 0.8]}>
+          <sphereGeometry args={[0.55, 14, 10]} />
+          <meshStandardMaterial color="#ad7737" roughness={0.9} />
+        </mesh>
+        <mesh castShadow position={[0, 0.3, 0.55]}>
+          <sphereGeometry args={[0.4, 14, 10]} />
+          <meshStandardMaterial color="#6b4325" roughness={1} />
+        </mesh>
+      </group>
+    );
   if (kind === "person") return <Character variant={personFor(id)} />;
   if (kind === "gate") return <StoneArch position={[0, 0, 0]} gate />;
   if (kind === "cross") return <CrossMonument />;

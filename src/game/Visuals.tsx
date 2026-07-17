@@ -15,7 +15,19 @@ export type CharacterVariant =
   | "goodwill"
   | "interpreter"
   | "shining"
-  | "caged";
+  | "caged"
+  | "simple"
+  | "sloth"
+  | "presumption"
+  | "formalist"
+  | "hypocrisy"
+  | "timorous"
+  | "mistrust"
+  | "watchful"
+  | "discretion"
+  | "prudence"
+  | "piety"
+  | "charity";
 const clothes: Record<CharacterVariant, [string, string, string]> = {
   christian: ["#8f4939", "#493349", "#b97855"],
   dreamer: ["#4b556d", "#292b3a", "#9f7159"],
@@ -29,17 +41,33 @@ const clothes: Record<CharacterVariant, [string, string, string]> = {
   interpreter: ["#5b3f67", "#c59c58", "#a66d51"],
   shining: ["#e9e2c3", "#fff4bd", "#c79576"],
   caged: ["#34343b", "#53505b", "#876151"],
+  simple: ["#77705e", "#514c43", "#a9755c"],
+  sloth: ["#59644d", "#41483b", "#9f6f58"],
+  presumption: ["#8a6245", "#c19a58", "#b47a5d"],
+  formalist: ["#536a78", "#b88e55", "#ae765b"],
+  hypocrisy: ["#76516f", "#d1a86b", "#a86f58"],
+  timorous: ["#4f5967", "#3e4651", "#9d6a55"],
+  mistrust: ["#584d5d", "#3f3944", "#a76f58"],
+  watchful: ["#334f69", "#d2ad68", "#a66f55"],
+  discretion: ["#6d536b", "#c69d72", "#aa735b"],
+  prudence: ["#405f67", "#c7aa72", "#a96f58"],
+  piety: ["#615079", "#d1af75", "#ae765d"],
+  charity: ["#7d4f54", "#d1a06f", "#b77b61"],
 };
 
 export function Character({
   variant = "christian",
   walking = false,
   burden = false,
+  hasRoll = false,
+  equipped = false,
   scale = 1,
 }: {
   variant?: CharacterVariant;
   walking?: boolean;
   burden?: boolean;
+  hasRoll?: boolean;
+  equipped?: boolean;
   scale?: number;
 }) {
   const root = useRef<Group>(null);
@@ -211,6 +239,58 @@ export function Character({
             <meshStandardMaterial color="#8b6a4b" />
           </mesh>
         </group>
+      )}
+      {hasRoll && (
+        <group position={[0.31, 0.78, 0.23]} rotation={[0, 0, -0.12]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.075, 0.075, 0.42, 12]} />
+            <meshStandardMaterial color="#e4d3a0" roughness={0.86} />
+          </mesh>
+          <mesh position={[0, 0.22, 0]}>
+            <torusGeometry args={[0.08, 0.014, 6, 12]} />
+            <meshStandardMaterial color="#9b4338" />
+          </mesh>
+        </group>
+      )}
+      {equipped && (
+        <>
+          <mesh castShadow position={[0, 1.04, 0.31]} scale={[0.86, 1, 0.42]}>
+            <sphereGeometry args={[0.31, 12, 10]} />
+            <meshStandardMaterial
+              color="#7f8586"
+              metalness={0.65}
+              roughness={0.34}
+            />
+          </mesh>
+          <group position={[-0.49, 0.92, 0]} rotation={[0, 0, 0.08]}>
+            <mesh castShadow rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.34, 0.34, 0.08, 16]} />
+              <meshStandardMaterial
+                color="#65747a"
+                metalness={0.7}
+                roughness={0.35}
+              />
+            </mesh>
+            <mesh position={[0, 0, 0.06]}>
+              <boxGeometry args={[0.06, 0.5, 0.06]} />
+              <meshStandardMaterial color="#d1ae67" metalness={0.5} />
+            </mesh>
+          </group>
+          <group position={[0.48, 0.72, -0.05]} rotation={[0, 0, -0.18]}>
+            <mesh position={[0, 0.34, 0]}>
+              <boxGeometry args={[0.055, 0.78, 0.035]} />
+              <meshStandardMaterial
+                color="#b8bdba"
+                metalness={0.82}
+                roughness={0.24}
+              />
+            </mesh>
+            <mesh>
+              <boxGeometry args={[0.3, 0.05, 0.06]} />
+              <meshStandardMaterial color="#a77b43" />
+            </mesh>
+          </group>
+        </>
       )}
     </group>
   );

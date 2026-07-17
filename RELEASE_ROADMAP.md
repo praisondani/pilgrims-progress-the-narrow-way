@@ -4,6 +4,8 @@ Milestones run sequentially. Every milestone must keep local gameplay working, p
 
 ## 1. Quality foundation
 
+Status: complete
+
 - Visibility presets and readable baseline lighting
 - Split production bundles and enforce size budgets
 - Desktop/mobile browser smoke tests
@@ -11,12 +13,16 @@ Milestones run sequentially. Every milestone must keep local gameplay working, p
 
 ## 2. Cross vertical-slice production pass
 
+Status: complete
+
 - Tune all 52 beats for pacing, navigation, contrast, and puzzle clarity
 - Add scene-specific environment transitions and fail-safe checkpoints
 - Add settings for subtitles, reduced motion, camera sensitivity, and text size
 - Verify complete Dream-to-Cross run on desktop and mobile
 
 ## 3. Road through Palace Beautiful
+
+Status: complete
 
 - Simple, Sloth, Presumption, Formalist, Hypocrisy
 - Hill Difficulty, lost roll, Timorous and Mistrust
