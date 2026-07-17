@@ -9,6 +9,7 @@ import { World } from "./World";
 import { useGame } from "./state";
 import { storyScenes } from "./story";
 import { cameraControl, playerMotion } from "./camera";
+import { chapterCameraProfile, cinematicEase } from "./cinematics";
 
 function shortestAngle(from: number, to: number) {
   return Math.atan2(Math.sin(to - from), Math.cos(to - from));
@@ -22,7 +23,11 @@ function CameraRig() {
   const offset = useRef(new Vector3());
   const dragging = useRef(false);
   const lastLook = useRef(0);
-  const { gl } = useThree();
+  const chapterFlight = useRef({ sceneIndex: -1, elapsed: 0, active: true });
+  const flightStart = useRef(new Vector3());
+  const flightEnd = useRef(new Vector3());
+  const flightTarget = useRef(new Vector3());
+  const { gl, size } = useThree();
   const {
     dialogue,
     choosing,
@@ -33,10 +38,61 @@ function CameraRig() {
     cinematicCamera,
   } = useGame();
   const step = storyScenes[sceneIndex].steps[stepIndex];
+  const sceneId = storyScenes[sceneIndex].id;
+  const portrait = size.height > size.width * 1.12;
+  const profile = chapterCameraProfile(sceneId, portrait);
+
+  useEffect(() => {
+    chapterFlight.current = { sceneIndex, elapsed: 0, active: cinematicCamera };
+    gl.domElement.dataset.cameraTransition = cinematicCamera ? sceneId : "";
+    gl.domElement.dataset.cameraMood = profile.mood;
+  }, [cinematicCamera, gl, profile.mood, sceneId, sceneIndex]);
 
   useFrame((_, dt) => {
     if (!rig.current || !controls.current) return;
     const orbit = controls.current;
+    if (chapterFlight.current.active) {
+      const flight = chapterFlight.current;
+      if (flight.elapsed === 0) {
+        flightTarget.current.set(
+          playerPosition.x,
+          playerPosition.y + 0.95,
+          playerPosition.z,
+        );
+        flightStart.current.set(
+          flightTarget.current.x,
+          flightTarget.current.y + profile.startHeight,
+          flightTarget.current.z + profile.startDistance,
+        );
+        flightEnd.current.set(
+          flightTarget.current.x,
+          flightTarget.current.y + profile.playHeight,
+          flightTarget.current.z + profile.playDistance,
+        );
+        rig.current.position.copy(flightStart.current);
+      }
+      orbit.enabled = false;
+      flight.elapsed += dt;
+      const progress = reducedMotion
+        ? 1
+        : Math.min(1, flight.elapsed / profile.duration);
+      rig.current.position.lerpVectors(
+        flightStart.current,
+        flightEnd.current,
+        cinematicEase(progress),
+      );
+      orbit.target.copy(flightTarget.current);
+      rig.current.lookAt(flightTarget.current);
+      cameraControl.yaw = 0;
+      gl.domElement.dataset.cameraYaw = "0.000";
+      if (progress >= 1) {
+        flight.active = false;
+        gl.domElement.dataset.cameraTransition = "";
+        orbit.enabled = true;
+        orbit.update();
+      }
+      return;
+    }
     if (sceneComplete && cinematicCamera) {
       orbit.enabled = false;
       desired.current.set(8, 9, 10);
@@ -92,7 +148,12 @@ function CameraRig() {
   });
   return (
     <>
-      <PerspectiveCamera ref={rig} makeDefault fov={44} position={[0, 5.8, 11.5]} />
+      <PerspectiveCamera
+        ref={rig}
+        makeDefault
+        fov={profile.fov}
+        position={[0, profile.playHeight, profile.playDistance]}
+      />
       <OrbitControls
         ref={controls}
         enablePan={false}

@@ -408,6 +408,101 @@ button {
 .modal button.primary:hover {
   background: #e5aa50;
 }
+.story-map {
+  z-index: 12;
+}
+.modal.story-map > section {
+  width: min(1040px, 100%);
+  padding: 1.4rem;
+  background: #f8efd9;
+  border: 3px solid #fffaf0;
+  border-radius: 26px;
+  color: #493d34;
+}
+.modal.story-map > section > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 0.35rem 0.35rem 1.2rem;
+}
+.story-map h2 {
+  margin: 0.15rem 0;
+  color: #302820;
+}
+.story-map header p:last-child {
+  max-width: 620px;
+  margin: 0.25rem 0 0;
+  color: #766454;
+}
+.story-map .story-map-close {
+  border-color: #d7c6a7;
+  background: #fffaf0;
+  flex: 0 0 auto;
+}
+.story-map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  padding: 0.2rem;
+  margin: 0;
+  list-style: none;
+}
+.story-map-grid li {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 2px solid #d8c7a8;
+  border-radius: 18px;
+  background: #fffaf0;
+}
+.story-map-grid li > div,
+.story-map-grid li footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #89735d;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.story-map-grid li > div span {
+  font-weight: 800;
+  color: #a96d2b;
+}
+.story-map-grid h3 {
+  margin: 0.75rem 0 0.25rem;
+  font: 700 1.35rem "Cormorant Garamond", serif;
+  color: #3d332b;
+}
+.story-map-grid p {
+  margin: 0;
+  color: #78685b;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.story-map-grid footer {
+  margin-top: auto;
+  padding-top: 0.9rem;
+}
+.story-map-grid .current {
+  border-color: #d89a45;
+  box-shadow: 0 8px 22px #8b64292b;
+}
+.story-map-grid .complete {
+  border-color: #91ad73;
+  background: #f3f5e9;
+}
+.story-map-grid .locked {
+  background: #e9e1d2;
+  border-color: #d4cab9;
+  filter: saturate(0.55);
+}
+.story-map-grid .locked h3,
+.story-map-grid .locked p {
+  color: #8d847b;
+}
 .objective {
   position: fixed;
   z-index: 3;
@@ -415,8 +510,7 @@ button {
   bottom: 1.4rem;
   background: #fff8e9ed;
   border: 3px solid #fffdf5;
-  border-left: 7px solid #e8a84d;
-  border-radius: 22px 22px 22px 7px;
+  border-radius: 22px;
   padding: 0.85rem 1.05rem;
   width: min(340px, calc(100vw - 2.8rem));
   backdrop-filter: blur(12px);
@@ -455,7 +549,7 @@ button {
   padding: 1.15rem 1.4rem;
   background: #fff8eaf5;
   border: 3px solid #fffdf7;
-  border-radius: 28px 28px 28px 8px;
+  border-radius: 28px;
   font:
     600 1.2rem/1.5 "Cormorant Garamond",
     serif;
@@ -799,7 +893,7 @@ button {
   .hud-actions {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0.35rem;
     width: 100%;
   }
@@ -815,6 +909,18 @@ button {
   .dialogue {
     bottom: 6.25rem;
     width: calc(100vw - 1.5rem);
+  }
+  .modal.story-map > section {
+    padding: 0.85rem;
+  }
+  .modal.story-map > section > header {
+    gap: 0.75rem;
+  }
+  .story-map-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .story-map-grid li {
+    min-height: 160px;
   }
 }
 @media (max-width: 500px) {

@@ -72,6 +72,25 @@ test("offers brighter visibility and persists the selection", async ({
   );
 });
 
+test("shows the ordered story map without unlocking future chapters", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Begin the journey" }).click();
+  await page.getByRole("button", { name: "Story map" }).click();
+  const map = page.getByRole("dialog", { name: "Story map" });
+  await expect(map).toBeVisible();
+  await expect(map.getByRole("listitem")).toHaveCount(storyScenes.length);
+  await expect(
+    map.getByRole("listitem", { name: /Prologue: The Dreamer, In progress/i }),
+  ).toBeVisible();
+  await expect(
+    map.getByRole("listitem", { name: /Chapter I: City of Destruction, Locked/i }),
+  ).toBeVisible();
+  await expect(map.getByRole("button")).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await expect(map).toBeHidden();
+});
+
 test("shows a readable continue action on chapter completion", async ({
   page,
 }) => {
@@ -115,6 +134,10 @@ test("rotates the camera and moves relative to its heading", async ({
 }) => {
   await page.getByRole("button", { name: "Begin the journey" }).click();
   const canvas = page.locator("canvas");
+  await expect(canvas).toHaveAttribute("data-camera-mood", "ominous");
+  await expect(canvas).toHaveAttribute("data-camera-transition", "", {
+    timeout: 8_000,
+  });
   await expect(canvas).toHaveAttribute("data-camera-yaw", "0.000");
   const bounds = await canvas.boundingBox();
   expect(bounds).not.toBeNull();

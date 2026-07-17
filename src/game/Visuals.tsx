@@ -92,20 +92,24 @@ const clothes: Record<CharacterVariant, [string, string, string]> = {
 };
 
 export function BurdenPack({ weight = 1 }: { weight?: number }) {
-  const scale = 0.88 + Math.max(0, Math.min(1, weight)) * 0.16;
+  const scale = 1 + Math.max(0, Math.min(1, weight)) * 0.22;
   return (
     <group scale={scale}>
-      <mesh castShadow>
-        <dodecahedronGeometry args={[0.55, 1]} />
-        <meshStandardMaterial color="#3b2b25" roughness={1} />
+      <mesh castShadow scale={[0.78, 0.92, 0.55]}>
+        <sphereGeometry args={[0.62, 16, 12]} />
+        <meshStandardMaterial color="#4b3428" roughness={1} />
       </mesh>
-      <mesh rotation={[0, 0, 0.7]}>
-        <torusGeometry args={[0.4, 0.035, 7, 18]} />
-        <meshStandardMaterial color="#9a7047" roughness={0.92} />
+      <mesh castShadow position={[0, 0.54, 0]} scale={[0.48, 0.54, 0.4]}>
+        <sphereGeometry args={[0.38, 12, 9]} />
+        <meshStandardMaterial color="#58402f" roughness={1} />
       </mesh>
-      <mesh rotation={[0, 0, -0.72]}>
-        <torusGeometry args={[0.39, 0.028, 7, 18]} />
-        <meshStandardMaterial color="#795334" roughness={0.96} />
+      <mesh position={[0, 0.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.22, 0.035, 7, 18]} />
+        <meshStandardMaterial color="#b08a5a" roughness={0.92} />
+      </mesh>
+      <mesh position={[0, -0.12, 0.33]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.42, 0.026, 7, 22]} />
+        <meshStandardMaterial color="#805d3c" roughness={0.96} />
       </mesh>
     </group>
   );
@@ -169,7 +173,6 @@ export function Character({
   });
   const darkHair = variant === "shining" ? "#f4dda0" : "#392a28";
   const hasBeard = [
-    "christian",
     "evangelist",
     "help",
     "worldly",
@@ -192,10 +195,18 @@ export function Character({
           <cylinderGeometry args={[0.38, 0.45, 0.48, 18]} />
           <meshStandardMaterial color={cloth} roughness={0.92} />
         </mesh>
-        <mesh position={[0, 1.18, 0.29]} scale={[1, 0.65, 0.3]}>
-          <sphereGeometry args={[0.25, 12, 8]} />
-          <meshStandardMaterial color={accent} roughness={0.9} />
-        </mesh>
+        {variant !== "christian" && (
+          <mesh position={[0, 1.18, 0.29]} scale={[1, 0.65, 0.3]}>
+            <sphereGeometry args={[0.25, 12, 8]} />
+            <meshStandardMaterial color={accent} roughness={0.9} />
+          </mesh>
+        )}
+        {variant === "christian" && (
+          <mesh position={[0, 1.3, 0.31]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.19, 0.035, 7, 20, Math.PI]} />
+            <meshStandardMaterial color={accent} roughness={0.92} />
+          </mesh>
+        )}
         {variant === "faithful" && (
           <mesh position={[0, 1.02, 0.37]} rotation={[0, 0, -0.55]}>
             <boxGeometry args={[0.12, 0.9, 0.05]} />
@@ -215,33 +226,37 @@ export function Character({
         <meshStandardMaterial color={skin} roughness={0.78} />
       </mesh>
       <group position={[0, 1.65, 0]}>
-        <mesh castShadow scale={[1, 1.04, 0.94]}>
-          <sphereGeometry args={[0.37, 22, 18]} />
+        <mesh castShadow scale={[0.92, 1.08, 0.96]}>
+          <sphereGeometry args={[0.36, 24, 18]} />
           <meshStandardMaterial color={skin} roughness={0.76} />
         </mesh>
-        <mesh castShadow position={[0, 0.22, -0.035]} scale={[1, 0.58, 1]}>
-          <sphereGeometry args={[0.38, 20, 14]} />
+        <mesh castShadow position={[0, 0.035, 0]} scale={[1, 1.12, 1]}>
+          <sphereGeometry args={[0.375, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2.05]} />
           <meshStandardMaterial color={darkHair} roughness={0.95} />
         </mesh>
         {([-1, 1] as const).map((side) => (
-          <mesh key={`ear-${side}`} position={[side * 0.355, 0, 0]} scale={[0.65, 1, 0.5]}>
-            <sphereGeometry args={[0.09, 12, 9]} />
+          <mesh key={`ear-${side}`} position={[side * 0.342, -0.015, 0]} scale={[0.55, 1, 0.45]}>
+            <sphereGeometry args={[0.08, 12, 9]} />
             <meshStandardMaterial color={skin} roughness={0.8} />
           </mesh>
         ))}
-        <mesh position={[0, -0.015, 0.352]} scale={[0.6, 0.82, 0.72]}>
-          <sphereGeometry args={[0.075, 12, 9]} />
+        <mesh position={[0, -0.02, 0.35]} scale={[0.58, 0.9, 0.68]}>
+          <sphereGeometry args={[0.068, 12, 9]} />
           <meshStandardMaterial color={skin} roughness={0.8} />
         </mesh>
         {[-0.13, 0.13].map((x) => (
-          <group key={x} position={[x, 0.065, 0.342]}>
-            <mesh scale={[1, 0.78, 0.4]}>
-              <sphereGeometry args={[0.052, 12, 9]} />
+          <group key={x} position={[x, 0.055, 0.34]}>
+            <mesh scale={[1, 0.72, 0.38]}>
+              <sphereGeometry args={[0.041, 12, 9]} />
               <meshStandardMaterial color="#f1dfcf" />
             </mesh>
             <mesh position={[0, 0, 0.012]}>
-              <sphereGeometry args={[0.023, 10, 8]} />
+              <sphereGeometry args={[0.018, 10, 8]} />
               <meshStandardMaterial color="#29241f" />
+            </mesh>
+            <mesh position={[0, 0.075, 0.002]} rotation={[0, 0, x > 0 ? -0.12 : 0.12]}>
+              <capsuleGeometry args={[0.012, 0.085, 5, 8]} />
+              <meshStandardMaterial color={darkHair} roughness={1} />
             </mesh>
           </group>
         ))}
@@ -257,8 +272,8 @@ export function Character({
             <meshStandardMaterial color={darkHair} roughness={1} />
           </mesh>
         )}
-        <mesh position={[0, -0.105, 0.365]} rotation={[0.12, 0, 0]}>
-          <torusGeometry args={[0.065, 0.013, 7, 18, Math.PI]} />
+        <mesh position={[0, -0.13, 0.35]} rotation={[0.12, 0, 0]}>
+          <torusGeometry args={[0.055, 0.011, 7, 18, Math.PI]} />
           <meshStandardMaterial color="#70423d" />
         </mesh>
         {variant === "hategood" && (
@@ -338,7 +353,7 @@ export function Character({
       )}
       {burdenWeight > 0 && (
         <group>
-          <group position={[0, 1.02, -0.58]} rotation={[-0.12, 0, 0]}>
+          <group position={[0, 1.02, -0.66]} rotation={[-0.12, 0, 0]}>
             <BurdenPack weight={burdenWeight} />
           </group>
           {([-1, 1] as const).map((side) => (

@@ -233,16 +233,36 @@ function Controls() {
 }
 function Overlay() {
   const game = useGame();
+  const [storyMapOpen, setStoryMapOpen] = useState(false);
+  const storyMapWasPaused = useRef(false);
   const chapterAction = useRef<HTMLButtonElement>(null);
   const endingAction = useRef<HTMLButtonElement>(null);
   const journalAction = useRef<HTMLButtonElement>(null);
   const pauseAction = useRef<HTMLButtonElement>(null);
+  const storyMapAction = useRef<HTMLButtonElement>(null);
   const scene = storyScenes[game.sceneIndex];
   const step = scene.steps[game.stepIndex];
   const completed =
     storyScenes
       .slice(0, game.sceneIndex)
       .reduce((n, s) => n + s.steps.length, 0) + game.stepIndex;
+  const openStoryMap = () => {
+    storyMapWasPaused.current = game.paused;
+    useGame.setState({ paused: true });
+    setStoryMapOpen(true);
+  };
+  const closeStoryMap = () => {
+    setStoryMapOpen(false);
+    useGame.setState({ paused: storyMapWasPaused.current });
+  };
+  useEffect(() => {
+    if (!storyMapOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeStoryMap();
+    };
+    addEventListener("keydown", closeOnEscape);
+    return () => removeEventListener("keydown", closeOnEscape);
+  }, [storyMapOpen]);
   useEffect(() => {
     if (!game.message) return;
     const t = setTimeout(() => game.setMessage(), 2600);
@@ -263,7 +283,9 @@ function Overlay() {
     document.documentElement.dataset.reducedMotion = String(game.reducedMotion);
   }, [game.textSize, game.reducedMotion]);
   useEffect(() => {
-    const target = game.sceneComplete
+    const target = storyMapOpen
+      ? storyMapAction
+      : game.sceneComplete
       ? chapterAction
       : game.gameComplete
         ? endingAction
@@ -275,7 +297,13 @@ function Overlay() {
     if (!target) return;
     const timer = window.setTimeout(() => target.current?.focus(), 80);
     return () => window.clearTimeout(timer);
-  }, [game.sceneComplete, game.gameComplete, game.journalOpen, game.paused]);
+  }, [
+    storyMapOpen,
+    game.sceneComplete,
+    game.gameComplete,
+    game.journalOpen,
+    game.paused,
+  ]);
   return (
     <>
       <header className="hud" data-testid="game-hud">
@@ -305,6 +333,7 @@ function Overlay() {
           >
             {game.soundEnabled ? "Sound on" : "Sound off"}
           </button>
+          <button onClick={openStoryMap}>Story map</button>
           <button onClick={game.toggleJournal}>
             Journal <b>{game.journal.length}</b>
           </button>
@@ -429,6 +458,69 @@ function Overlay() {
           </section>
         </div>
       )}
+      {storyMapOpen && (
+        <div
+          className="modal story-map"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="story-map-title"
+        >
+          <section>
+            <header>
+              <div>
+                <p className="eyebrow">THE ROAD AHEAD</p>
+                <h2 id="story-map-title">Story map</h2>
+                <p>
+                  See the whole journey. Chapters open in order as Christian
+                  completes the road before them.
+                </p>
+              </div>
+              <button
+                ref={storyMapAction}
+                className="story-map-close"
+                onClick={closeStoryMap}
+                aria-label="Close story map"
+              >
+                Close
+              </button>
+            </header>
+            <ol className="story-map-grid">
+              {storyScenes.map((chapter, index) => {
+                const isComplete =
+                  game.gameComplete ||
+                  index < game.sceneIndex ||
+                  (index === game.sceneIndex && game.sceneComplete);
+                const isCurrent = index === game.sceneIndex && !isComplete;
+                const status = isComplete
+                  ? "Complete"
+                  : isCurrent
+                    ? "In progress"
+                    : "Locked";
+                return (
+                  <li
+                    key={chapter.id}
+                    className={
+                      isComplete ? "complete" : isCurrent ? "current" : "locked"
+                    }
+                    aria-label={`${chapter.number}: ${chapter.title}, ${status}`}
+                  >
+                    <div>
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <small>{status}</small>
+                    </div>
+                    <h3>{chapter.title}</h3>
+                    <p>{chapter.meaning}</p>
+                    <footer>
+                      {chapter.steps.length} story beats
+                      {!isComplete && !isCurrent && <b aria-hidden="true">◇</b>}
+                    </footer>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        </div>
+      )}
       {game.journalOpen && (
         <div className="modal journal">
           <section>
@@ -460,7 +552,10 @@ function Overlay() {
           </section>
         </div>
       )}
-      {game.paused && !game.journalOpen && !game.gameComplete && (
+      {game.paused &&
+        !storyMapOpen &&
+        !game.journalOpen &&
+        !game.gameComplete && (
         <div className="modal">
           <section>
             <p className="eyebrow">JOURNEY PAUSED</p>
