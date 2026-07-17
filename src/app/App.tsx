@@ -87,6 +87,7 @@ function Title() {
           <div className="title-actions">
             <button
               className="primary"
+              autoFocus
               onClick={() => {
                 gameAudio.start();
                 start();
@@ -333,7 +334,11 @@ function Overlay() {
         <div className="dialogue choice">
           <p>How will Christian respond?</p>
           {step.choices?.map((choice, i) => (
-            <button key={choice.label} onClick={() => game.choose(i)}>
+            <button
+              key={choice.label}
+              autoFocus={i === 0}
+              onClick={() => game.choose(i)}
+            >
               {choice.label}
               <span>→</span>
             </button>
@@ -341,10 +346,16 @@ function Overlay() {
         </div>
       )}
       {game.dialogue && (
-        <button className="dialogue spoken" onClick={game.advanceDialogue}>
+        <button
+          className="dialogue spoken"
+          autoFocus
+          aria-keyshortcuts="Enter"
+          onClick={game.advanceDialogue}
+        >
           <p>{game.dialogue[game.dialogueIndex]}</p>
           <small>
-            {game.dialogueIndex + 1} / {game.dialogue.length} · continue →
+            {game.dialogueIndex + 1} / {game.dialogue.length} · Enter or click
+            to continue →
           </small>
         </button>
       )}
@@ -367,7 +378,7 @@ function Overlay() {
               {Math.round(((game.sceneIndex + 1) / storyScenes.length) * 100)}%
               complete
             </div>
-            <button className="primary" onClick={game.continueScene}>
+            <button className="primary" autoFocus onClick={game.continueScene}>
               {game.sceneIndex === storyScenes.length - 1
                 ? "Leave Doubting Castle"
                 : "Continue the journey"}{" "}
@@ -390,7 +401,7 @@ function Overlay() {
               Delectable Mountains · Ignorance · Little-Faith · Flatterer ·
               Enchanted Ground · Beulah · River · Celestial City
             </div>
-            <button className="primary" onClick={game.reset}>
+            <button className="primary" autoFocus onClick={game.reset}>
               Dream again
             </button>
           </section>
@@ -417,7 +428,7 @@ function Overlay() {
             ) : (
               <p>Explore and interact to record people, places, and symbols.</p>
             )}
-            <button className="primary" onClick={game.toggleJournal}>
+            <button className="primary" autoFocus onClick={game.toggleJournal}>
               Return to journey
             </button>
           </section>
@@ -450,7 +461,7 @@ function Overlay() {
               </button>
             </div>
             <div className="modal-actions">
-              <button className="primary" onClick={game.togglePause}>
+              <button className="primary" autoFocus onClick={game.togglePause}>
                 Continue
               </button>
               <button onClick={game.reset}>Restart story</button>

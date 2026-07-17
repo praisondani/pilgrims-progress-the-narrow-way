@@ -93,8 +93,9 @@ test("shows a readable continue action on chapter completion", async ({
   await interactPrompt.click({ force: true });
   const spoken = page.locator(".spoken");
   await expect(spoken).toBeVisible();
-  await spoken.click();
-  await spoken.click();
+  await expect(spoken).toBeFocused();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
 
   const chapterCta = page.locator(".chapter-card .primary");
   await expect(chapterCta).toBeVisible();
