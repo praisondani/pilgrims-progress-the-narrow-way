@@ -110,6 +110,42 @@ test("shows the ordered story map without unlocking future chapters", async ({
   await expect(map).toBeHidden();
 });
 
+test("explains an incorrect focus and confirms when the light is clear", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 2,
+          stepIndex: 3,
+          puzzleActive: true,
+          soundEnabled: false,
+          visibility: "bright",
+        },
+        version: 7,
+      }),
+    ),
+  );
+  await page.reload();
+
+  const puzzle = page.locator(".puzzle-shell");
+  await expect(puzzle).toBeVisible();
+  await page.getByRole("button", { name: "Test this focus" }).click();
+  await expect(puzzle.getByRole("status")).toContainText(
+    "Move toward Looking ahead",
+  );
+
+  const slider = puzzle.getByRole("slider", { name: "Focus" });
+  await slider.fill("72");
+  await expect(puzzle.getByRole("status")).toContainText("light is clear");
+  await page.getByRole("button", { name: "Confirm clear light" }).click();
+  await expect(puzzle).toBeHidden();
+  await expect(page.locator(".spoken")).toBeVisible();
+});
+
 test("shows a readable continue action on chapter completion", async ({
   page,
 }) => {

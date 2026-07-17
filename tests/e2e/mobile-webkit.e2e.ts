@@ -84,4 +84,22 @@ test("starts recorded ambience after a mobile user gesture", async ({ page }) =>
     "data-audio-scene",
     "dream",
   );
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "blocked",
+  );
+  await expect(page.getByRole("button", { name: "Toggle sound" })).toContainText(
+    "Start sound",
+  );
+  await page.getByRole("button", { name: "Pause" }).click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "playing",
+  );
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-context",
+    "running",
+  );
 });

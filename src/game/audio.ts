@@ -44,10 +44,10 @@ export const dbToGain = (decibels: number) => 10 ** (decibels / 20);
 export const audioSceneIds = Object.keys(sceneGainDb);
 export const audioMix = {
   measuredAmbienceRmsDb: -32,
-  ambienceNormalizationLiftDb: 6,
-  ambienceBusGain: 0.5,
-  sfxBusGain: 0.5,
-  masterGain: 0.75,
+  ambienceNormalizationLiftDb: 10,
+  ambienceBusGain: 0.6,
+  sfxBusGain: 0.45,
+  masterGain: 0.8,
 } as const;
 export const normalizedAmbienceOutputDb = () =>
   audioMix.measuredAmbienceRmsDb +
@@ -59,6 +59,13 @@ type PlayingAmbience = {
   source: AudioBufferSourceNode;
   gain: GainNode;
 };
+
+export type AudioPlaybackState =
+  | "muted"
+  | "loading"
+  | "blocked"
+  | "playing"
+  | "error";
 
 class GameAudio {
   private ctx?: AudioContext;
@@ -73,20 +80,51 @@ class GameAudio {
   private lastStep = 0;
   private lastFocus = 0;
   private enabled = false;
+  private playbackState: AudioPlaybackState = "muted";
+  private listeners = new Set<() => void>();
+
+  getSnapshot = () => this.playbackState;
+
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
 
   private markState(
-    state: "muted" | "loading" | "playing" | "error",
+    state: AudioPlaybackState,
     scene?: string,
   ) {
+    this.playbackState = state;
     if (typeof document === "undefined") return;
     document.documentElement.dataset.audioState = state;
+    document.documentElement.dataset.audioContext = this.ctx?.state ?? "none";
     if (scene) document.documentElement.dataset.audioScene = scene;
+    this.listeners.forEach((listener) => listener());
   }
 
   start() {
     if (!this.ctx) this.buildGraph();
-    void this.ctx?.resume();
-    window.setTimeout(() => void this.playScene(this.pendingScene), 0);
+    void this.resumeAndPlay();
+  }
+
+  private async resumeAndPlay() {
+    if (!this.ctx) this.buildGraph();
+    if (!this.ctx || !this.enabled) return false;
+    try {
+      await Promise.race([
+        this.ctx.resume(),
+        new Promise<void>((resolve) => window.setTimeout(resolve, 180)),
+      ]);
+    } catch {
+      // Browsers reject resume outside a trusted user gesture.
+    }
+    if (this.ctx.state !== "running") {
+      this.markState("blocked", this.pendingScene);
+      return false;
+    }
+    this.markState("loading", this.pendingScene);
+    await this.playScene(this.pendingScene);
+    return true;
   }
 
   setEnabled(value: boolean) {
@@ -126,6 +164,12 @@ class GameAudio {
     this.ambienceBus.connect(lowpass);
     this.sfxBus.connect(lowpass);
     lowpass.connect(limiter).connect(this.master).connect(this.ctx.destination);
+
+    const unlock = () => {
+      if (this.enabled && this.ctx?.state !== "running") void this.resumeAndPlay();
+    };
+    window.addEventListener("pointerdown", unlock, { capture: true });
+    window.addEventListener("keydown", unlock, { capture: true });
   }
 
   private async load(url: string) {
@@ -153,7 +197,7 @@ class GameAudio {
 
   scene(id: string) {
     this.pendingScene = id;
-    if (this.ctx) void this.playScene(id);
+    if (this.ctx && this.enabled) void this.resumeAndPlay();
   }
 
   private async playScene(id: string) {
@@ -161,10 +205,16 @@ class GameAudio {
       !this.ctx ||
       !this.ambienceBus ||
       !this.enabled ||
-      (this.current &&
-        this.current.source.buffer === this.buffers.get(ambienceUrl(id)))
+      this.ctx.state !== "running"
     )
       return;
+    if (
+      this.current &&
+      this.current.source.buffer === this.buffers.get(ambienceUrl(id))
+    ) {
+      this.markState("playing", id);
+      return;
+    }
     this.markState("loading", id);
     const request = ++this.sceneRequest;
     const buffer = await this.load(ambienceUrl(id));
@@ -204,7 +254,7 @@ class GameAudio {
 
   private async playSfx(name: string) {
     if (!this.enabled) return;
-    this.start();
+    if (!(await this.resumeAndPlay())) return;
     if (!this.ctx || !this.sfxBus) return;
     const buffer = await this.load(sfxUrl(name));
     if (!buffer || !this.enabled) return;

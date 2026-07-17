@@ -25,8 +25,8 @@ describe("safe local audio assets", () => {
   });
 
   it("keeps continuous ambience audible without approaching full scale", () => {
-    expect(normalizedAmbienceOutputDb()).toBeGreaterThanOrEqual(-36);
-    expect(normalizedAmbienceOutputDb()).toBeLessThanOrEqual(-32);
+    expect(normalizedAmbienceOutputDb()).toBeGreaterThanOrEqual(-30);
+    expect(normalizedAmbienceOutputDb()).toBeLessThanOrEqual(-26);
     expect(audioMix.masterGain).toBeLessThan(1);
   });
 });

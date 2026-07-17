@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { GameCanvas } from "../game/GameCanvas";
 import { mobileInput } from "../game/Player";
 import { useGame } from "../game/state";
@@ -232,6 +232,11 @@ function Controls() {
 }
 function Overlay() {
   const game = useGame();
+  const audioState = useSyncExternalStore(
+    gameAudio.subscribe,
+    gameAudio.getSnapshot,
+    gameAudio.getSnapshot,
+  );
   const [storyMapOpen, setStoryMapOpen] = useState(false);
   const storyMapWasPaused = useRef(false);
   const chapterAction = useRef<HTMLButtonElement>(null);
@@ -326,11 +331,23 @@ function Overlay() {
           <button
             aria-label="Toggle sound"
             onClick={() => {
+              if (game.soundEnabled && audioState !== "playing") {
+                gameAudio.start();
+                return;
+              }
+              gameAudio.setEnabled(!game.soundEnabled);
               game.toggleSound();
-              gameAudio.start();
             }}
           >
-            {game.soundEnabled ? "Sound on" : "Sound off"}
+            {!game.soundEnabled
+              ? "Sound off"
+              : audioState === "blocked"
+                ? "Start sound"
+                : audioState === "error"
+                  ? "Retry sound"
+                  : audioState === "playing"
+                    ? "Sound on"
+                    : "Starting sound…"}
           </button>
           <button onClick={openStoryMap}>Story map</button>
           <button onClick={game.toggleJournal}>

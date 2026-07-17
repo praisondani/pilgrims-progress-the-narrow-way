@@ -8,6 +8,10 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
   const setMessage = useGame((s) => s.setMessage);
   const [picked, setPicked] = useState<number[]>([]);
   const [focus, setFocus] = useState(50);
+  const [focusAttempted, setFocusAttempted] = useState(false);
+  const focusIsClear =
+    puzzle.type === "focus" &&
+    Math.abs(focus - puzzle.target) <= puzzle.tolerance;
 
   const choose = (index: number) => {
     if (puzzle.type !== "sequence") return;
@@ -26,12 +30,12 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
 
   const confirm = () => {
     if (puzzle.type !== "focus") return;
-    if (Math.abs(focus - puzzle.target) <= puzzle.tolerance) {
+    setFocusAttempted(true);
+    if (focusIsClear) {
       gameAudio.success();
       complete();
     } else {
       gameAudio.error();
-      setMessage("The image remains unclear. Adjust your focus.");
     }
   };
 
@@ -71,11 +75,29 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
               onChange={(event) => {
                 const next = Number(event.target.value);
                 setFocus(next);
+                setFocusAttempted(true);
                 gameAudio.focus(next);
               }}
             />
-            <button className="primary" onClick={confirm}>
-              Hold this focus
+            <p
+              className={focusIsClear ? "focus-feedback clear" : "focus-feedback"}
+              role="status"
+              aria-live="polite"
+            >
+              {focusIsClear
+                ? "The light is clear. Confirm to continue."
+                : focusAttempted
+                  ? `Not clear yet. Move toward ${
+                      focus < puzzle.target ? puzzle.high : puzzle.low
+                    }.`
+                  : "Move the focus control until the light becomes clear."}
+            </p>
+            <button
+              className="primary"
+              aria-keyshortcuts="Enter Space"
+              onClick={confirm}
+            >
+              {focusIsClear ? "Confirm clear light" : "Test this focus"}
             </button>
           </>
         )}
