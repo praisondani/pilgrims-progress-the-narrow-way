@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GameCanvas } from "../game/GameCanvas";
 import { mobileInput } from "../game/Player";
 import { useGame } from "../game/state";
@@ -233,6 +233,10 @@ function Controls() {
 }
 function Overlay() {
   const game = useGame();
+  const chapterAction = useRef<HTMLButtonElement>(null);
+  const endingAction = useRef<HTMLButtonElement>(null);
+  const journalAction = useRef<HTMLButtonElement>(null);
+  const pauseAction = useRef<HTMLButtonElement>(null);
   const scene = storyScenes[game.sceneIndex];
   const step = scene.steps[game.stepIndex];
   const completed =
@@ -258,6 +262,20 @@ function Overlay() {
     document.documentElement.dataset.textSize = game.textSize;
     document.documentElement.dataset.reducedMotion = String(game.reducedMotion);
   }, [game.textSize, game.reducedMotion]);
+  useEffect(() => {
+    const target = game.sceneComplete
+      ? chapterAction
+      : game.gameComplete
+        ? endingAction
+        : game.journalOpen
+          ? journalAction
+          : game.paused
+            ? pauseAction
+            : undefined;
+    if (!target) return;
+    const timer = window.setTimeout(() => target.current?.focus(), 80);
+    return () => window.clearTimeout(timer);
+  }, [game.sceneComplete, game.gameComplete, game.journalOpen, game.paused]);
   return (
     <>
       <header className="hud" data-testid="game-hud">
@@ -378,7 +396,11 @@ function Overlay() {
               {Math.round(((game.sceneIndex + 1) / storyScenes.length) * 100)}%
               complete
             </div>
-            <button className="primary" autoFocus onClick={game.continueScene}>
+            <button
+              ref={chapterAction}
+              className="primary"
+              onClick={game.continueScene}
+            >
               {game.sceneIndex === storyScenes.length - 1
                 ? "Leave Doubting Castle"
                 : "Continue the journey"}{" "}
@@ -401,7 +423,7 @@ function Overlay() {
               Delectable Mountains · Ignorance · Little-Faith · Flatterer ·
               Enchanted Ground · Beulah · River · Celestial City
             </div>
-            <button className="primary" autoFocus onClick={game.reset}>
+            <button ref={endingAction} className="primary" onClick={game.reset}>
               Dream again
             </button>
           </section>
@@ -428,7 +450,11 @@ function Overlay() {
             ) : (
               <p>Explore and interact to record people, places, and symbols.</p>
             )}
-            <button className="primary" autoFocus onClick={game.toggleJournal}>
+            <button
+              ref={journalAction}
+              className="primary"
+              onClick={game.toggleJournal}
+            >
               Return to journey
             </button>
           </section>
@@ -461,7 +487,11 @@ function Overlay() {
               </button>
             </div>
             <div className="modal-actions">
-              <button className="primary" autoFocus onClick={game.togglePause}>
+              <button
+                ref={pauseAction}
+                className="primary"
+                onClick={game.togglePause}
+              >
                 Continue
               </button>
               <button onClick={game.reset}>Restart story</button>
