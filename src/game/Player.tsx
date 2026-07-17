@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import {
   CapsuleCollider,
   RapierRigidBody,
@@ -21,16 +21,9 @@ export function HopefulCompanion() {
   const group = useRef<Group>(null);
   const [walking, setWalking] = useState(false);
   const walkingRef = useRef(false);
-  const { gl } = useThree();
   const { sceneIndex, stepIndex, gameComplete } = useGame();
   const visible =
     sceneIndex > 20 || (sceneIndex === 20 && (stepIndex >= 2 || gameComplete));
-  useEffect(() => {
-    gl.domElement.dataset.companion = visible ? "hopeful" : "";
-    return () => {
-      delete gl.domElement.dataset.companion;
-    };
-  }, [gl, visible]);
   useFrame((_, delta) => {
     if (!group.current || !visible) return;
     const forwardX = Math.sin(playerMotion.yaw);

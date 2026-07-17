@@ -135,13 +135,18 @@ function FrameReady({ onReady }: { onReady: () => void }) {
   return null;
 }
 export function GameCanvas() {
-  const sceneIndex = useGame((s) => s.sceneIndex);
+  const { sceneIndex, stepIndex, gameComplete } = useGame();
   const checkpointRevision = useGame((s) => s.checkpointRevision);
   const sceneKey = `${sceneIndex}-${checkpointRevision}`;
   const [readyKey, setReadyKey] = useState("");
   const ready = readyKey === sceneKey;
+  const companionVisible =
+    sceneIndex > 20 || (sceneIndex === 20 && (stepIndex >= 2 || gameComplete));
   return (
-    <div className="canvas-shell">
+    <div
+      className="canvas-shell"
+      data-companion={companionVisible ? "hopeful" : undefined}
+    >
       {!ready && (
         <div className="scene-loader" role="status" aria-live="polite">
           <span>Preparing the road</span>

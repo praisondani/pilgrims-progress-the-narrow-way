@@ -235,7 +235,7 @@ test("continues Hopeful’s road into the By-Ends encounter", async ({ page }) =
   );
   await page.reload();
   await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 30_000 });
-  await expect(page.locator("canvas")).toHaveAttribute(
+  await expect(page.locator(".canvas-shell")).toHaveAttribute(
     "data-companion",
     "hopeful",
     { timeout: 30_000 },
@@ -281,7 +281,7 @@ test("migrates an old Hopeful ending into the By-Ends encounter", async ({
   await page.reload();
   await expect(page.getByTestId("game-hud")).toContainText("By-Ends");
   await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 30_000 });
-  await expect(page.locator("canvas")).toHaveAttribute(
+  await expect(page.locator(".canvas-shell")).toHaveAttribute(
     "data-companion",
     "hopeful",
     { timeout: 30_000 },
