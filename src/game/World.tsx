@@ -7,6 +7,7 @@ import { useGame } from "./state";
 import { StepKind, storyScenes } from "./story";
 import { playerPosition } from "./Player";
 import {
+  BurdenPack,
   Character,
   CharacterVariant,
   CrossMonument,
@@ -67,6 +68,12 @@ function TargetShape({
   id: string;
   sceneId: string;
 }) {
+  if (id === "burden-roll")
+    return (
+      <group position={[0, 0.62, 0]} rotation={[0.22, 0.4, 0.72]}>
+        <BurdenPack />
+      </group>
+    );
   if (
     [
       "simple",

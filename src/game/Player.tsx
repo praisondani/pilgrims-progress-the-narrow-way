@@ -70,6 +70,7 @@ export function Player() {
     choosing,
     guidedTravel,
   } = useGame();
+  const burdenWeight = burden > 0 ? Math.min(1, 0.55 + sceneIndex * 0.07) : 0;
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       keys.add(e.code);
@@ -144,7 +145,7 @@ export function Player() {
     const inSlough = storyScenes[sceneIndex].id === "slough";
     const speed =
       (guidedTravel ? 14 : inSlough ? 2.1 : keys.has("ShiftLeft") ? 5.2 : 3.5) *
-      (burden ? 0.88 : 1);
+      (1 - burdenWeight * 0.18);
     gameAudio.walking(moving, inSlough);
     body.current.setLinvel(
       { x: dir.x * speed, y: velocity.y, z: dir.z * speed },
@@ -173,7 +174,7 @@ export function Player() {
         <Character
           variant="christian"
           walking={walking}
-          burden={burden > 0}
+          burden={burdenWeight}
           hasRoll={hasRoll}
           equipped={equipment.length > 0}
         />

@@ -91,17 +91,37 @@ const clothes: Record<CharacterVariant, [string, string, string]> = {
   diffidence: ["#514357", "#79667d", "#a36c56"],
 };
 
+export function BurdenPack({ weight = 1 }: { weight?: number }) {
+  const scale = 0.88 + Math.max(0, Math.min(1, weight)) * 0.16;
+  return (
+    <group scale={scale}>
+      <mesh castShadow>
+        <dodecahedronGeometry args={[0.55, 1]} />
+        <meshStandardMaterial color="#3b2b25" roughness={1} />
+      </mesh>
+      <mesh rotation={[0, 0, 0.7]}>
+        <torusGeometry args={[0.4, 0.035, 7, 18]} />
+        <meshStandardMaterial color="#9a7047" roughness={0.92} />
+      </mesh>
+      <mesh rotation={[0, 0, -0.72]}>
+        <torusGeometry args={[0.39, 0.028, 7, 18]} />
+        <meshStandardMaterial color="#795334" roughness={0.96} />
+      </mesh>
+    </group>
+  );
+}
+
 export function Character({
   variant = "christian",
   walking = false,
-  burden = false,
+  burden = 0,
   hasRoll = false,
   equipped = false,
   scale = 1,
 }: {
   variant?: CharacterVariant;
   walking?: boolean;
-  burden?: boolean;
+  burden?: number;
   hasRoll?: boolean;
   equipped?: boolean;
   scale?: number;
@@ -113,6 +133,7 @@ export function Character({
   const leftLeg = useRef<Group>(null);
   const rightLeg = useRef<Group>(null);
   const [cloth, accent, skin] = clothes[variant];
+  const burdenWeight = Math.max(0, Math.min(1, burden));
   const torsoScale: [number, number, number] =
     variant === "faithful"
       ? [0.86, 0.88, 0.64]
@@ -122,10 +143,11 @@ export function Character({
   const reducedMotion = useGame((s) => s.reducedMotion);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
+    const cadence = walking ? 9 - burdenWeight * 2.1 : 1.6;
     const swing = reducedMotion
       ? 0
       : walking
-        ? Math.sin(t * 9) * 0.55
+        ? Math.sin(t * cadence) * (0.55 - burdenWeight * 0.13)
         : Math.sin(t * 1.6) * 0.035;
     if (leftArm.current) leftArm.current.rotation.x = swing;
     if (rightArm.current) rightArm.current.rotation.x = -swing;
@@ -138,9 +160,12 @@ export function Character({
           ? Math.sin(t * 9) * 0.025
           : Math.sin(t * 1.2) * 0.008;
     if (root.current)
-      root.current.position.y = reducedMotion
-        ? 0
-        : Math.sin(t * (walking ? 9 : 1.6)) * (walking ? 0.035 : 0.018);
+      {
+        root.current.position.y = reducedMotion
+          ? 0
+          : Math.sin(t * cadence) * (walking ? 0.035 : 0.018);
+        root.current.rotation.x = burdenWeight * 0.13;
+      }
   });
   const darkHair = variant === "shining" ? "#f4dda0" : "#392a28";
   const hasBeard = [
@@ -311,16 +336,21 @@ export function Character({
           distance={4}
         />
       )}
-      {burden && (
-        <group position={[0, 1.02, -0.38]} rotation={[-0.18, 0, 0]}>
-          <mesh castShadow>
-            <dodecahedronGeometry args={[0.55, 0]} />
-            <meshStandardMaterial color="#30231f" roughness={1} />
-          </mesh>
-          <mesh rotation={[0, 0, 0.7]}>
-            <torusGeometry args={[0.38, 0.035, 6, 14]} />
-            <meshStandardMaterial color="#8b6a4b" />
-          </mesh>
+      {burdenWeight > 0 && (
+        <group>
+          <group position={[0, 1.02, -0.58]} rotation={[-0.12, 0, 0]}>
+            <BurdenPack weight={burdenWeight} />
+          </group>
+          {([-1, 1] as const).map((side) => (
+            <mesh
+              key={`burden-strap-${side}`}
+              position={[side * 0.23, 1.18, -0.24]}
+              rotation={[0.48, 0, side * 0.09]}
+            >
+              <capsuleGeometry args={[0.028, 0.7, 5, 9]} />
+              <meshStandardMaterial color="#9b744b" roughness={0.96} />
+            </mesh>
+          ))}
         </group>
       )}
       {hasRoll && (

@@ -1,4 +1,4 @@
-import { Cloud, Float, Sparkles, Stars } from "@react-three/drei";
+import { Float, Sparkles, Stars } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { Group } from "three";
@@ -20,6 +20,47 @@ import {
 type Target = [number, number];
 const clearsTarget = (position: number[], target: Target, radius = 2.35) =>
   Math.hypot(position[0] - target[0], position[2] - target[1]) > radius;
+
+function StoryCloud({
+  position,
+  scale = [1, 1, 1],
+  opacity = 0.28,
+  speed = 0.1,
+}: {
+  position: [number, number, number];
+  scale?: [number, number, number];
+  opacity?: number;
+  speed?: number;
+}) {
+  const cloud = useRef<Group>(null);
+  useFrame(({ clock }) => {
+    if (!cloud.current) return;
+    cloud.current.position.x = Math.sin(clock.elapsedTime * speed) * 0.45;
+    cloud.current.position.y = Math.cos(clock.elapsedTime * speed * 0.7) * 0.08;
+  });
+  return (
+    <group position={position} scale={scale}>
+      <group ref={cloud}>
+        {[
+          [-0.65, 0, 0, 0.72],
+          [0, 0.18, 0, 0.92],
+          [0.72, 0.02, 0, 0.68],
+          [0.2, -0.12, 0.2, 0.76],
+        ].map(([x, y, z, size], index) => (
+          <mesh key={index} position={[x, y, z]} scale={[1.35, 0.72, 0.85]}>
+            <sphereGeometry args={[size, 16, 10]} />
+            <meshBasicMaterial
+              color="#f6f0df"
+              transparent
+              opacity={opacity}
+              depthWrite={false}
+            />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
 
 function Rocks({ pale = false, target }: { pale?: boolean; target: Target }) {
   return (
@@ -182,7 +223,7 @@ function Slough() {
           <meshStandardMaterial color="#77745c" roughness={1} />
         </mesh>
       ))}
-      <Cloud
+      <StoryCloud
         position={[0, 3, -6]}
         scale={[3, 1, 1]}
         opacity={0.22}
@@ -382,7 +423,7 @@ function CrossScene({ stepIndex }: { stepIndex: number }) {
         </>
       )}
       <Sparkles count={140} scale={[15, 8, 15]} color="#fff1b6" opacity={0.6} />
-      <Cloud
+      <StoryCloud
         position={[0, 6, -7]}
         scale={[4, 1, 1]}
         opacity={0.18}
@@ -514,8 +555,8 @@ function DifficultyHill() {
         scale={[1.4, 0.7, 1]}
         color="#5d8f98"
       />
-      <Cloud position={[-3, 5, -7]} opacity={0.3} speed={0.14} />
-      <Cloud position={[4, 6, -5]} opacity={0.24} speed={0.1} />
+      <StoryCloud position={[-3, 5, -7]} opacity={0.3} speed={0.14} />
+      <StoryCloud position={[4, 6, -5]} opacity={0.24} speed={0.1} />
     </>
   );
 }
@@ -623,7 +664,7 @@ function LionsApproach() {
         intensity={10}
         distance={14}
       />
-      <Cloud position={[0, 6, -5]} scale={[3, 1, 1]} opacity={0.24} />
+      <StoryCloud position={[0, 6, -5]} scale={[3, 1, 1]} opacity={0.24} />
     </>
   );
 }
@@ -822,7 +863,7 @@ function FaithfulRoad({ target }: { target: Target }) {
           <meshStandardMaterial color={["#b07082", "#9b8d61", "#6c6687"][index]} emissive="#8e735d" emissiveIntensity={0.2} />
         </mesh>
       ))}
-      <Cloud position={[0, 7, -6]} scale={[4, 1.1, 1]} opacity={0.2} />
+      <StoryCloud position={[0, 7, -6]} scale={[4, 1.1, 1]} opacity={0.2} />
     </>
   );
 }
@@ -872,7 +913,7 @@ function WarningRidge() {
           </group>
         ))}
       </group>
-      <Cloud position={[0, 6, 3]} scale={[4, 1, 1]} opacity={0.28} />
+      <StoryCloud position={[0, 6, 3]} scale={[4, 1, 1]} opacity={0.28} />
     </>
   );
 }
@@ -999,7 +1040,7 @@ function HopefulRoad({ target }: { target: Target }) {
         <boxGeometry args={[1.35, 0.3, 1.8]} />
         <meshStandardMaterial color="#343b3d" />
       </mesh>
-      <Cloud position={[0, 6, -4]} scale={[4, 1, 1]} opacity={0.22} />
+      <StoryCloud position={[0, 6, -4]} scale={[4, 1, 1]} opacity={0.22} />
       <Sparkles count={36} scale={[13, 4, 13]} color="#e7d39a" opacity={0.24} />
     </>
   );
@@ -1043,7 +1084,7 @@ function ByEndsRoad({ target }: { target: Target }) {
           <meshStandardMaterial color="#8b7556" />
         </mesh>
       </group>
-      <Cloud position={[0, 6.5, -5]} scale={[4, 1, 1]} opacity={0.24} />
+      <StoryCloud position={[0, 6.5, -5]} scale={[4, 1, 1]} opacity={0.24} />
     </>
   );
 }
@@ -1133,7 +1174,7 @@ function ByPathMeadow({ stepIndex, target }: { stepIndex: number; target: Target
         .map((position, index) => (
           <GnarledTree key={index} position={position as [number, number, number]} color="#476145" dead={stepIndex >= 6} scale={0.9} />
         ))}
-      <Cloud position={[0, 6, -4]} scale={[5, 1.2, 1]} opacity={stepIndex >= 6 ? 0.58 : 0.2} />
+      <StoryCloud position={[0, 6, -4]} scale={[5, 1.2, 1]} opacity={stepIndex >= 6 ? 0.58 : 0.2} />
     </>
   );
 }

@@ -26,3 +26,41 @@ test("loads the first playable frame under production CSP", async ({ page }) => 
     .toBe(true);
   expect(runtimeFailures).toEqual([]);
 });
+
+test("loads the Cross without external cloud textures", async ({ page }) => {
+  const externalImages: string[] = [];
+  const runtimeFailures: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.resourceType() === "image" &&
+      !request.url().startsWith("http://127.0.0.1:4173")
+    )
+      externalImages.push(request.url());
+  });
+  page.on("pageerror", (error) => runtimeFailures.push(error.message));
+
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 7,
+          stepIndex: 3,
+          burden: 0,
+          visibility: "bright",
+          soundEnabled: false,
+        },
+        version: 6,
+      }),
+    ),
+  );
+  await page.reload();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.getByTestId("game-hud")).toContainText("The Cross");
+  await expect(page.locator("canvas")).toBeVisible();
+  expect(externalImages).toEqual([]);
+  expect(runtimeFailures).toEqual([]);
+});
