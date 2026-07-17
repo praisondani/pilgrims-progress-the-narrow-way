@@ -175,9 +175,10 @@ function Title() {
             <a
               className="primary"
               href="/downloads/the-pilgrims-progress-john-bunyan.pdf"
-              download
+              target="_blank"
+              rel="noreferrer"
             >
-              Download the book <span>↓</span>
+              Read the book <span>↗</span>
             </a>
             <a
               href="https://johnbunyan.org/donate/"

@@ -37,12 +37,13 @@ test("credits the original work and offers the source edition", async ({
   ).toBeVisible();
   await expect(page.getByText("First published in 1678")).toBeVisible();
 
-  const download = page.getByRole("link", { name: "Download the book" });
-  await expect(download).toHaveAttribute(
+  const reader = page.getByRole("link", { name: "Read the book" });
+  await expect(reader).toHaveAttribute(
     "href",
     "/downloads/the-pilgrims-progress-john-bunyan.pdf",
   );
-  await expect(download).toHaveAttribute("download", "");
+  await expect(reader).toHaveAttribute("target", "_blank");
+  await expect(reader).not.toHaveAttribute("download", "");
   await expect(
     page.getByRole("link", { name: "Courtesy and support" }),
   ).toHaveAttribute("href", "https://johnbunyan.org/donate/");
