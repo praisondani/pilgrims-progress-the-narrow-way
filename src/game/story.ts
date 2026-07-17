@@ -11,7 +11,12 @@ export type StepKind =
   | "armor"
   | "cage"
   | "cross"
-  | "roll";
+  | "roll"
+  | "enemy"
+  | "market"
+  | "prison"
+  | "companion"
+  | "prayer";
 export type StoryChoice = { label: string; response: string[] };
 export type StoryStep = {
   id: string;
@@ -1457,6 +1462,963 @@ export const storyScenes: StoryScene[] = [
         ],
         journal:
           "Palace Beautiful — Fellowship offers rest, truth, loving examination, shared memory, and preparation for the road ahead.",
+      },
+    ],
+  },
+  {
+    id: "humiliation",
+    number: "CHAPTER XIV",
+    title: "Valley of Humiliation",
+    subtitle: "The road descends. Accusation waits where pride has least room to stand.",
+    meaning:
+      "Apollyon embodies accusation, domination, and the demand that Christian return to his former master.",
+    palette: {
+      sky: "#6f806f",
+      ground: "#53634a",
+      light: "#f0c37d",
+      fog: "#758171",
+    },
+    steps: [
+      {
+        id: "valley-descent",
+        objective: "Descend from Palace Beautiful without rushing",
+        action: "Take the lower path",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "The path leaves the palace heights and folds into a green, windless valley.",
+          "Christian discovers that humility is not humiliation: the low place can reveal what the high place concealed.",
+        ],
+        journal:
+          "The Valley of Humiliation — Lowliness is not worthlessness. It is freedom from pretending that borrowed strength is your own.",
+      },
+      {
+        id: "damaged-road",
+        objective: "Examine the scorched marks across the path",
+        action: "Study the ground",
+        kind: "path",
+        position: [-4, -2],
+        dialogue: [
+          "Deep prints cross the road. Grass is pressed flat as if something heavy has waited here before.",
+          "The shield from Palace Beautiful no longer feels ceremonial in Christian’s hand.",
+        ],
+      },
+      {
+        id: "apollyon-appears",
+        objective: "Face the creature blocking the valley",
+        action: "Stand your ground",
+        kind: "enemy",
+        position: [4, -1],
+        dialogue: [
+          "Apollyon rises above the path—scaled, winged, and armored with the memory of every failure.",
+          "APOLLYON: From where have you come, and where do you intend to go?",
+          "CHRISTIAN: I came from the City of Destruction. I travel toward the Celestial City.",
+        ],
+      },
+      {
+        id: "former-master",
+        objective: "Answer Apollyon’s claim of ownership",
+        action: "Answer the accusation",
+        kind: "enemy",
+        position: [5, 2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Admit the former service",
+            response: [
+              "CHRISTIAN: I was born in your country and served there badly. Your wages are death; the King I follow gives life.",
+              "APOLLYON: Then you confess you were mine.",
+              "CHRISTIAN: I confess I needed rescue—not that you retain a rightful claim.",
+            ],
+          },
+          {
+            label: "Name the new allegiance",
+            response: [
+              "CHRISTIAN: I have given myself to another King, and his mark is upon me.",
+              "APOLLYON: A change of road cannot erase your record.",
+              "CHRISTIAN: No. Mercy answered that record at the Cross.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "catalogue-failures",
+        objective: "Listen without letting failure become your identity",
+        action: "Endure the charge",
+        kind: "enemy",
+        position: [3, 5],
+        dialogue: [
+          "Apollyon names the Slough, the road to Morality, sleep at the arbor, fear before the lions, and every divided motive.",
+          "The accusations contain facts, but arrange them to erase every act of mercy.",
+        ],
+        journal:
+          "Accusation — A true fact can be used toward a false conclusion. Christian has failed; it does not follow that mercy failed him.",
+      },
+      {
+        id: "raise-shield",
+        objective: "Read Apollyon’s attack and raise the shield in time",
+        action: "Defend",
+        kind: "armor",
+        position: [0, 5],
+        dialogue: [
+          "A burning dart strikes the shield and scatters into harmless sparks.",
+          "Defense is not passivity. Christian remains present, refuses the lie, and preserves strength for the next faithful act.",
+        ],
+      },
+      {
+        id: "truth-response",
+        objective: "Match remembered truth to the next accusation",
+        action: "Answer with truth",
+        kind: "book",
+        position: [-4, 4],
+        dialogue: [
+          "CHRISTIAN: All this is true, and much more you have left out—but the Prince whom I serve is ready to pardon.",
+          "Apollyon’s size does not change. His words lose their power to define the field.",
+        ],
+      },
+      {
+        id: "lose-footing",
+        objective: "Recover after Apollyon knocks you down",
+        action: "Reach for the sword",
+        kind: "armor",
+        position: [-5, 1],
+        dialogue: [
+          "A heavy blow sends Christian to the earth. His sword falls beyond his fingertips.",
+          "APOLLYON: Now I am sure of you.",
+          "The valley goes quiet except for Christian’s breath and metal against stone.",
+        ],
+      },
+      {
+        id: "recover-sword",
+        objective: "Crawl beneath the next strike and recover the sword",
+        action: "Take up the sword",
+        kind: "armor",
+        position: [-5, -2],
+        dialogue: [
+          "Christian rolls beneath the shadow, closes his hand around the hilt, and rises on one knee.",
+          "CHRISTIAN: Do not rejoice against me. When I fall, I shall arise.",
+        ],
+      },
+      {
+        id: "final-resistance",
+        objective: "Hold courage through Apollyon’s final assault",
+        action: "Resist",
+        kind: "enemy",
+        position: [0, 1],
+        dialogue: [
+          "Christian advances behind the shield, not to conquer a kingdom but to keep the road he was given.",
+          "The sword catches the valley light. Apollyon recoils, spreads his wings, and withdraws with a promise to return.",
+          "Christian binds the marks on his armor and gives thanks before taking another step.",
+        ],
+        journal:
+          "Apollyon Defeated — Victory came through truth, defense, recovery after falling, and perseverance—not flawless strength.",
+      },
+    ],
+  },
+  {
+    id: "shadow",
+    number: "CHAPTER XV",
+    title: "Valley of the Shadow of Death",
+    subtitle: "A narrow path between ditch and mire, where hearing must guide sight.",
+    meaning:
+      "The dark valley represents terror that cannot always be fought directly; prayer, memory, and patient attention become navigation.",
+    palette: {
+      sky: "#171b27",
+      ground: "#282c31",
+      light: "#8297ad",
+      fog: "#11141b",
+    },
+    steps: [
+      {
+        id: "mouth-of-shadow",
+        objective: "Enter the valley after the last daylight fades",
+        action: "Enter the shadow",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "The green valley narrows into stone. Daylight remains behind Christian like a door slowly closing.",
+          "A deep ditch falls away on one side; black mire waits on the other. The safe path is scarcely wider than his feet.",
+        ],
+        journal:
+          "The Shadowed Path — Fear narrows attention. Survival begins by noticing the next faithful step rather than imagining every unseen danger.",
+      },
+      {
+        id: "listen-wind",
+        objective: "Stop moving and learn the valley’s true wind",
+        action: "Listen",
+        kind: "prayer",
+        position: [-3, -3],
+        dialogue: [
+          "Air crossing the open path makes a low, steady tone. The ditch answers hollowly; the mire swallows sound.",
+          "Christian learns that the quietest trustworthy signal may be more useful than the loudest warning.",
+        ],
+      },
+      {
+        id: "ditch-crossing",
+        objective: "Follow the clean echo past the hidden ditch",
+        action: "Follow the echo",
+        kind: "path",
+        position: [3, -2],
+        dialogue: [
+          "Loose stones fall for a long time to Christian’s left. He turns toward the short echo of solid wall.",
+          "One slow step, then another, carries him beyond the unseen break.",
+        ],
+      },
+      {
+        id: "false-lanterns",
+        objective: "Identify which distant light does not move like flame",
+        action: "Reject the false light",
+        kind: "light",
+        position: [5, 0],
+        dialogue: [
+          "Blue lights drift over the mire, always retreating when Christian approaches.",
+          "He turns from what promises easy visibility and returns to the harder, marked path.",
+        ],
+      },
+      {
+        id: "whispered-voice",
+        objective: "Distinguish your own prayer from the voice beside you",
+        action: "Speak the prayer aloud",
+        kind: "prayer",
+        position: [4, 3],
+        dialogue: [
+          "A voice so near it seems inside Christian’s mouth speaks words he would never choose.",
+          "CHRISTIAN: Deliver my soul, and keep my feet upon your path.",
+          "Hearing his own prayer aloud breaks the confusion between suggestion and consent.",
+        ],
+        journal:
+          "Borrowed Voices — Not every thought that arrives belongs to the person who hears it. Naming what is true restores moral direction.",
+      },
+      {
+        id: "fire-mouth",
+        objective: "Cross between smoke vents when the flames subside",
+        action: "Time the crossing",
+        kind: "fire",
+        position: [0, 5],
+        dialogue: [
+          "Flame breathes from cracks in the rock in a slow pattern. Smoke hides the intervals.",
+          "Christian listens for the intake of air, then crosses during the silence before the next burst.",
+        ],
+      },
+      {
+        id: "company-ahead",
+        objective: "Follow the traveler’s prayer sounding ahead",
+        action: "Answer the prayer",
+        kind: "prayer",
+        position: [-4, 4],
+        dialogue: [
+          "A human voice prays somewhere ahead in the dark. Christian cannot see the traveler, yet knows another person endures the same valley.",
+          "He answers softly. Neither is alone, even before either face is known.",
+        ],
+      },
+      {
+        id: "narrowest-path",
+        objective: "Keep your balance where ditch and mire nearly meet",
+        action: "Cross carefully",
+        kind: "path",
+        position: [-5, 1],
+        dialogue: [
+          "Christian turns sideways and feels each foothold before moving his weight.",
+          "Armor scrapes rock. The same equipment that defended him now requires patience in a narrow place.",
+        ],
+      },
+      {
+        id: "dawn-reveal",
+        objective: "Climb the eastern ledge and look back at dawn",
+        action: "Look back",
+        kind: "light",
+        position: [-4, -2],
+        dialogue: [
+          "Morning enters the valley from above. Christian sees pits, bones, traps, and ledges he passed without understanding their full shape.",
+          "The sight does not prove he was never in danger. It reveals how much guidance operated beyond his perception.",
+        ],
+      },
+      {
+        id: "leave-shadow",
+        objective: "Carry the lesson of the night into open country",
+        action: "Leave the valley",
+        kind: "path",
+        position: [0, 0],
+        dialogue: [
+          "Birdsong returns by degrees. Christian loosens his grip on the sword but keeps it ready.",
+          "He leaves the valley without a trophy—only steadier hearing, tested prayer, and gratitude for unseen preservation.",
+        ],
+        journal:
+          "Dawn after Shadow — Some dangers are understood only afterward. Faithfulness did not require complete knowledge, only enough light for the next step.",
+      },
+    ],
+  },
+  {
+    id: "faithful",
+    number: "CHAPTER XVI",
+    title: "Faithful",
+    subtitle: "Two pilgrims compare roads and discover that temptation changes its clothing.",
+    meaning:
+      "Faithful’s memories show that travelers share a destination without facing identical trials.",
+    palette: {
+      sky: "#8ba6b0",
+      ground: "#68785b",
+      light: "#f1d69b",
+      fog: "#91a5a2",
+    },
+    steps: [
+      {
+        id: "traveler-ahead",
+        objective: "Call to the traveler on the King’s highway",
+        action: "Call out",
+        kind: "companion",
+        position: [0, -5],
+        dialogue: [
+          "CHRISTIAN: Wait, and let us travel together!",
+          "FAITHFUL: Keep your pace. I waited once for those who would not leave the city; now I dare not turn backward.",
+          "Christian quickens his step, stumbles, and rises laughing at his own eagerness.",
+        ],
+      },
+      {
+        id: "compare-departures",
+        objective: "Ask Faithful how he escaped the City",
+        action: "Walk with Faithful",
+        kind: "companion",
+        position: [-4, -2],
+        dialogue: [
+          "Faithful left after Christian. The city mocked both departures, then spoke of them as though courage were foolishness.",
+          "FAITHFUL: Your leaving made the road imaginable. I did not face the Slough as you did, but my way had other snares.",
+        ],
+        journal:
+          "Faithful — Another pilgrim’s story should not be forced into Christian’s pattern. Shared faithfulness can contain different wounds and rescues.",
+      },
+      {
+        id: "wanton-memory",
+        objective: "Enter Faithful’s memory of Wanton’s invitation",
+        action: "Remember as Faithful",
+        kind: "person",
+        position: [4, -2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Ask what the invitation hides",
+            response: [
+              "WANTON: Only comfort, admiration, and an hour without consequence.",
+              "FAITHFUL: Then why must the consequence remain unnamed?",
+              "The pleasant room loses its disguise when Faithful asks where its promise leads.",
+            ],
+          },
+          {
+            label: "Remember the road’s destination",
+            response: [
+              "FAITHFUL: A pleasure that requires forgetting who I am becoming asks too high a price.",
+              "Wanton’s music continues, but Faithful returns to the open road.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "adam-memory",
+        objective: "Examine Adam the First’s offer of work and inheritance",
+        action: "Hear the contract",
+        kind: "person",
+        position: [5, 1],
+        dialogue: [
+          "ADAM THE FIRST: Work in my household. My daughters—the Lust of the Flesh, the Lust of the Eyes, and Pride of Life—will make you prosperous.",
+          "Faithful notices a hidden condition: the servant can never complete the debt or leave the household free.",
+          "FAITHFUL: Your wages promise possession and produce bondage.",
+        ],
+      },
+      {
+        id: "moses-memory",
+        objective: "Understand why Moses strikes but does not heal",
+        action: "Face the standard",
+        kind: "book",
+        position: [3, 5],
+        dialogue: [
+          "Moses confronts Faithful with the justice of the command he nearly abandoned.",
+          "The standard exposes the wrong without supplying strength to undo it.",
+          "One marked by wounds comes near; at his word the blows cease, and Faithful is allowed to continue.",
+        ],
+      },
+      {
+        id: "discontent-memory",
+        objective: "Answer Discontent’s contempt for the low valley",
+        action: "Defend humility",
+        kind: "person",
+        position: [0, 5],
+        dialogue: [
+          "DISCONTENT: No honored traveler chooses a valley so low. Return to the heights where people can admire your road.",
+          "FAITHFUL: If my King walked in humility, I will not call his road beneath me.",
+        ],
+      },
+      {
+        id: "shame-memory",
+        objective: "Separate holy conviction from Shame’s social contempt",
+        action: "Answer Shame",
+        kind: "person",
+        position: [-4, 4],
+        dialogue: [],
+        choices: [
+          {
+            label: "Name what Shame praises",
+            response: [
+              "FAITHFUL: You call pride noble, mercy weak, and tenderness childish. Your approval is built on an inverted measure.",
+              "SHAME: Respectable people will laugh.",
+              "FAITHFUL: Then laughter cannot be my judge.",
+            ],
+          },
+          {
+            label: "Name the true Judge",
+            response: [
+              "FAITHFUL: What you despise may be honored by the One whose judgment lasts.",
+              "Shame has no answer except to repeat the names of important people.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "shared-road",
+        objective: "Tell Faithful one failure you would rather hide",
+        action: "Share honestly",
+        kind: "companion",
+        position: [-5, 0],
+        dialogue: [
+          "Christian tells of sleeping at the arbor and climbing back for the lost roll.",
+          "Faithful does not minimize the failure or use it to stand taller. He receives the truth as part of a rescued story.",
+        ],
+      },
+      {
+        id: "travel-song",
+        objective: "Walk beside Faithful through the open country",
+        action: "Travel together",
+        kind: "companion",
+        position: [0, 0],
+        dialogue: [
+          "Their voices alternate in a simple road song—one line remembered, the next supplied, silence allowed between them.",
+          "Companionship does not shorten the road. It changes how its length is carried.",
+        ],
+        journal:
+          "Different Trials, Shared Road — Christian and Faithful strengthen one another by comparing truthfully rather than competing over suffering.",
+      },
+    ],
+  },
+  {
+    id: "talkative",
+    number: "CHAPTER XVII",
+    title: "Talkative",
+    subtitle: "Fluent words run ahead of a life unwilling to follow them.",
+    meaning:
+      "Talkative represents religious language separated from practiced truth, accountability, and transformed conduct.",
+    palette: {
+      sky: "#9aa7b1",
+      ground: "#77715e",
+      light: "#efca82",
+      fog: "#9d998e",
+    },
+    steps: [
+      {
+        id: "meet-talkative",
+        objective: "Invite the confident traveler into conversation",
+        action: "Greet Talkative",
+        kind: "person",
+        position: [0, -5],
+        dialogue: [
+          "TALKATIVE: There is nothing so delightful as speaking of heavenly things. Name any doctrine and I will discourse upon it.",
+          "Faithful is impressed by the traveler’s quick language. Christian recognizes the voice from the City.",
+        ],
+      },
+      {
+        id: "private-warning",
+        objective: "Hear Christian’s warning away from Talkative",
+        action: "Step aside",
+        kind: "companion",
+        position: [-4, -2],
+        dialogue: [
+          "CHRISTIAN: His tongue is fluent, but ask his household what his speech produces.",
+          "FAITHFUL: Then I should test the matter fairly, not condemn him by rumor or admire him by performance.",
+        ],
+      },
+      {
+        id: "claim-knowledge",
+        objective: "Ask whether knowledge alone proves a changed life",
+        action: "Question the claim",
+        kind: "person",
+        position: [4, -2],
+        dialogue: [
+          "TALKATIVE: Knowledge of truth is the chief evidence of grace.",
+          "FAITHFUL: Knowledge may inform action, but can a person know justice and still refuse to practice it?",
+          "Talkative answers with another definition instead of an example.",
+        ],
+      },
+      {
+        id: "observe-servant",
+        objective: "Observe how Talkative treats the roadside servant",
+        action: "Watch quietly",
+        kind: "person",
+        position: [5, 2],
+        dialogue: [
+          "A tired servant asks for room at the well. Talkative sends him away, then resumes praising generosity.",
+          "The contradiction is small enough to excuse and clear enough to reveal a pattern.",
+        ],
+        journal:
+          "Words and Fruit — Speech should be evaluated alongside repeated conduct, especially conduct toward people who offer no advantage.",
+      },
+      {
+        id: "evidence-table",
+        objective: "Compare Talkative’s claims with observed conduct",
+        action: "Weigh the evidence",
+        kind: "book",
+        position: [3, 5],
+        dialogue: [
+          "Faithful lays out three questions: What does he claim? What does he practice? How does he respond when corrected?",
+          "The first column is full. The second is thin. The third remains to be tested.",
+        ],
+      },
+      {
+        id: "faithful-confronts",
+        objective: "Let Faithful ask for evidence of practiced truth",
+        action: "Continue the inquiry",
+        kind: "companion",
+        position: [0, 5],
+        dialogue: [
+          "FAITHFUL: How does this truth appear in your home, your business, and your treatment of those beneath your notice?",
+          "TALKATIVE: You have turned edifying conversation into judgment.",
+          "FAITHFUL: I ask because your claim concerned transformation, not vocabulary.",
+        ],
+      },
+      {
+        id: "talkative-leaves",
+        objective: "Refuse both flattery and cruelty as Talkative leaves",
+        action: "Let him depart",
+        kind: "person",
+        position: [-4, 3],
+        dialogue: [],
+        choices: [
+          {
+            label: "Leave the door open to repentance",
+            response: [
+              "FAITHFUL: Honest correction is not hatred. If you choose truth in practice, the road remains open.",
+              "Talkative walks ahead quickly, calling the pilgrims severe.",
+            ],
+          },
+          {
+            label: "Decline further performance",
+            response: [
+              "CHRISTIAN: More speech will not answer what conduct has made plain.",
+              "They do not mock Talkative after he leaves; discernment need not become contempt.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "discernment-reflection",
+        objective: "Reflect with Faithful on correction and humility",
+        action: "Walk and reflect",
+        kind: "companion",
+        position: [0, 0],
+        dialogue: [
+          "FAITHFUL: I was ready to admire him because he spoke about what I love.",
+          "CHRISTIAN: And I was ready to dismiss him because I knew his reputation. We both needed evidence and humility.",
+        ],
+        journal:
+          "Talkative — Discernment tests speech by fruit while remembering that the examiner also remains capable of self-deception.",
+      },
+    ],
+  },
+  {
+    id: "warning",
+    number: "CHAPTER XVIII",
+    title: "Evangelist’s Warning",
+    subtitle: "A fire beside the road. Bright towers beyond the ridge. Cost named without surrender.",
+    meaning:
+      "Evangelist’s warning prepares the pilgrims for suffering without giving fear authority over their obedience.",
+    palette: {
+      sky: "#4a4255",
+      ground: "#595347",
+      light: "#f3a95d",
+      fog: "#514958",
+    },
+    steps: [
+      {
+        id: "roadside-fire",
+        objective: "Rest with Faithful beside the roadside fire",
+        action: "Warm your hands",
+        kind: "fire",
+        position: [0, -5],
+        dialogue: [
+          "Night gathers while distant towers glow beyond the ridge. Music and market bells travel farther than the city itself.",
+          "Christian and Faithful mend straps, share bread, and speak less than usual.",
+        ],
+      },
+      {
+        id: "evangelist-returns",
+        objective: "Welcome Evangelist back to the road",
+        action: "Greet Evangelist",
+        kind: "person",
+        position: [-4, -2],
+        dialogue: [
+          "EVANGELIST: Peace to you, dearly beloved. Your faces show roads I did not need to witness to know were costly.",
+          "Christian tells of the Gate, Cross, roll, valleys, and companionship. Faithful tells his own route without borrowing Christian’s honors.",
+        ],
+      },
+      {
+        id: "warning-given",
+        objective: "Receive the warning about Vanity Fair",
+        action: "Hear the warning",
+        kind: "book",
+        position: [4, -2],
+        dialogue: [
+          "EVANGELIST: The city ahead has sold desire for generations. Your clothing, speech, and refusal to trade your souls will make you visible.",
+          "EVANGELIST: Bonds and afflictions await. One of you will seal his testimony there. Be faithful, and do not measure victory only by escape.",
+        ],
+        journal:
+          "Warning before Vanity — Preparation does not promise control. It lets courage count the cost before pressure distorts the choice.",
+      },
+      {
+        id: "prepare-entry",
+        objective: "Choose how the companions will enter the Fair",
+        action: "Make a plan",
+        kind: "companion",
+        position: [4, 3],
+        dialogue: [],
+        choices: [
+          {
+            label: "Stay together and answer gently",
+            response: [
+              "FAITHFUL: We will not provoke the crowd, hide our destination, or abandon one another for safety.",
+              "Evangelist nods. Gentleness and truth are set beside the armor.",
+            ],
+          },
+          {
+            label: "Agree on what cannot be sold",
+            response: [
+              "CHRISTIAN: Food and lodging have prices. Conscience, worship, truth, and one another do not.",
+              "The boundary is named before merchants begin renaming it.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "distant-fair",
+        objective: "Study the Fair’s lights from the ridge",
+        action: "Look toward Vanity",
+        kind: "market",
+        position: [-4, 3],
+        dialogue: [
+          "Gold towers, painted tents, theaters, courts, and auction platforms fill the plain.",
+          "Beauty is real at the surface; corruption lies in what the city asks people to become in order to belong.",
+        ],
+      },
+      {
+        id: "morning-blessing",
+        objective: "Receive Evangelist’s blessing and descend together",
+        action: "Enter the road",
+        kind: "path",
+        position: [0, 5],
+        dialogue: [
+          "EVANGELIST: Let nothing that happens persuade you the King has lost sight of you.",
+          "At dawn, Christian and Faithful descend side by side. The Fair opens its gates before them.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "vanity",
+    number: "CHAPTER XIX",
+    title: "Vanity Fair",
+    subtitle: "A whole city arranges desire for sale and calls refusal disorder.",
+    meaning:
+      "Vanity Fair represents a social order that prices people, convictions, power, pleasure, and reputation—then punishes those who refuse its measure.",
+    palette: {
+      sky: "#7b4e6d",
+      ground: "#6f5147",
+      light: "#ffd47e",
+      fog: "#795c68",
+    },
+    steps: [
+      {
+        id: "fair-gates",
+        objective: "Enter Vanity Fair beside Faithful",
+        action: "Enter the Fair",
+        kind: "market",
+        position: [0, -5],
+        dialogue: [
+          "Bells ring above gates painted with every empire that has sponsored the Fair.",
+          "Merchants pause at the pilgrims’ plain clothing and unfamiliar speech. Curiosity becomes calculation.",
+        ],
+        journal:
+          "Vanity Fair — The Fair is not merely a market of silly objects. It is a system that trains desire, assigns status, and turns refusal into threat.",
+      },
+      {
+        id: "wares-of-status",
+        objective: "Walk the avenue of titles without accepting a price",
+        action: "Inspect the stalls",
+        kind: "market",
+        position: [-4, -3],
+        dialogue: [
+          "Titles, offices, applause, influence, bodies, entertainments, causes, and reputations are advertised as necessities.",
+          "MERCHANT: What will you buy?",
+          "CHRISTIAN: We buy the truth—and do not sell it.",
+        ],
+      },
+      {
+        id: "merchant-pressure",
+        objective: "Resist three merchants changing the terms of desire",
+        action: "Refuse the bargains",
+        kind: "market",
+        position: [4, -3],
+        dialogue: [],
+        choices: [
+          {
+            label: "Refuse without contempt",
+            response: [
+              "FAITHFUL: Your craft may make useful things. We refuse only the claim that owning them can name our worth.",
+              "The merchants hear rejection where Faithful offered distinction.",
+            ],
+          },
+          {
+            label: "Ask what the bargain costs",
+            response: [
+              "CHRISTIAN: If I must silence conscience to possess it, the hidden price exceeds the painted one.",
+              "A small crowd gathers. Honest questions are bad theater for dishonest trade.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "crowd-suspicion",
+        objective: "Move through the crowd without striking back",
+        action: "Protect Faithful",
+        kind: "companion",
+        position: [5, 0],
+        dialogue: [
+          "Mockery becomes shoving. Someone tears Christian’s cloak; another throws dust at Faithful.",
+          "The pilgrims guard one another and refuse to return humiliation for humiliation.",
+        ],
+      },
+      {
+        id: "public-disorder",
+        objective: "Keep a clear path as the market erupts",
+        action: "Guide civilians aside",
+        kind: "path",
+        position: [4, 4],
+        dialogue: [
+          "A cart overturns. Performers flee, merchants shout of lost goods, and officials name the pilgrims as the cause of a disorder already waiting to happen.",
+          "Christian opens a path for a child and an elderly vendor before guards close around him.",
+        ],
+      },
+      {
+        id: "arrest",
+        objective: "Submit to arrest without surrendering testimony",
+        action: "Lower the sword",
+        kind: "prison",
+        position: [0, 5],
+        dialogue: [
+          "The sword remains sheathed. Chains close around both pilgrims as officials read charges written before the questioning began.",
+          "FAITHFUL: Restraint can bind our hands; it cannot make falsehood true.",
+        ],
+      },
+      {
+        id: "prison-night",
+        objective: "Speak with Faithful through the prison darkness",
+        action: "Sit beside Faithful",
+        kind: "prison",
+        position: [-4, 4],
+        dialogue: [
+          "The cell below the court smells of wet stone and old straw. Music from the Fair continues overhead.",
+          "CHRISTIAN: Evangelist’s warning did not make this easier.",
+          "FAITHFUL: No. It kept suffering from pretending to be proof that we chose the wrong road.",
+        ],
+      },
+      {
+        id: "hategood-court",
+        objective: "Stand before Judge Hategood and hear the charge",
+        action: "Enter the court",
+        kind: "person",
+        position: [-5, 0],
+        dialogue: [
+          "JUDGE HATEGOOD: You are accused of disturbing trade, despising our customs, and persuading citizens that another King has authority here.",
+          "FAITHFUL: We disturbed no peace except the peace that depends upon no one naming injustice.",
+        ],
+      },
+      {
+        id: "witness-envy",
+        objective: "Test Envy’s accusation against what happened",
+        action: "Hear Envy",
+        kind: "person",
+        position: [-5, -3],
+        dialogue: [
+          "ENVY: Faithful condemns our honorable people merely by refusing what we value.",
+          "Faithful asks the court to distinguish personal contempt from allegiance to a different measure of worth.",
+          "Hategood records the distinction as further insolence.",
+        ],
+      },
+      {
+        id: "witnesses-false",
+        objective: "Expose Superstition and Pickthank’s contradictions",
+        action: "Compare testimony",
+        kind: "book",
+        position: [0, -2],
+        dialogue: [
+          "Superstition claims Faithful rejects every custom; Pickthank claims he secretly seeks influence over them.",
+          "Both stories cannot describe the same motive, yet the court values agreement in hostility over agreement in fact.",
+        ],
+      },
+      {
+        id: "faithful-testimony",
+        objective: "Stand beside Faithful as he gives his testimony",
+        action: "Hear Faithful",
+        kind: "companion",
+        position: [5, -2],
+        dialogue: [
+          "FAITHFUL: I honor lawful work, truthful exchange, beauty, craft, and neighborly peace. I cannot worship them, purchase people, or call appetite a king.",
+          "FAITHFUL: I bear no private malice toward this city. I testify that mercy offers a citizenship no market can sell.",
+          "For one quiet moment, several faces in the gallery stop performing certainty.",
+        ],
+        journal:
+          "Faithful’s Witness — Testimony names both what is refused and what is loved. Courage is more than opposition.",
+      },
+      {
+        id: "condemnation",
+        objective: "Receive the sentence without abandoning Faithful",
+        action: "Remain beside him",
+        kind: "prison",
+        position: [5, 2],
+        dialogue: [
+          "The prepared verdict is read. Faithful is condemned; Christian is returned to chains.",
+          "They speak across the guards—not promises of easy rescue, but reminders of the road, the Cross, and the city beyond sight.",
+        ],
+      },
+      {
+        id: "faithful-witness",
+        objective: "Witness Faithful’s final faithfulness with restraint",
+        action: "Keep watch",
+        kind: "light",
+        position: [3, 5],
+        dialogue: [
+          "The spectacle is shown in silhouette and sound: the crowd, the sentence, then a stillness the Fair did not schedule.",
+          "Above the court, a bright chariot receives Faithful beyond the reach of the officials who claimed the final word.",
+          "Christian grieves. Victory does not cancel loss; hope keeps loss from becoming meaningless.",
+        ],
+        journal:
+          "Faithful’s Martyrdom — Faithful’s death is neither entertainment nor defeat. His witness exposes the Fair and awakens courage in those who watched.",
+      },
+      {
+        id: "christian-escape",
+        objective: "Follow the opened passage beyond the city wall",
+        action: "Leave the prison",
+        kind: "path",
+        position: [-3, 2],
+        dialogue: [
+          "A dispute among the authorities leaves a service passage unguarded. Friends in the city silently indicate the way.",
+          "Christian passes beyond the wall carrying grief, Faithful’s remembered words, and no explanation for why one escaped while one did not.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "hopeful",
+    number: "CHAPTER XX",
+    title: "Hopeful",
+    subtitle: "A witness lost becomes a companion gained; grief and hope share the road.",
+    meaning:
+      "Hopeful joins because Faithful’s costly witness bore fruit. Companionship after grief does not replace the person who died.",
+    palette: {
+      sky: "#8197ad",
+      ground: "#63705d",
+      light: "#f0cf8e",
+      fog: "#87958f",
+    },
+    steps: [
+      {
+        id: "roadside-grief",
+        objective: "Stop beyond the Fair and make room for grief",
+        action: "Sit beside the road",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "The market bells fade behind the wall. Christian sits before the open road and cannot yet call escape relief.",
+          "He remembers Faithful’s road song with the missing line left silent.",
+        ],
+      },
+      {
+        id: "hopeful-arrives",
+        objective: "Meet the citizen who followed from Vanity Fair",
+        action: "Greet the stranger",
+        kind: "companion",
+        position: [-4, -2],
+        dialogue: [
+          "HOPEFUL: My name is Hopeful. I lived by the Fair’s measure until Faithful’s testimony made its poverty visible.",
+          "HOPEFUL: I cannot return unchanged. If you will receive me, I want to travel toward the city he named.",
+        ],
+        journal:
+          "Hopeful — Faithful’s witness produces new companionship. Fruit may appear beyond the witness’s ability to see it.",
+      },
+      {
+        id: "ask-motive",
+        objective: "Ask Hopeful what changed rather than accepting admiration",
+        action: "Hear Hopeful’s story",
+        kind: "companion",
+        position: [4, -2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Ask what he now desires",
+            response: [
+              "HOPEFUL: Not merely Faithful’s courage. I desire the King whose goodness made that courage possible.",
+              "Christian hears the difference between following a hero and entering the hero’s road.",
+            ],
+          },
+          {
+            label: "Ask what he is leaving",
+            response: [
+              "HOPEFUL: A life where every person and conviction had a price. I profited from it and was diminished by it.",
+              "He does not describe himself as innocent simply because he changed direction.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "faithful-memory",
+        objective: "Tell Hopeful about Faithful beyond the courtroom",
+        action: "Remember Faithful",
+        kind: "companion",
+        position: [5, 2],
+        dialogue: [
+          "Christian tells of Wanton, Shame, the road song, honest correction, and Faithful’s laughter when Christian stumbled.",
+          "Faithful becomes a whole companion in Hopeful’s understanding, not only the figure in a public death.",
+        ],
+      },
+      {
+        id: "companion-ledge",
+        objective: "Practice helping Hopeful across the broken ledge",
+        action: "Offer a hand",
+        kind: "companion",
+        position: [3, 5],
+        dialogue: [
+          "Christian braces while Hopeful climbs, then Hopeful steadies the loose stone for Christian.",
+          "Neither traveler becomes the permanent rescuer. Companionship exchanges strength according to the obstacle.",
+        ],
+      },
+      {
+        id: "carry-light",
+        objective: "Let Hopeful carry the lamp through the evening mist",
+        action: "Share the light",
+        kind: "light",
+        position: [-3, 5],
+        dialogue: [
+          "Hopeful carries the lamp while Christian reads the sealed roll at a weathered marker.",
+          "Shared tasks free each person to attend to what the other cannot hold at the same moment.",
+        ],
+      },
+      {
+        id: "road-beyond-vanity",
+        objective: "Leave Vanity’s towers behind without forgetting Faithful",
+        action: "Travel onward together",
+        kind: "companion",
+        position: [0, 1],
+        dialogue: [
+          "Two figures follow the King’s highway into quiet country. A third place remains in their stories and songs.",
+          "Ahead wait flattering roads, silver mines, green meadows, imprisonment, mountains, and a river—but tonight the next mile is enough.",
+        ],
+        journal:
+          "The Road beyond Vanity — Hope does not erase grief. It receives what faithful love has given and carries it forward.",
       },
     ],
   },

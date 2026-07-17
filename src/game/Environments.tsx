@@ -711,6 +711,294 @@ function PalaceGarden({ stepIndex }: { stepIndex: number }) {
   );
 }
 
+function HumiliationValley({ target }: { target: Target }) {
+  return (
+    <>
+      <GrassMeadow count={96} color="#4f6848" flowers />
+      {[-7, 7].map((x) => (
+        <group key={x} scale={0.58}>
+          <Mountain position={[x / 0.58, -0.5, 0]} color="#566253" />
+        </group>
+      ))}
+      {[
+        [-5.5, 0, -4],
+        [5.5, 0, -4],
+        [-6, 0, 4.5],
+        [6, 0, 4.5],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#486044"
+            scale={0.85 + index * 0.05}
+          />
+        ))}
+      {Array.from({ length: 12 }, (_, index) => {
+        const angle = index * 1.7;
+        const position = [Math.sin(angle) * 5.8, 0.12, Math.cos(angle) * 5.3];
+        return clearsTarget(position, target) ? (
+          <mesh key={index} castShadow position={position as [number, number, number]} rotation={[0.2, angle, 0.1]}>
+            <dodecahedronGeometry args={[0.45 + (index % 3) * 0.18]} />
+            <meshStandardMaterial color={index % 2 ? "#665c51" : "#4b4b48"} roughness={1} />
+          </mesh>
+        ) : null;
+      })}
+      <Sparkles count={45} scale={[13, 4, 13]} color="#e6c788" opacity={0.2} />
+    </>
+  );
+}
+
+function ShadowValley({ target }: { target: Target }) {
+  return (
+    <>
+      <Stars radius={22} depth={13} count={520} factor={1.2} fade speed={0.08} />
+      {[-7.4, 7.4].map((x) => (
+        <group key={x} position={[x, 0, 0]}>
+          {[-5, -1.5, 2, 5.5].map((z, index) => (
+            <group key={z} scale={0.52 + index * 0.04}>
+              <Mountain position={[0, -0.9, z / (0.52 + index * 0.04)]} color="#292d35" />
+            </group>
+          ))}
+        </group>
+      ))}
+      {[
+        [-5.5, 0, -3],
+        [5.5, 0, -1],
+        [-5.8, 0, 3],
+        [5.8, 0, 4.5],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree key={index} position={position as [number, number, number]} dead scale={1.1} />
+        ))}
+      {[-4.7, 4.7].map((x) => (
+        <mesh key={x} position={[x, -0.2, 1]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[2.6, 13]} />
+          <meshStandardMaterial color={x < 0 ? "#11151d" : "#20251f"} roughness={0.4} />
+        </mesh>
+      ))}
+      {[-3.8, 0, 3.6].map((z, index) => (
+        <Float key={z} speed={0.6 + index * 0.12} floatIntensity={0.35}>
+          <mesh position={[index % 2 ? 4.8 : -4.8, 0.9, z]}>
+            <sphereGeometry args={[0.16, 10, 8]} />
+            <meshStandardMaterial color="#78a7bd" emissive="#5f91b2" emissiveIntensity={3} />
+          </mesh>
+        </Float>
+      ))}
+      <Sparkles count={55} scale={[14, 4, 14]} color="#75899b" opacity={0.22} />
+    </>
+  );
+}
+
+function FaithfulRoad({ target }: { target: Target }) {
+  return (
+    <>
+      <GrassMeadow count={108} color="#617856" />
+      {[
+        [-6, 0, -4],
+        [6, 0, -4],
+        [-6, 0, 3],
+        [6, 0, 4],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree key={index} position={position as [number, number, number]} color="#54704f" scale={0.9} />
+        ))}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3.2, 15]} />
+        <meshStandardMaterial color="#81765f" roughness={1} />
+      </mesh>
+      {[-4, 0, 4].map((z, index) => (
+        <mesh key={z} position={[index % 2 ? -4.7 : 4.7, 0.04, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.1, 1.22, 24]} />
+          <meshStandardMaterial color={["#b07082", "#9b8d61", "#6c6687"][index]} emissive="#8e735d" emissiveIntensity={0.2} />
+        </mesh>
+      ))}
+      <Cloud position={[0, 7, -6]} scale={[4, 1.1, 1]} opacity={0.2} />
+    </>
+  );
+}
+
+function TalkativeRoad({ target }: { target: Target }) {
+  return (
+    <>
+      <GrassMeadow count={76} color="#6c7355" flowers={false} />
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3, 15]} />
+        <meshStandardMaterial color="#887c68" roughness={1} />
+      </mesh>
+      <group position={[5.2, 0, 2.2]}>
+        <mesh castShadow position={[0, 0.65, 0]}>
+          <cylinderGeometry args={[0.75, 0.9, 1.3, 12]} />
+          <meshStandardMaterial color="#786f64" roughness={1} />
+        </mesh>
+        <WaterPool position={[0, 1.3, 0]} scale={[0.55, 0.55, 0.55]} />
+      </group>
+      {[-5.8, 5.8].map((x, index) =>
+        clearsTarget([x, 0, -4], target) ? (
+          <GnarledTree key={x} position={[x, 0, -4]} color="#5e684b" scale={0.9 + index * 0.1} />
+        ) : null,
+      )}
+      <StoneArch position={[0, 0, -7]} />
+    </>
+  );
+}
+
+function WarningRidge() {
+  return (
+    <>
+      <GrassMeadow count={58} color="#565b47" flowers={false} />
+      <Stars radius={28} depth={18} count={480} factor={1.5} fade speed={0.12} />
+      <group scale={0.58}>
+        <Mountain position={[-10.35, -1, -1]} color="#4d4850" />
+        <Mountain position={[10.35, -1, -1]} color="#514852" />
+      </group>
+      <group position={[0, 0, -10]}>
+        {[-5, -2.5, 0, 2.5, 5].map((x, index) => (
+          <group key={x} position={[x, 0, index % 2 ? 0.8 : 0]}>
+            <mesh position={[0, 1.4, 0]}>
+              <boxGeometry args={[1.5, 2.8, 1.5]} />
+              <meshStandardMaterial color="#6d4155" />
+            </mesh>
+            <pointLight position={[0, 2, -1]} color="#f0a44e" intensity={4} distance={5} />
+          </group>
+        ))}
+      </group>
+      <Cloud position={[0, 6, 3]} scale={[4, 1, 1]} opacity={0.28} />
+    </>
+  );
+}
+
+function MarketStall({ position, color }: { position: [number, number, number]; color: string }) {
+  return (
+    <group position={position}>
+      <mesh castShadow position={[0, 0.75, 0]}>
+        <boxGeometry args={[2.2, 1.5, 1.5]} />
+        <meshStandardMaterial color="#6b5147" roughness={0.92} />
+      </mesh>
+      <mesh castShadow position={[0, 1.8, 0]} rotation={[0, 0, Math.PI / 4]}>
+        <boxGeometry args={[1.8, 1.8, 0.16]} />
+        <meshStandardMaterial color={color} roughness={0.75} />
+      </mesh>
+      {[-0.65, 0, 0.65].map((x) => (
+        <mesh key={x} position={[x, 0.9, -0.82]}>
+          <sphereGeometry args={[0.18, 10, 8]} />
+          <meshStandardMaterial color="#d3a259" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function VanityFair({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  const stalls = [
+    [-5.5, 0, -4, "#a84f61"],
+    [5.5, 0, -4, "#4f7fa1"],
+    [-6, 0, 0, "#bd8a3d"],
+    [6, 0, 0, "#7657a0"],
+    [-5.5, 0, 4, "#4d916c"],
+    [5.5, 0, 4, "#b55e3f"],
+  ] as const;
+  const crowd = [
+    ["talkative", -3.4, -3.8],
+    ["envy", 3.4, -3.6],
+    ["pickthank", -3.7, -0.8],
+    ["servant", 3.6, -0.5],
+    ["superstition", -3.5, 2.5],
+    ["wanton", 3.5, 2.7],
+    ["discontent", -2.7, 5],
+    ["adam", 2.7, 5],
+  ] as const;
+  return (
+    <>
+      {stalls
+        .filter(([x, y, z]) => clearsTarget([x, y, z], target))
+        .map(([x, y, z, color]) => (
+          <MarketStall key={`${x}-${z}`} position={[x, y, z]} color={color} />
+        ))}
+      {crowd
+        .filter(([, x, z]) => clearsTarget([x, 0, z], target, 1.8))
+        .map(([variant, x, z], index) => (
+          <group key={`${variant}-${index}`} position={[x, 0, z]} rotation={[0, index % 2 ? -0.45 : 0.45, 0]}>
+            <Character variant={variant} scale={0.68} />
+          </group>
+        ))}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[5, 16]} />
+        <meshStandardMaterial color="#8a6a5c" roughness={1} />
+      </mesh>
+      {stepIndex >= 5 && (
+        <group position={[0, 0, -9]}>
+          <mesh castShadow position={[0, 2, 0]}>
+            <boxGeometry args={[8, 4, 3]} />
+            <meshStandardMaterial color="#4c4148" roughness={0.95} />
+          </mesh>
+          {[-2.5, -1.5, -0.5, 0.5, 1.5, 2.5].map((x) => (
+            <mesh key={x} position={[x, 1.2, 1.55]}>
+              <cylinderGeometry args={[0.05, 0.05, 2.4, 8]} />
+              <meshStandardMaterial color="#25272e" metalness={0.8} />
+            </mesh>
+          ))}
+        </group>
+      )}
+      {stepIndex >= 7 && (
+        <group position={[-5.2, 0, -4]}>
+          <mesh position={[0, 1.2, 0]}>
+            <boxGeometry args={[3.4, 2.4, 2.2]} />
+            <meshStandardMaterial color="#68484b" />
+          </mesh>
+          <mesh position={[0, 2.7, 0]}>
+            <boxGeometry args={[4.2, 0.35, 2.6]} />
+            <meshStandardMaterial color="#b08b57" />
+          </mesh>
+        </group>
+      )}
+      {stepIndex === 12 && (
+        <group position={[3, 0, 5]}>
+          <mesh position={[0, 2.7, 0]}>
+            <cylinderGeometry args={[0.45, 1.35, 5.4, 16, 1, true]} />
+            <meshBasicMaterial color="#f8dda0" transparent opacity={0.2} side={2} />
+          </mesh>
+          <Float speed={0.65} floatIntensity={0.5}>
+            <mesh position={[0, 3.8, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.9, 0.08, 8, 32]} />
+              <meshStandardMaterial color="#fff1b1" emissive="#f4c96f" emissiveIntensity={3} />
+            </mesh>
+          </Float>
+          <pointLight position={[0, 3, 0]} color="#ffe3a0" intensity={12} distance={10} />
+          <Sparkles count={70} scale={[3, 7, 3]} color="#fff0b0" opacity={0.75} />
+        </group>
+      )}
+      <Sparkles count={100} scale={[15, 7, 15]} color="#f0bd60" opacity={stepIndex < 5 ? 0.42 : 0.16} />
+    </>
+  );
+}
+
+function HopefulRoad({ target }: { target: Target }) {
+  return (
+    <>
+      <GrassMeadow count={92} color="#607359" />
+      {[-6, 6].map((x, index) =>
+        clearsTarget([x, 0, 2], target) ? (
+          <GnarledTree key={x} position={[x, 0, 2]} color="#536c53" scale={1 + index * 0.08} />
+        ) : null,
+      )}
+      <mesh position={[0, 0.05, 4]}>
+        <boxGeometry args={[5.6, 0.18, 1.5]} />
+        <meshStandardMaterial color="#6e685d" roughness={1} />
+      </mesh>
+      <mesh position={[0.7, -0.05, 4]} rotation={[0, 0.25, 0]}>
+        <boxGeometry args={[1.35, 0.3, 1.8]} />
+        <meshStandardMaterial color="#343b3d" />
+      </mesh>
+      <Cloud position={[0, 6, -4]} scale={[4, 1, 1]} opacity={0.22} />
+      <Sparkles count={36} scale={[13, 4, 13]} color="#e7d39a" opacity={0.24} />
+    </>
+  );
+}
+
 export function SceneEnvironment({
   id,
   stepIndex,
@@ -733,5 +1021,12 @@ export function SceneEnvironment({
   if (id === "hill") return <DifficultyHill />;
   if (id === "arbor") return <ArborShelter />;
   if (id === "lions") return <LionsApproach />;
-  return <PalaceGarden stepIndex={stepIndex} />;
+  if (id === "palace") return <PalaceGarden stepIndex={stepIndex} />;
+  if (id === "humiliation") return <HumiliationValley target={target} />;
+  if (id === "shadow") return <ShadowValley target={target} />;
+  if (id === "faithful") return <FaithfulRoad target={target} />;
+  if (id === "talkative") return <TalkativeRoad target={target} />;
+  if (id === "warning") return <WarningRidge />;
+  if (id === "vanity") return <VanityFair stepIndex={stepIndex} target={target} />;
+  return <HopefulRoad target={target} />;
 }

@@ -30,6 +30,8 @@ Status: complete
 
 ## 4. Valleys and Vanity Fair
 
+Status: complete
+
 - Apollyon encounter focused on courage and defense
 - Valley of Shadow traversal and sound-based navigation
 - Faithful, Talkative, Evangelist warning

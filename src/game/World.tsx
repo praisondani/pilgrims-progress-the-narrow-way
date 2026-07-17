@@ -36,16 +36,30 @@ function personFor(id: string): CharacterVariant {
   if (id === "prudence") return "prudence";
   if (id === "piety") return "piety";
   if (id === "charity") return "charity";
+  if (id.includes("faithful")) return "faithful";
+  if (id.includes("hopeful")) return "hopeful";
+  if (id.includes("wanton")) return "wanton";
+  if (id.includes("adam")) return "adam";
+  if (id.includes("discontent")) return "discontent";
+  if (id.includes("shame")) return "shame";
+  if (id.includes("talkative")) return "talkative";
+  if (id.includes("servant")) return "servant";
+  if (id.includes("hategood")) return "hategood";
+  if (id.includes("envy")) return "envy";
+  if (id.includes("superstition")) return "superstition";
+  if (id.includes("pickthank")) return "pickthank";
   return "interpreter";
 }
 function TargetShape({
   kind,
   light,
   id,
+  sceneId,
 }: {
   kind: StepKind;
   light: string;
   id: string;
+  sceneId: string;
 }) {
   if (
     [
@@ -76,6 +90,93 @@ function TargetShape({
       </group>
     );
   if (kind === "person") return <Character variant={personFor(id)} />;
+  if (kind === "companion")
+    return (
+      <Character
+        variant={sceneId === "hopeful" ? "hopeful" : "faithful"}
+      />
+    );
+  if (kind === "enemy")
+    return (
+      <group position={[0, 1.15, 0]} scale={1.15}>
+        <mesh castShadow scale={[1.1, 1.35, 0.8]}>
+          <sphereGeometry args={[0.7, 14, 10]} />
+          <meshStandardMaterial color="#51404c" roughness={0.72} metalness={0.16} />
+        </mesh>
+        <mesh position={[0, 0.72, 0]} castShadow>
+          <sphereGeometry args={[0.42, 14, 10]} />
+          <meshStandardMaterial color="#613e48" roughness={0.86} />
+        </mesh>
+        {[-0.14, 0.14].map((x) => (
+          <mesh key={x} position={[x, 0.8, 0.38]}>
+            <sphereGeometry args={[0.055, 10, 8]} />
+            <meshStandardMaterial color="#ffd26c" emissive="#d84e3e" emissiveIntensity={3} />
+          </mesh>
+        ))}
+        <mesh position={[0, 0.53, 0.4]} rotation={[0.25, 0, 0]}>
+          <coneGeometry args={[0.2, 0.34, 5]} />
+          <meshStandardMaterial color="#34282e" roughness={0.9} />
+        </mesh>
+        {[-0.26, 0.26].map((x) => (
+          <mesh key={x} position={[x, 1.2, -0.03]} rotation={[0, 0, x * 1.5]}>
+            <coneGeometry args={[0.12, 0.75, 7]} />
+            <meshStandardMaterial color="#342b31" />
+          </mesh>
+        ))}
+        {[-1, 1].map((side) => (
+          <group key={side}>
+            <mesh position={[side * 0.86, 0.25, -0.25]} rotation={[0.2, 0, side * 0.7]}>
+              <coneGeometry args={[0.7, 1.8, 5]} />
+              <meshStandardMaterial color="#342f44" side={2} roughness={0.9} />
+            </mesh>
+            <mesh castShadow position={[side * 0.73, 0.05, 0.15]} rotation={[0.5, 0, side * 0.65]}>
+              <capsuleGeometry args={[0.11, 0.72, 7, 10]} />
+              <meshStandardMaterial color="#563741" roughness={0.82} />
+            </mesh>
+          </group>
+        ))}
+        <mesh position={[0, -0.3, -0.52]} rotation={[0.3, 0, 0]}>
+          <torusGeometry args={[0.62, 0.09, 8, 24, Math.PI * 1.35]} />
+          <meshStandardMaterial color="#47313b" roughness={0.88} />
+        </mesh>
+        <pointLight position={[0, 0.8, 0.7]} color="#d15c4e" intensity={3} distance={4} />
+      </group>
+    );
+  if (kind === "market")
+    return (
+      <group position={[0, 0.7, 0]}>
+        <mesh castShadow>
+          <boxGeometry args={[1.8, 1.1, 1]} />
+          <meshStandardMaterial color="#754657" roughness={0.9} />
+        </mesh>
+        <mesh position={[0, 0.9, 0]} rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[1.5, 1.5, 0.12]} />
+          <meshStandardMaterial color="#d2a14f" />
+        </mesh>
+      </group>
+    );
+  if (kind === "prison")
+    return (
+      <group position={[0, 1, 0]}>
+        {[-0.75, -0.38, 0, 0.38, 0.75].map((x) => (
+          <mesh key={x} position={[x, 0, 0]}>
+            <cylinderGeometry args={[0.045, 0.045, 2.2, 8]} />
+            <meshStandardMaterial color="#383b42" metalness={0.85} roughness={0.25} />
+          </mesh>
+        ))}
+      </group>
+    );
+  if (kind === "prayer")
+    return (
+      <group position={[0, 0.8, 0]}>
+        {[0.45, 0.7, 0.95].map((radius, index) => (
+          <mesh key={radius} rotation={[Math.PI / 2, index * 0.5, 0]}>
+            <torusGeometry args={[radius, 0.025, 6, 32]} />
+            <meshStandardMaterial color={light} emissive={light} emissiveIntensity={1.4 - index * 0.25} transparent opacity={0.8 - index * 0.16} />
+          </mesh>
+        ))}
+      </group>
+    );
   if (kind === "gate") return <StoneArch position={[0, 0, 0]} gate />;
   if (kind === "cross") return <CrossMonument />;
   if (kind === "cage")
@@ -218,6 +319,7 @@ function ActiveTarget() {
           kind={step.kind}
           light={scene.palette.light}
           id={step.id}
+          sceneId={scene.id}
         />
       </Float>
       <Sparkles

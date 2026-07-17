@@ -155,6 +155,172 @@ export const puzzles: Record<string, Puzzle> = {
     options: ["Fasten the shoes", "Raise the shield", "Take the sword"],
     solution: [0, 1, 2],
   },
+  "humiliation:damaged-road": {
+    type: "sequence",
+    title: "Read the battlefield",
+    instruction:
+      "Preparation begins before danger speaks. Read the marks without surrendering to imagination.",
+    options: ["Check the wind", "Trace the heavy prints", "Ready the shield"],
+    solution: [1, 0, 2],
+  },
+  "humiliation:catalogue-failures": {
+    type: "focus",
+    title: "Facts without the false verdict",
+    instruction:
+      "Hold failure and mercy in view together. Do not deny either one.",
+    target: 52,
+    tolerance: 5,
+    low: "Excuse every failure",
+    high: "Let failure erase mercy",
+  },
+  "humiliation:raise-shield": {
+    type: "sequence",
+    title: "Stand under accusation",
+    instruction:
+      "Watch the attack, protect your ground, then answer when the noise has passed.",
+    options: ["Raise the shield", "Listen for the strike", "Answer with truth"],
+    solution: [1, 0, 2],
+  },
+  "humiliation:recover-sword": {
+    type: "focus",
+    title: "Reach from the ground",
+    instruction:
+      "Panic stretches the distance. Fix attention on the hilt and recover what was dropped.",
+    target: 82,
+    tolerance: 6,
+    low: "Apollyon above",
+    high: "Sword within reach",
+  },
+  "humiliation:final-resistance": {
+    type: "sequence",
+    title: "Persevere",
+    instruction:
+      "Courage is practiced through repeated defense, truth, and faithful advance.",
+    options: ["Advance", "Answer", "Guard"],
+    solution: [2, 1, 0, 2, 0],
+  },
+  "shadow:listen-wind": {
+    type: "focus",
+    title: "Hear the open path",
+    instruction:
+      "Separate the steady path-tone from the hollow ditch and sound-swallowing mire.",
+    target: 41,
+    tolerance: 5,
+    low: "Hollow ditch",
+    high: "Silent mire",
+  },
+  "shadow:ditch-crossing": {
+    type: "sequence",
+    title: "Follow the clean echo",
+    instruction:
+      "Test sound before weight where the path cannot be seen.",
+    options: ["Tap the stone", "Step toward the short echo", "Call into the ditch"],
+    solution: [0, 1, 0, 1],
+  },
+  "shadow:false-lanterns": {
+    type: "sequence",
+    title: "Reject the wandering lights",
+    instruction:
+      "A trustworthy light reveals the path; a false one keeps moving the destination.",
+    options: ["Watch the path marker", "Chase the brightest glow", "Check the light against the wind"],
+    solution: [2, 0],
+  },
+  "shadow:whispered-voice": {
+    type: "focus",
+    title: "Recover your own voice",
+    instruction:
+      "Speak the remembered prayer steadily until the intrusive whisper loses its rhythm.",
+    target: 68,
+    tolerance: 6,
+    low: "Whispered suggestion",
+    high: "Prayer spoken aloud",
+  },
+  "shadow:fire-mouth": {
+    type: "sequence",
+    title: "Cross between breaths",
+    instruction:
+      "Listen for the vent’s pattern and move during the safe interval.",
+    options: ["Hear the intake", "Cross", "Wait through the flame"],
+    solution: [2, 0, 1],
+  },
+  "shadow:narrowest-path": {
+    type: "focus",
+    title: "Balance ditch and mire",
+    instruction:
+      "Keep your weight centered where fear pulls toward both hazards.",
+    target: 50,
+    tolerance: 4,
+    low: "Ditch",
+    high: "Mire",
+  },
+  "faithful:adam-memory": {
+    type: "sequence",
+    title: "Read Adam’s contract",
+    instruction:
+      "Look beyond attractive wages to ownership, debt, and freedom to leave.",
+    options: ["Read the inheritance", "Find the hidden debt", "Ask who owns the servant"],
+    solution: [0, 1, 2],
+  },
+  "talkative:evidence-table": {
+    type: "sequence",
+    title: "Test speech by fruit",
+    instruction:
+      "Discern character without relying on charisma or rumor alone.",
+    options: ["Observe repeated conduct", "Hear the claim", "Test response to correction"],
+    solution: [1, 0, 2],
+  },
+  "vanity:public-disorder": {
+    type: "sequence",
+    title: "Protect people in the crowd",
+    instruction:
+      "Make space for the vulnerable before trying to defend your reputation.",
+    options: ["Brace the cart", "Open a clear path", "Answer the accusation"],
+    solution: [0, 1],
+  },
+  "vanity:witnesses-false": {
+    type: "sequence",
+    title: "Compare the witnesses",
+    instruction:
+      "Place the claims beside one another and identify what cannot both be true.",
+    options: ["Mark shared hostility", "Separate claims from motives", "Compare contradictions"],
+    solution: [1, 2, 0],
+  },
+  "vanity:faithful-witness": {
+    type: "focus",
+    title: "Keep watch without spectacle",
+    instruction:
+      "Honor Faithful’s witness without turning suffering into entertainment.",
+    target: 36,
+    tolerance: 6,
+    low: "Look away entirely",
+    high: "Consume the spectacle",
+  },
+  "vanity:christian-escape": {
+    type: "sequence",
+    title: "Leave the prison unseen",
+    instruction:
+      "Follow the help offered through the dispute without mistaking escape for superiority.",
+    options: ["Wait for the guard turn", "Follow the marked passage", "Claim public victory"],
+    solution: [0, 1],
+  },
+  "hopeful:companion-ledge": {
+    type: "sequence",
+    title: "Cross as companions",
+    instruction:
+      "Each traveler gives and receives help according to the obstacle.",
+    options: ["Brace the ledge", "Offer a hand", "Steady the loose stone"],
+    solution: [0, 1, 2],
+  },
+  "hopeful:carry-light": {
+    type: "focus",
+    title: "Share light and attention",
+    instruction:
+      "Let Hopeful hold the lamp where Christian can read the sealed roll clearly.",
+    target: 63,
+    tolerance: 5,
+    low: "Marker in shadow",
+    high: "Glare on the roll",
+  },
 };
 export const puzzleFor = (sceneId: string, stepId: string) =>
   puzzles[`${sceneId}:${stepId}`];

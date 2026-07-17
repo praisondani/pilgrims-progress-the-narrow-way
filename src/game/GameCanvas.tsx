@@ -1,7 +1,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PerspectiveCamera as PerspectiveCameraType, Vector3 } from "three";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 import { Player, playerPosition } from "./Player";
@@ -123,17 +123,43 @@ function Exposure() {
   }, [gl, visibility]);
   return null;
 }
+function FrameReady({ onReady }: { onReady: () => void }) {
+  const signaled = useRef(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useFrame(() => {
+    if (signaled.current) return;
+    signaled.current = true;
+    timer.current = window.setTimeout(onReady, 220);
+  });
+  return null;
+}
 export function GameCanvas() {
   const sceneIndex = useGame((s) => s.sceneIndex);
   const checkpointRevision = useGame((s) => s.checkpointRevision);
+  const sceneKey = `${sceneIndex}-${checkpointRevision}`;
+  const [readyKey, setReadyKey] = useState("");
+  const ready = readyKey === sceneKey;
   return (
-    <Canvas shadows dpr={[1, 1.5]} gl={{ antialias: true }}>
-      <Exposure />
-      <Physics gravity={[0, -12, 0]}>
-        <World />
-        <Player key={`${sceneIndex}-${checkpointRevision}`} />
-      </Physics>
-      <CameraRig />
-    </Canvas>
+    <div className="canvas-shell">
+      {!ready && (
+        <div className="scene-loader" role="status" aria-live="polite">
+          <span>Preparing the road</span>
+          <strong>{storyScenes[sceneIndex].title}</strong>
+        </div>
+      )}
+      <Canvas shadows dpr={[1, 1.5]} gl={{ antialias: true }}>
+        <Exposure />
+        <Physics gravity={[0, -12, 0]}>
+          <World />
+          <Player key={sceneKey} />
+        </Physics>
+        <CameraRig />
+        <FrameReady
+          key={sceneKey}
+          onReady={() => setReadyKey(sceneKey)}
+        />
+      </Canvas>
+    </div>
   );
 }

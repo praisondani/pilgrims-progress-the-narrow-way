@@ -79,9 +79,9 @@ function Title() {
         </h1>
         <p className="subtitle">The Narrow Way</p>
         <p className="intro">
-          A detailed story journey from the City of Destruction through Palace
-          Beautiful. Explore, listen, discern, and carry Christian through each
-          symbolic trial.
+          A detailed story journey from the City of Destruction through Vanity
+          Fair. Explore, listen, discern, defend, endure, and carry Christian
+          through each symbolic trial.
         </p>
         <button
           className="primary"
@@ -209,6 +209,7 @@ function Overlay() {
             <span className="warning">□ Sealed roll missing</span>
           )}
           {game.equipment.length > 0 && <span>⚔ Equipped for valleys</span>}
+          {scene.id === "hopeful" && <span>◇ Hopeful travels with you</span>}
         </div>
         <NavigationCue
           target={step.position}
@@ -266,7 +267,7 @@ function Overlay() {
             </div>
             <button className="primary" onClick={game.continueScene}>
               {game.sceneIndex === storyScenes.length - 1
-                ? "Complete palace stay"
+                ? "Continue beyond Vanity"
                 : "Continue the journey"}{" "}
               →
             </button>
@@ -276,16 +277,16 @@ function Overlay() {
       {game.gameComplete && (
         <div className="modal ending">
           <section>
-            <p className="eyebrow">RESTED AND EQUIPPED</p>
-            <h2>The valley waits.</h2>
+            <p className="eyebrow">FAITHFUL REMEMBERED · HOPE RENEWED</p>
+            <h2>The road continues.</h2>
             <p>
-              Christian has passed the Cross, recovered his sealed roll, faced
-              the chained lions, and received fellowship and armor at Palace
-              Beautiful.
+              Christian has resisted Apollyon, crossed the Shadow, received
+              Faithful’s friendship and witness, escaped Vanity Fair, and
+              welcomed Hopeful to the road.
             </p>
             <div className="ending-road">
-              Valley of Humiliation · Apollyon · Shadow of Death · Faithful ·
-              Vanity Fair · Celestial City
+              By-Ends · By-Path Meadow · Doubting Castle · Delectable Mountains
+              · Beulah · River · Celestial City
             </div>
             <button className="primary" onClick={game.reset}>
               Dream again

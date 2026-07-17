@@ -13,6 +13,13 @@ const sceneTones: Record<string, number> = {
   arbor: 117,
   lions: 92,
   palace: 196,
+  humiliation: 88,
+  shadow: 61,
+  faithful: 185,
+  talkative: 151,
+  warning: 104,
+  vanity: 139,
+  hopeful: 207,
 };
 class GameAudio {
   private ctx?: AudioContext;
@@ -81,12 +88,14 @@ class GameAudio {
       1.8,
     );
     this.filter?.frequency.setTargetAtTime(
-      id === "slough"
+      id === "slough" || id === "shadow"
         ? 240
-        : id === "cross" || id === "palace"
+        : id === "cross" || id === "palace" || id === "hopeful"
           ? 900
-          : id === "lions"
+          : id === "lions" || id === "humiliation"
             ? 320
+            : id === "vanity"
+              ? 680
             : 480,
       this.ctx.currentTime,
       1,
@@ -125,6 +134,9 @@ class GameAudio {
   }
   error() {
     this.tone(95, 0.2, 0.08, "sawtooth");
+  }
+  focus(value: number) {
+    this.tone(130 + value * 4.2, 0.075, 0.035, "sine");
   }
   walking(moving: boolean, mud = false) {
     if (!moving || !this.ctx || !this.enabled) return;

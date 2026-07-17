@@ -125,9 +125,36 @@ button {
   padding-left: 1rem;
 }
 .game,
+.canvas-shell,
 .game canvas {
   width: 100vw;
   height: 100dvh;
+}
+.canvas-shell {
+  position: fixed;
+  inset: 0;
+}
+.scene-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  gap: 0.45rem;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 60%, #564634 0, #211c25 42%, #100e16 100%);
+  color: #f2e7cf;
+  pointer-events: none;
+}
+.scene-loader span {
+  color: #d4a862;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.scene-loader strong {
+  font: 600 clamp(1.8rem, 5vw, 3.6rem) "Cormorant Garamond", serif;
 }
 .game canvas {
   cursor: grab;

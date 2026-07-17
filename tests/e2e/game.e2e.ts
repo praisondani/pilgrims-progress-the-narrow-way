@@ -18,6 +18,7 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await expect(page.getByTestId("game-screen")).toBeVisible();
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
   await expect(page.locator("canvas")).toBeVisible();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
   await expect(
     page.getByText("Find and light the abandoned lantern"),
   ).toBeVisible();
@@ -59,9 +60,7 @@ test("shows a readable continue action on chapter completion", async ({
   await cue.click();
   const interactPrompt = page.locator(".interact-prompt");
   await expect(interactPrompt).toBeVisible({ timeout: 12_000 });
-  await page.evaluate(() =>
-    document.querySelector<HTMLButtonElement>(".interact-prompt")?.click(),
-  );
+  await interactPrompt.click({ force: true });
   const spoken = page.locator(".spoken");
   await expect(spoken).toBeVisible();
   await spoken.click();
@@ -138,7 +137,7 @@ test("migrates an old Cross ending into the expanded journey", async ({
   );
 });
 
-test("completes Palace Beautiful and prepares the valley journey", async ({
+test("continues from Palace Beautiful into the valley journey", async ({
   page,
 }) => {
   test.setTimeout(90_000);
@@ -161,7 +160,7 @@ test("completes Palace Beautiful and prepares the valley journey", async ({
           reducedMotion: false,
           cinematicCamera: true,
         },
-        version: 4,
+        version: 5,
       }),
     ),
   );
@@ -170,19 +169,87 @@ test("completes Palace Beautiful and prepares the valley journey", async ({
   const interactPrompt = page.locator(".interact-prompt");
   await cue.evaluate((element) => (element as HTMLButtonElement).click());
   await expect(interactPrompt).toBeVisible({ timeout: 18_000 });
-  await page.evaluate(() =>
-    document.querySelector<HTMLButtonElement>(".interact-prompt")?.click(),
-  );
+  await interactPrompt.click({ force: true });
   const spoken = page.locator(".spoken");
   await expect(spoken).toBeVisible();
   for (let line = 0; line < 3; line++) await spoken.click({ force: true });
   const chapterCta = page.locator(".chapter-card .primary");
-  await expect(chapterCta).toContainText("Complete palace stay");
+  await expect(chapterCta).toContainText("Continue the journey");
   await chapterCta.click();
-  await expect(page.locator(".ending")).toContainText("The valley waits");
+  await expect(page.getByTestId("game-hud")).toContainText(
+    "Valley of Humiliation",
+  );
 });
 
-test("completes the full Dream-to-Palace journey through real controls", async ({
+test("migrates an old Palace ending into the expanded valley journey", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 13,
+          stepIndex: 8,
+          burden: 0,
+          hasRoll: true,
+          equipment: ["sword", "shield", "helmet", "breastplate", "shoes"],
+          gameComplete: true,
+        },
+        version: 4,
+      }),
+    ),
+  );
+  await page.reload();
+  await expect(page.getByTestId("game-hud")).toContainText(
+    "Valley of Humiliation",
+  );
+  await expect(page.locator(".ending")).toBeHidden();
+});
+
+test("completes Hopeful’s road beyond Vanity", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 20,
+          stepIndex: 6,
+          burden: 0,
+          hasRoll: true,
+          equipment: ["sword", "shield", "helmet", "breastplate", "shoes"],
+          journal: [],
+          gameComplete: false,
+          soundEnabled: false,
+          visibility: "bright",
+          textSize: "normal",
+          reducedMotion: false,
+          cinematicCamera: true,
+        },
+        version: 5,
+      }),
+    ),
+  );
+  await page.reload();
+  const cue = page.locator(".navigation-cue");
+  const interactPrompt = page.locator(".interact-prompt");
+  await cue.evaluate((element) => (element as HTMLButtonElement).click());
+  await expect(interactPrompt).toBeVisible({ timeout: 18_000 });
+  await interactPrompt.click({ force: true });
+  const spoken = page.locator(".spoken");
+  await expect(spoken).toBeVisible();
+  await spoken.click();
+  await spoken.click();
+  const chapterCta = page.locator(".chapter-card .primary");
+  await expect(chapterCta).toContainText("Continue beyond Vanity");
+  await chapterCta.click();
+  await expect(page.locator(".ending")).toContainText("The road continues");
+});
+
+test("completes the full Dream-to-Hopeful journey through real controls", async ({
   page,
   isMobile,
 }) => {
@@ -190,13 +257,13 @@ test("completes the full Dream-to-Palace journey through real controls", async (
     Boolean(isMobile),
     "Full keyboard journey runs in desktop project; mobile retains smoke coverage.",
   );
-  test.setTimeout(1_800_000);
+  test.setTimeout(3_600_000);
   await page.getByRole("button", { name: "Enter the dream" }).click();
   await expect(page.locator("canvas")).toBeVisible();
   const journeyStartedAt = Date.now();
   const cue = page.locator(".navigation-cue");
   const interactPrompt = page.locator(".interact-prompt");
-  const walkToTarget = async () => {
+  const walkToTarget = async (sceneId: string, stepId: string) => {
     if (await interactPrompt.isVisible()) return;
     await expect(cue).toBeEnabled();
     await expect
@@ -209,7 +276,11 @@ test("completes the full Dream-to-Palace journey through real controls", async (
             );
           return false;
         },
-        { timeout: 18_000, intervals: [0, 200, 400] },
+        {
+          timeout: process.env.CI ? 60_000 : 24_000,
+          intervals: [0, 200, 400],
+          message: `Reach ${sceneId}:${stepId} through guided travel`,
+        },
       )
       .toBe(true);
   };
@@ -224,19 +295,10 @@ test("completes the full Dream-to-Palace journey through real controls", async (
     for (const step of scene.steps) {
       await expect(page.locator(".objective")).toContainText(step.objective);
       await page.waitForTimeout(140);
-      await walkToTarget();
+      await walkToTarget(scene.id, step.id);
 
-      await expect
-        .poll(() =>
-          page.evaluate(() => {
-            const prompt =
-              document.querySelector<HTMLButtonElement>(".interact-prompt");
-            if (!prompt) return false;
-            prompt.click();
-            return true;
-          }),
-        )
-        .toBe(true);
+      await expect(interactPrompt).toBeVisible();
+      await interactPrompt.click({ force: true });
       const puzzle = puzzleFor(scene.id, step.id);
       if (puzzle) {
         await expect(page.locator(".puzzle-shell")).toBeVisible();
@@ -278,7 +340,7 @@ test("completes the full Dream-to-Palace journey through real controls", async (
     await expect(chapterCta).toBeVisible();
     await expect(chapterCta).toContainText(
       sceneIndex === storyScenes.length - 1
-        ? "Complete palace stay"
+        ? "Continue beyond Vanity"
         : "Continue the journey",
     );
     await expect
@@ -293,7 +355,7 @@ test("completes the full Dream-to-Palace journey through real controls", async (
   }
 
   await expect(page.locator(".ending")).toBeVisible();
-  await expect(page.locator(".ending")).toContainText("The valley waits");
+  await expect(page.locator(".ending")).toContainText("The road continues");
   console.info(
     `[journey] complete (${Math.round((Date.now() - journeyStartedAt) / 1000)}s)`,
   );

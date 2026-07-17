@@ -27,7 +27,19 @@ export type CharacterVariant =
   | "discretion"
   | "prudence"
   | "piety"
-  | "charity";
+  | "charity"
+  | "faithful"
+  | "hopeful"
+  | "wanton"
+  | "adam"
+  | "discontent"
+  | "shame"
+  | "talkative"
+  | "servant"
+  | "hategood"
+  | "envy"
+  | "superstition"
+  | "pickthank";
 const clothes: Record<CharacterVariant, [string, string, string]> = {
   christian: ["#8f4939", "#493349", "#b97855"],
   dreamer: ["#4b556d", "#292b3a", "#9f7159"],
@@ -53,6 +65,18 @@ const clothes: Record<CharacterVariant, [string, string, string]> = {
   prudence: ["#405f67", "#c7aa72", "#a96f58"],
   piety: ["#615079", "#d1af75", "#ae765d"],
   charity: ["#7d4f54", "#d1a06f", "#b77b61"],
+  faithful: ["#a85f42", "#e0bc72", "#a97056"],
+  hopeful: ["#497163", "#d8c373", "#ac755b"],
+  wanton: ["#9c4f70", "#e1a86f", "#b97761"],
+  adam: ["#68543c", "#b99658", "#9d694f"],
+  discontent: ["#565a68", "#8c897e", "#a66e55"],
+  shame: ["#633f5f", "#b16c74", "#a76e58"],
+  talkative: ["#7a557d", "#d3ad64", "#ae7359"],
+  servant: ["#676055", "#887d67", "#9c6852"],
+  hategood: ["#552c32", "#a88452", "#b1785c"],
+  envy: ["#436346", "#8fa35b", "#9f6954"],
+  superstition: ["#564d78", "#9790ac", "#a97058"],
+  pickthank: ["#825c43", "#c89e55", "#b0775a"],
 };
 
 export function Character({
@@ -77,6 +101,12 @@ export function Character({
   const leftLeg = useRef<Group>(null);
   const rightLeg = useRef<Group>(null);
   const [cloth, accent, skin] = clothes[variant];
+  const torsoScale: [number, number, number] =
+    variant === "faithful"
+      ? [0.74, 1.04, 0.52]
+      : variant === "hopeful"
+        ? [0.82, 1.02, 0.57]
+        : [0.86, 1, 0.58];
   const reducedMotion = useGame((s) => s.reducedMotion);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
@@ -108,11 +138,16 @@ export function Character({
     "worldly",
     "goodwill",
     "interpreter",
+    "faithful",
+    "hopeful",
+    "adam",
+    "talkative",
+    "hategood",
   ].includes(variant);
   return (
     <group ref={root} scale={scale}>
       <group ref={torso}>
-        <mesh castShadow position={[0, 1.02, 0]} scale={[0.86, 1, 0.58]}>
+        <mesh castShadow position={[0, 1.02, 0]} scale={torsoScale}>
           <capsuleGeometry args={[0.32, 0.52, 8, 16]} />
           <meshStandardMaterial color={cloth} roughness={0.88} />
         </mesh>
@@ -124,6 +159,18 @@ export function Character({
           <sphereGeometry args={[0.25, 12, 8]} />
           <meshStandardMaterial color={accent} roughness={0.9} />
         </mesh>
+        {variant === "faithful" && (
+          <mesh position={[0, 1.02, 0.37]} rotation={[0, 0, -0.55]}>
+            <boxGeometry args={[0.12, 0.9, 0.05]} />
+            <meshStandardMaterial color="#d9bd72" roughness={0.82} />
+          </mesh>
+        )}
+        {variant === "hopeful" && (
+          <mesh position={[0, 1.25, 0.34]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.28, 0.055, 7, 18]} />
+            <meshStandardMaterial color="#e1ca78" roughness={0.86} />
+          </mesh>
+        )}
       </group>
 
       <mesh castShadow position={[0, 1.48, 0]}>
@@ -165,6 +212,18 @@ export function Character({
           <torusGeometry args={[0.055, 0.012, 6, 16, Math.PI]} />
           <meshStandardMaterial color="#70423d" />
         </mesh>
+        {variant === "hategood" && (
+          <>
+            <mesh position={[0, 0.28, 0]}>
+              <cylinderGeometry args={[0.38, 0.38, 0.08, 12]} />
+              <meshStandardMaterial color="#32282c" roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 0.44, 0]}>
+              <cylinderGeometry args={[0.25, 0.3, 0.3, 10]} />
+              <meshStandardMaterial color="#4b3138" roughness={0.88} />
+            </mesh>
+          </>
+        )}
       </group>
 
       {([-1, 1] as const).map((side) => (

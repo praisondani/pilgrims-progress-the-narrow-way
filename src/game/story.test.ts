@@ -3,7 +3,7 @@ import { storyScenes, totalStoryBeats } from "./story";
 import { puzzles } from "./puzzles";
 
 describe("Part One story journey", () => {
-  it("covers the complete planned journey through Palace Beautiful", () => {
+  it("covers the complete planned journey through Vanity Fair and Hopeful", () => {
     expect(storyScenes.map((scene) => scene.id)).toEqual([
       "dream",
       "city",
@@ -19,8 +19,15 @@ describe("Part One story journey", () => {
       "arbor",
       "lions",
       "palace",
+      "humiliation",
+      "shadow",
+      "faithful",
+      "talkative",
+      "warning",
+      "vanity",
+      "hopeful",
     ]);
-    expect(totalStoryBeats).toBeGreaterThanOrEqual(90);
+    expect(totalStoryBeats).toBeGreaterThanOrEqual(155);
   });
 
   it("gates every beat behind a meaningful interaction", () => {
@@ -54,9 +61,54 @@ describe("Part One story journey", () => {
   });
 
   it("adds mechanical trials to every major journey phase", () => {
-    expect(Object.keys(puzzles).length).toBeGreaterThanOrEqual(15);
+    expect(Object.keys(puzzles).length).toBeGreaterThanOrEqual(34);
     expect(
       new Set(Object.keys(puzzles).map((key) => key.split(":")[0])).size,
-    ).toBeGreaterThanOrEqual(12);
+    ).toBeGreaterThanOrEqual(18);
+  });
+
+  it("preserves the full Apollyon encounter and recovery arc", () => {
+    const valley = storyScenes.find((scene) => scene.id === "humiliation")!;
+    expect(valley.steps.map((step) => step.id)).toEqual([
+      "valley-descent",
+      "damaged-road",
+      "apollyon-appears",
+      "former-master",
+      "catalogue-failures",
+      "raise-shield",
+      "truth-response",
+      "lose-footing",
+      "recover-sword",
+      "final-resistance",
+    ]);
+    expect(Object.keys(puzzles).filter((key) => key.startsWith("humiliation:")))
+      .toHaveLength(5);
+  });
+
+  it("keeps Vanity Fair social, judicial, restrained, and consequential", () => {
+    const vanity = storyScenes.find((scene) => scene.id === "vanity")!;
+    expect(vanity.steps.map((step) => step.id)).toEqual([
+      "fair-gates",
+      "wares-of-status",
+      "merchant-pressure",
+      "crowd-suspicion",
+      "public-disorder",
+      "arrest",
+      "prison-night",
+      "hategood-court",
+      "witness-envy",
+      "witnesses-false",
+      "faithful-testimony",
+      "condemnation",
+      "faithful-witness",
+      "christian-escape",
+    ]);
+    const martyrdom = vanity.steps.find(
+      (step) => step.id === "faithful-witness",
+    )!;
+    expect(martyrdom.dialogue.join(" ")).toContain("silhouette and sound");
+    expect(martyrdom.dialogue.join(" ")).not.toMatch(/\b(?:blood|gore|dismember)\b/i);
+    expect(storyScenes.at(-1)?.id).toBe("hopeful");
+    expect(storyScenes.at(-1)?.steps.at(-1)?.id).toBe("road-beyond-vanity");
   });
 });

@@ -243,7 +243,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 4,
+      version: 5,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -261,8 +261,12 @@ export const useGame = create<GameState>()(
       }),
       migrate: (persisted, version) => {
         const saved = persisted as Partial<GameState>;
-        const sceneIndex = Number(saved.sceneIndex) || 0;
-        const stepIndex = Number(saved.stepIndex) || 0;
+        const priorSceneIndex = Number(saved.sceneIndex) || 0;
+        const priorStepIndex = Number(saved.stepIndex) || 0;
+        const palaceWasComplete =
+          version === 4 && priorSceneIndex === 13 && saved.gameComplete;
+        const sceneIndex = palaceWasComplete ? 14 : priorSceneIndex;
+        const stepIndex = palaceWasComplete ? 0 : priorStepIndex;
         return {
           started: saved.started ?? false,
           sceneIndex,
@@ -277,7 +281,7 @@ export const useGame = create<GameState>()(
               ? []
               : saved.equipment,
           journal: Array.isArray(saved.journal) ? saved.journal : [],
-          gameComplete: version < 4 ? false : (saved.gameComplete ?? false),
+          gameComplete: version < 5 ? false : (saved.gameComplete ?? false),
           soundEnabled: saved.soundEnabled ?? true,
           visibility: saved.visibility ?? "bright",
           textSize: saved.textSize ?? "normal",
