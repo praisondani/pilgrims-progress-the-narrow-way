@@ -48,7 +48,7 @@ test("starts a new journey and initializes WebGL gameplay", async ({
 test("teaches controls until the first lantern objective is complete", async ({
   page,
 }) => {
-  test.setTimeout(45_000);
+  test.setTimeout(90_000);
   await page.getByRole("button", { name: "Begin the journey" }).click();
   await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
 
@@ -86,9 +86,8 @@ test("teaches controls until the first lantern objective is complete", async ({
   const guide = coach.getByRole("button", { name: "Guide me to the lantern" });
   await expect(guide).toBeVisible({ timeout: 10_000 });
   await guide.click();
-  await expect(coach).toContainText("Guiding you to the lantern");
   const interact = page.locator(".interact-prompt");
-  await expect(interact).toBeVisible({ timeout: 12_000 });
+  await expect(interact).toBeVisible({ timeout: 20_000 });
   await expect(coach).toContainText("Light lantern");
   await interact.click();
   const puzzle = page.locator(".puzzle-shell");

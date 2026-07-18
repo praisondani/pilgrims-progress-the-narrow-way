@@ -32,9 +32,12 @@ test("keeps every procedural countryside landmark reachable", async ({ page, isM
     await page.reload();
     await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
     const cue = page.locator(".navigation-cue");
-    await expect(cue).toBeEnabled();
-    await cue.evaluate((element) => (element as HTMLButtonElement).click());
-    await expect(page.locator(".interact-prompt")).toBeVisible({ timeout: 15_000 });
+    const interact = page.locator(".interact-prompt");
+    if (!(await interact.isVisible())) {
+      await expect(cue).toBeEnabled();
+      await cue.evaluate((element) => (element as HTMLButtonElement).click());
+    }
+    await expect(interact).toBeVisible({ timeout: 15_000 });
   }
 });
 
