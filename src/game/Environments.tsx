@@ -7,6 +7,7 @@ import {
   Character,
   CrookedHouse,
   CrossMonument,
+  GateInscription,
   GnarledTree,
   GrassMeadow,
   Grave,
@@ -392,6 +393,7 @@ function Gate({ target }: { target: Target }) {
         </mesh>
       ))}
       <StoneArch position={[0, 0, -6]} gate />
+      <GateInscription position={[0, 3.35, -5.54]} />
       <pointLight
         position={[0, 2, -5]}
         color="#ffc66d"

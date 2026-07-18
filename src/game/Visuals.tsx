@@ -1,6 +1,13 @@
 import { useFrame } from "@react-three/fiber";
-import { ReactNode, useLayoutEffect, useMemo, useRef } from "react";
-import { Color, Group, InstancedMesh, Object3D } from "three";
+import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  CanvasTexture,
+  Color,
+  Group,
+  InstancedMesh,
+  Object3D,
+  SRGBColorSpace,
+} from "three";
 import { useGame } from "./state";
 
 export type CharacterVariant =
@@ -542,6 +549,49 @@ export function StoneArch({
           <meshStandardMaterial color="#84532e" roughness={0.8} />
         </mesh>
       )}
+    </group>
+  );
+}
+
+export function GateInscription({
+  position,
+}: {
+  position: [number, number, number];
+}) {
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 256;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillStyle = "#f7dfaa";
+    context.shadowColor = "rgba(25, 12, 4, 0.9)";
+    context.shadowBlur = 8;
+    context.font = "700 58px Georgia, serif";
+    context.fillText("KNOCK, AND IT SHALL BE", canvas.width / 2, 88);
+    context.font = "700 66px Georgia, serif";
+    context.fillText("OPENED UNTO YOU", canvas.width / 2, 170);
+
+    const canvasTexture = new CanvasTexture(canvas);
+    canvasTexture.colorSpace = SRGBColorSpace;
+    return canvasTexture;
+  }, []);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+
+  return (
+    <group position={position}>
+      <mesh castShadow>
+        <boxGeometry args={[4.35, 0.92, 0.18]} />
+        <meshStandardMaterial color="#473b38" roughness={0.92} />
+      </mesh>
+      <mesh position={[0, 0, 0.101]}>
+        <planeGeometry args={[4.08, 0.78]} />
+        <meshBasicMaterial map={texture} transparent toneMapped={false} />
+      </mesh>
     </group>
   );
 }
