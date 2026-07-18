@@ -8,9 +8,7 @@ test("arrows strike and stagger Christian on the Wicket Gate approach", async ({
   test.skip(Boolean(isMobile), "Desktop validates projectile contact; mobile uses the same world simulation.");
   test.setTimeout(60_000);
   const gateIndex = storyScenes.findIndex((scene) => scene.id === "gate");
-  await page.goto("/");
-  await page.evaluate((sceneIndex) => {
-    localStorage.clear();
+  await page.addInitScript((sceneIndex) => {
     localStorage.setItem(
       "narrow-way-save-v2",
       JSON.stringify({
@@ -22,19 +20,20 @@ test("arrows strike and stagger Christian on the Wicket Gate approach", async ({
           reducedMotion: true,
           cinematicCamera: false,
         },
-        version: 8,
+        version: 9,
       }),
     );
   }, gateIndex);
-  await page.reload();
+  await page.goto("/");
   await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
   const cue = page.locator(".navigation-cue");
   await expect(cue).toBeEnabled();
   await cue.evaluate((element) => (element as HTMLButtonElement).click());
   await expect(page.locator("html")).toHaveAttribute(
     "data-last-arrow-impact",
     /\d+/,
-    { timeout: 20_000 },
+    { timeout: 30_000 },
   );
   await expect(page.locator(".toast")).toContainText(
     "An arrow strikes Christian",

@@ -319,8 +319,8 @@ function FlyingArrows() {
         vulnerable &&
         arrow.visible &&
         now - lastImpact.current > 1_450 &&
-        Math.abs(playerPosition.x - x) < 0.68 &&
-        Math.abs(playerPosition.z - z) < 0.72 &&
+        Math.abs(playerPosition.x - x) < 0.95 &&
+        Math.abs(playerPosition.z - z) < 0.86 &&
         Math.abs(playerPosition.y - y) < 1.05
       ) {
         lastImpact.current = now;

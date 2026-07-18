@@ -250,7 +250,7 @@ test("explains an incorrect focus and confirms when the light is clear", async (
           soundEnabled: false,
           visibility: "bright",
         },
-        version: 8,
+        version: 9,
       }),
     ),
   );
