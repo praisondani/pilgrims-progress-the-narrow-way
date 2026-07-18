@@ -286,6 +286,10 @@ class GameAudio {
     void this.playSfx("error");
   }
 
+  impact() {
+    void this.playSfx("step-earth");
+  }
+
   focus(_value?: number) {
     const now = performance.now();
     if (now - this.lastFocus < 110) return;

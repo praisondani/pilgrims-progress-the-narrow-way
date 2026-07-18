@@ -10,7 +10,7 @@ import { useGame } from "./state";
 import { storyScenes } from "./story";
 import { Character } from "./Visuals";
 import { gameAudio } from "./audio";
-import { cameraControl, playerMotion } from "./camera";
+import { cameraControl, playerImpact, playerMotion } from "./camera";
 
 const keys = new Set<string>();
 export const mobileInput = { x: 0, z: 0 };
@@ -59,6 +59,8 @@ export function Player() {
   const model = useRef<Group>(null);
   const [walking, setWalking] = useState(false);
   const walkingRef = useRef(false);
+  const impactRevision = useRef(playerImpact.revision);
+  const impactLean = useRef(0);
   const {
     paused,
     burden,
@@ -93,7 +95,7 @@ export function Player() {
       keys.clear();
     };
   }, []);
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, delta) => {
     if (!body.current || paused || puzzleActive || dialogue || choosing) {
       playerMotion.moving = false;
       if (body.current)
@@ -113,6 +115,22 @@ export function Player() {
       mobileInput.z;
     const p = body.current.translation();
     const velocity = body.current.linvel();
+    const impacted = impactRevision.current !== playerImpact.revision;
+    if (impacted) {
+      impactRevision.current = playerImpact.revision;
+      body.current.applyImpulse(
+        { x: playerImpact.x * 1.15, y: 0.34, z: playerImpact.z * 1.15 },
+        true,
+      );
+      impactLean.current = -Math.sign(playerImpact.x || playerImpact.z) * 0.24;
+    }
+    impactLean.current *= Math.exp(-6.5 * delta);
+    if (model.current) model.current.rotation.z = impactLean.current;
+    if (impacted) {
+      playerMotion.moving = false;
+      playerPosition.set(p.x, p.y, p.z);
+      return;
+    }
     const forward = camera.getWorldDirection(new Vector3());
     forward.y = 0;
     forward.normalize();

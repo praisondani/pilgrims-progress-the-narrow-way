@@ -1,6 +1,6 @@
 import { Float, Sparkles, Stars } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Group } from "three";
 import {
   Bush,
@@ -18,6 +18,10 @@ import {
 } from "./Visuals";
 import { ProceduralCountryside } from "./procedural/ProceduralCountryside";
 import { renderingFeatureFlags } from "./rendering/capabilities";
+import { playerPosition } from "./Player";
+import { requestPlayerImpact } from "./camera";
+import { useGame } from "./state";
+import { gameAudio } from "./audio";
 
 type Target = [number, number];
 const clearsTarget = (position: number[], target: Target, radius = 2.35) =>
@@ -278,17 +282,68 @@ function Worldly({ target }: { target: Target }) {
   );
 }
 function FlyingArrows() {
-  const root = useRef<Group>(null);
+  const arrows = useRef<(Group | null)[]>([]);
+  const hiddenUntil = useRef<number[]>([]);
+  const lastImpact = useRef(0);
+  const impactPosition = useRef<[number, number, number]>([0, 1.25, 0]);
+  const [impactVisible, setImpactVisible] = useState(false);
+  const impactTimer = useRef<number | undefined>(undefined);
+  const setMessage = useGame((state) => state.setMessage);
+  const vulnerable = useGame(
+    (state) =>
+      !state.paused &&
+      !state.dialogue &&
+      !state.choosing &&
+      !state.puzzleActive &&
+      !state.sceneComplete,
+  );
+  const lanes = [-5.2, -3, -0.8, 1.4, 3.6];
+  useEffect(() => {
+    delete document.documentElement.dataset.lastArrowImpact;
+    return () => {
+      if (impactTimer.current) window.clearTimeout(impactTimer.current);
+      delete document.documentElement.dataset.lastArrowImpact;
+    };
+  }, []);
   useFrame(({ clock }) => {
-    if (root.current)
-      root.current.position.x = ((clock.elapsedTime * 3) % 14) - 7;
+    const now = performance.now();
+    arrows.current.forEach((arrow, index) => {
+      if (!arrow) return;
+      const x = ((clock.elapsedTime * 4.6 + index * 3.7) % 20) - 10;
+      const y = 1.05 + (index % 3) * 0.22;
+      const z = lanes[index];
+      arrow.position.set(x, y, z);
+      arrow.visible = now >= (hiddenUntil.current[index] ?? 0);
+      if (
+        vulnerable &&
+        arrow.visible &&
+        now - lastImpact.current > 1_450 &&
+        Math.abs(playerPosition.x - x) < 0.68 &&
+        Math.abs(playerPosition.z - z) < 0.72 &&
+        Math.abs(playerPosition.y - y) < 1.05
+      ) {
+        lastImpact.current = now;
+        hiddenUntil.current[index] = now + 900;
+        arrow.visible = false;
+        impactPosition.current = [playerPosition.x - 0.35, y, playerPosition.z];
+        setImpactVisible(true);
+        if (impactTimer.current) window.clearTimeout(impactTimer.current);
+        impactTimer.current = window.setTimeout(() => setImpactVisible(false), 650);
+        requestPlayerImpact(1, 0);
+        gameAudio.impact();
+        setMessage("An arrow strikes Christian—keep moving toward the Gate!");
+        document.documentElement.dataset.lastArrowImpact = String(Date.now());
+      }
+    });
   });
   return (
-    <group ref={root} position={[0, 1, -2]}>
-      {[0, 1.4, 2.8].map((z, i) => (
+    <group>
+      {lanes.map((z, i) => (
         <group
           key={z}
-          position={[i * -2, 1 + i * 0.25, z]}
+          ref={(element) => {
+            arrows.current[i] = element;
+          }}
           rotation={[0, 0, -Math.PI / 2]}
         >
           <mesh>
@@ -301,6 +356,25 @@ function FlyingArrows() {
           </mesh>
         </group>
       ))}
+      {impactVisible && (
+        <group position={impactPosition.current}>
+          <pointLight color="#ffc56e" intensity={4} distance={2.5} />
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.16, 0.29, 18]} />
+            <meshBasicMaterial color="#ffe1a3" transparent opacity={0.82} />
+          </mesh>
+          <group rotation={[0, 0, -Math.PI / 2]} position={[-0.22, 0, 0]}>
+            <mesh>
+              <cylinderGeometry args={[0.025, 0.025, 0.9, 6]} />
+              <meshStandardMaterial color="#5b402e" />
+            </mesh>
+            <mesh position={[0, 0.55, 0]}>
+              <coneGeometry args={[0.09, 0.2, 5]} />
+              <meshStandardMaterial color="#aaa5a0" metalness={0.7} />
+            </mesh>
+          </group>
+        </group>
+      )}
     </group>
   );
 }
