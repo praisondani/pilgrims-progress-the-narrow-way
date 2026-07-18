@@ -16,6 +16,8 @@ import {
   StoneArch,
   WaterPool,
 } from "./Visuals";
+import { ProceduralCountryside } from "./procedural/ProceduralCountryside";
+import { renderingFeatureFlags } from "./rendering/capabilities";
 
 type Target = [number, number];
 const clearsTarget = (position: number[], target: Target, radius = 2.35) =>
@@ -1240,7 +1242,12 @@ export function SceneEnvironment({
 }) {
   if (id === "dream") return <Dream target={target} />;
   if (id === "city") return <City target={target} />;
-  if (id === "field") return <Field target={target} />;
+  if (id === "field")
+    return renderingFeatureFlags().advancedTerrain ? (
+      <ProceduralCountryside />
+    ) : (
+      <Field target={target} />
+    );
   if (id === "slough") return <Slough />;
   if (id === "worldly") return <Worldly target={target} />;
   if (id === "gate") return <Gate target={target} />;

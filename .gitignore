@@ -4,6 +4,7 @@ dist/
 *.log
 test-results/
 playwright-report/
+.lazyweb/
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts

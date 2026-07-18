@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
+    "benchmark": "node tools/benchmark-runtime.mjs",
     "check:bundle": "node tools/check-bundle.mjs",
     "check:secrets": "node tools/check-secrets.mjs",
     "e2e": "playwright test",

@@ -14,6 +14,7 @@ import {
   StoneArch,
 } from "./Visuals";
 import { SceneEnvironment } from "./Environments";
+import { renderingFeatureFlags } from "./rendering/capabilities";
 
 function personFor(id: string, sceneId = ""): CharacterVariant {
   if (id.includes("evangelist")) return "evangelist";
@@ -395,6 +396,8 @@ export function World() {
   );
   const earth = ground.clone().lerp(new Color("#75533a"), 0.62);
   const path = ground.clone().lerp(new Color("#e4c887"), 0.28);
+  const proceduralField =
+    scene.id === "field" && renderingFeatureFlags().advancedTerrain;
   return (
     <>
       <color attach="background" args={[sky]} />
@@ -432,14 +435,18 @@ export function World() {
           <cylinderGeometry args={[10.7, 11.35, 0.68, 64]} />
           <meshStandardMaterial color={earth} roughness={1} />
         </mesh>
-        <mesh receiveShadow position={[0, 0.005, 0]}>
-          <cylinderGeometry args={[10.7, 10.7, 0.04, 64]} />
-          <meshStandardMaterial color={ground} roughness={0.96} />
-        </mesh>
-        <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[9.72, 10.54, 64]} />
-          <meshStandardMaterial color={path} roughness={1} transparent opacity={0.2} />
-        </mesh>
+        {!proceduralField && (
+          <>
+            <mesh receiveShadow position={[0, 0.005, 0]}>
+              <cylinderGeometry args={[10.7, 10.7, 0.04, 64]} />
+              <meshStandardMaterial color={ground} roughness={0.96} />
+            </mesh>
+            <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[9.72, 10.54, 64]} />
+              <meshStandardMaterial color={path} roughness={1} transparent opacity={0.2} />
+            </mesh>
+          </>
+        )}
       </RigidBody>
       <SceneEnvironment
         id={scene.id}

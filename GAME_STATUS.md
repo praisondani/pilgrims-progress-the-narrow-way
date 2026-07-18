@@ -36,10 +36,16 @@
 - Carefully framed Doubting Castle sequence centered on companionship, prayer, memory, escape, and warning
 - Persistent Key of Promise plus version 6 migration that resumes completed Hopeful saves at By-Ends
 - Automated public-repository secret and release-artifact audit in CI
+- Phase 1 procedural-world audit with reproducible runtime counters and before/after evidence
+- Central renderer capability service plus explicit WebGPU/compute/vegetation/weather/terrain flags
+- Opt-in lazy-loaded `WebGPURenderer` prototype with verified WebGL 2 default/fallback
+- Deterministic Chapter II countryside seed, authored route/landmark masks, generated terrain collider, instanced vegetation/rocks, distant landscape, and atmospheric life
+- Automated procedural determinism and path/landmark exclusion tests
 
 ## In progress
 
-- Playtime, lighting, camera, and puzzle-difficulty tuning from player feedback
+- Chapter II procedural countryside visual/performance/progression validation
+- Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 
 ## Blocked
 
@@ -47,8 +53,8 @@
 
 ## Next
 
-1. Optional Blender-authored `.glb` hero assets and bespoke skeletal animation
-2. Optional human voice acting and composed score
-3. Expand into By-Ends, Demas, By-Path Meadow, and Doubting Castle
-4. Profile/code-split Three.js and Rapier bundles further
-5. Replace selected procedural focal assets with licensed optimized `.glb` production models
+1. Validate every Chapter II objective and seed exclusion on desktop/mobile
+2. Move terrain/scatter array generation to a worker after profiling proves need
+3. Add region lifecycle/disposal and repeated-transition memory test
+4. Upgrade Slough only after countryside phase gates pass
+5. Build licensed GLB hero pipeline; replace characters scene by scene

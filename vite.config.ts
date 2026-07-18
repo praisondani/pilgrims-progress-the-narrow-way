@@ -26,6 +26,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (
+            id.includes("three.webgpu") ||
+            id.includes("/three/src/renderers/common/") ||
+            id.includes("/three/src/renderers/webgpu/") ||
+            id.includes("/three/src/nodes/")
+          )
+            return "three-webgpu-prototype";
           if (id.includes("three-stdlib")) return "three-runtime";
           if (id.includes("@react-three/rapier") || id.includes("@dimforge"))
             return "physics";

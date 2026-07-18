@@ -10,6 +10,7 @@ import { useGame } from "./state";
 import { storyScenes } from "./story";
 import { cameraControl, playerMotion } from "./camera";
 import { chapterCameraProfile, cinematicEase } from "./cinematics";
+import { createGameRenderer } from "./rendering/renderer";
 
 function shortestAngle(from: number, to: number) {
   return Math.atan2(Math.sin(to - from), Math.cos(to - from));
@@ -216,7 +217,11 @@ export function GameCanvas() {
           <strong>{storyScenes[sceneIndex].title}</strong>
         </div>
       )}
-      <Canvas shadows dpr={[1, 1.5]} gl={{ antialias: true }}>
+      <Canvas
+        shadows
+        dpr={[1, 1.5]}
+        gl={createGameRenderer as never}
+      >
         <Exposure />
         <Physics gravity={[0, -12, 0]}>
           <World />
