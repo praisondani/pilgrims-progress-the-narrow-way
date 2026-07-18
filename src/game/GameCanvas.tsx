@@ -166,6 +166,8 @@ function CameraRig() {
         onStart={() => {
           dragging.current = true;
           lastLook.current = performance.now();
+          if (!useGame.getState().onboarding.looked)
+            useGame.getState().completeOnboardingMilestone("looked");
         }}
         onEnd={() => {
           dragging.current = false;

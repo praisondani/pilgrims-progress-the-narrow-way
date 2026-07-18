@@ -3,6 +3,22 @@ import { persist } from "zustand/middleware";
 import { storyScenes } from "./story";
 import { puzzleFor } from "./puzzles";
 
+export type OnboardingProgress = {
+  moved: boolean;
+  looked: boolean;
+  interacted: boolean;
+  firstObjectiveCompleted: boolean;
+};
+
+export type OnboardingMilestone = keyof OnboardingProgress;
+
+const initialOnboarding: OnboardingProgress = {
+  moved: false,
+  looked: false,
+  interacted: false,
+  firstObjectiveCompleted: false,
+};
+
 type GameState = {
   started: boolean;
   paused: boolean;
@@ -30,6 +46,7 @@ type GameState = {
   puzzleSolvedCurrent: boolean;
   checkpointRevision: number;
   guidedTravel: boolean;
+  onboarding: OnboardingProgress;
   start: () => void;
   reset: () => void;
   togglePause: () => void;
@@ -49,6 +66,7 @@ type GameState = {
   recoverCheckpoint: () => void;
   beginGuidedTravel: () => void;
   stopGuidedTravel: () => void;
+  completeOnboardingMilestone: (milestone: OnboardingMilestone) => void;
 };
 
 function finishStep(state: GameState) {
@@ -122,6 +140,7 @@ export const useGame = create<GameState>()(
       puzzleSolvedCurrent: false,
       checkpointRevision: 0,
       guidedTravel: false,
+      onboarding: initialOnboarding,
       start: () => set({ started: true, paused: false }),
       reset: () =>
         set({
@@ -145,6 +164,7 @@ export const useGame = create<GameState>()(
           puzzleSolvedCurrent: false,
           checkpointRevision: 0,
           guidedTravel: false,
+          onboarding: initialOnboarding,
         }),
       togglePause: () => set((s) => ({ paused: !s.paused })),
       toggleJournal: () =>
@@ -176,6 +196,10 @@ export const useGame = create<GameState>()(
         set((s) => ({ cinematicCamera: !s.cinematicCamera })),
       beginGuidedTravel: () => set({ guidedTravel: true }),
       stopGuidedTravel: () => set({ guidedTravel: false }),
+      completeOnboardingMilestone: (milestone) =>
+        set((state) => ({
+          onboarding: { ...state.onboarding, [milestone]: true },
+        })),
       recoverCheckpoint: () =>
         set((s) => ({
           paused: false,
@@ -193,20 +217,35 @@ export const useGame = create<GameState>()(
       completePuzzle: () => {
         const s = get();
         const step = storyScenes[s.sceneIndex].steps[s.stepIndex];
+        const firstObjective = s.sceneIndex === 0 && s.stepIndex === 0;
         set({
           puzzleActive: false,
           puzzleSolvedCurrent: true,
           dialogue: step.dialogue,
           dialogueIndex: 0,
+          onboarding: firstObjective
+            ? { ...s.onboarding, firstObjectiveCompleted: true }
+            : s.onboarding,
         });
       },
       interact: () => {
         const s = get();
         if (!s.nearby || s.dialogue || s.sceneComplete) return;
         const step = storyScenes[s.sceneIndex].steps[s.stepIndex];
+        const firstObjective = s.sceneIndex === 0 && s.stepIndex === 0;
+        if (firstObjective)
+          set({
+            onboarding: {
+              ...s.onboarding,
+              interacted: true,
+            },
+          });
+        const firstObjectiveAlreadyCompleted =
+          firstObjective && s.onboarding.firstObjectiveCompleted;
         if (
           puzzleFor(storyScenes[s.sceneIndex].id, step.id) &&
-          !s.puzzleSolvedCurrent
+          !s.puzzleSolvedCurrent &&
+          !firstObjectiveAlreadyCompleted
         ) {
           set({ puzzleActive: true });
           return;
@@ -249,7 +288,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 7,
+      version: 8,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -265,6 +304,7 @@ export const useGame = create<GameState>()(
         textSize: state.textSize,
         reducedMotion: state.reducedMotion,
         cinematicCamera: state.cinematicCamera,
+        onboarding: state.onboarding,
       }),
       migrate: (persisted, version) => {
         const saved = persisted as Partial<GameState>;
@@ -279,7 +319,18 @@ export const useGame = create<GameState>()(
           : palaceWasComplete
             ? 14
             : priorSceneIndex;
-        const stepIndex = palaceWasComplete || hopefulWasComplete ? 0 : priorStepIndex;
+        const stepIndex =
+          palaceWasComplete || hopefulWasComplete ? 0 : priorStepIndex;
+        const passedFirstObjective = sceneIndex > 0 || stepIndex > 0;
+        const onboarding =
+          version < 8
+            ? {
+                moved: passedFirstObjective,
+                looked: passedFirstObjective,
+                interacted: passedFirstObjective,
+                firstObjectiveCompleted: passedFirstObjective,
+              }
+            : { ...initialOnboarding, ...saved.onboarding };
         return {
           started: saved.started ?? false,
           sceneIndex,
@@ -303,6 +354,7 @@ export const useGame = create<GameState>()(
           textSize: saved.textSize ?? "normal",
           reducedMotion: saved.reducedMotion ?? false,
           cinematicCamera: saved.cinematicCamera ?? true,
+          onboarding,
         };
       },
       merge: (persisted, current) => {
@@ -318,7 +370,13 @@ export const useGame = create<GameState>()(
             Number(saved.stepIndex) || 0,
           ),
         );
-        return { ...current, ...saved, sceneIndex, stepIndex };
+        return {
+          ...current,
+          ...saved,
+          sceneIndex,
+          stepIndex,
+          onboarding: { ...initialOnboarding, ...saved.onboarding },
+        };
       },
     },
   ),

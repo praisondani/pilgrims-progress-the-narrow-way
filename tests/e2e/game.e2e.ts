@@ -45,6 +45,70 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await page.keyboard.press("ArrowUp");
 });
 
+test("teaches controls until the first lantern objective is complete", async ({
+  page,
+}) => {
+  test.setTimeout(45_000);
+  await page.getByRole("button", { name: "Begin the journey" }).click();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
+
+  const coach = page.getByTestId("first-objective-coach");
+  await expect(coach).toBeVisible();
+  await expect(coach).toContainText("WASD");
+  await expect(coach).toContainText("Interact");
+  await expect(coach.locator('[data-milestone="moved"]')).toHaveAttribute(
+    "data-complete",
+    "false",
+  );
+
+  await page.keyboard.down("ArrowUp");
+  await page.waitForTimeout(350);
+  await page.keyboard.up("ArrowUp");
+  await expect(coach.locator('[data-milestone="moved"]')).toHaveAttribute(
+    "data-complete",
+    "true",
+  );
+
+  const canvas = page.locator("canvas");
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  await page.mouse.move(bounds!.x + bounds!.width * 0.7, bounds!.y + 280);
+  await page.mouse.down();
+  await page.mouse.move(bounds!.x + bounds!.width * 0.45, bounds!.y + 280, {
+    steps: 5,
+  });
+  await page.mouse.up();
+  await expect(coach.locator('[data-milestone="looked"]')).toHaveAttribute(
+    "data-complete",
+    "true",
+  );
+
+  const guide = coach.getByRole("button", { name: "Guide me to the lantern" });
+  await expect(guide).toBeVisible({ timeout: 10_000 });
+  await guide.click();
+  await expect(coach).toContainText("Guiding you to the lantern");
+  const interact = page.locator(".interact-prompt");
+  await expect(interact).toBeVisible({ timeout: 12_000 });
+  await expect(coach).toContainText("Light lantern");
+  await interact.click();
+  const puzzle = page.locator(".puzzle-shell");
+  await expect(puzzle).toBeVisible();
+  await page.getByRole("button", { name: "Open the lantern" }).click();
+  await page.getByRole("button", { name: "Cup the wick" }).click();
+  await page.getByRole("button", { name: "Strike the flint" }).click();
+  await expect(puzzle).toBeHidden();
+  await expect(coach).toContainText("Lantern lit");
+
+  const dialogue = page.locator(".spoken");
+  await expect(dialogue).toBeVisible();
+  await expect(dialogue).toBeFocused();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  await expect(coach).toBeHidden();
+  await page.reload();
+  await expect(page.getByTestId("first-objective-coach")).toBeHidden();
+});
+
 test("credits the original work and offers the source edition", async ({
   page,
 }) => {
@@ -125,7 +189,7 @@ test("explains an incorrect focus and confirms when the light is clear", async (
           soundEnabled: false,
           visibility: "bright",
         },
-        version: 7,
+        version: 8,
       }),
     ),
   );

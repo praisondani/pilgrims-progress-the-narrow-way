@@ -120,6 +120,8 @@ export function Player() {
     right.y = 0;
     right.normalize();
     const manual = right.multiplyScalar(x).add(forward.multiplyScalar(-z));
+    if (manual.lengthSq() > 0 && !useGame.getState().onboarding.moved)
+      useGame.getState().completeOnboardingMilestone("moved");
     if (manual.lengthSq() > 0 && guidedTravel)
       useGame.getState().stopGuidedTravel();
     const step = storyScenes[sceneIndex].steps[useGame.getState().stepIndex];

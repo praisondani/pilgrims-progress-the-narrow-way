@@ -11,6 +11,43 @@ describe("story progression state machine", () => {
     expect(useGame.getState().stepIndex).toBe(0);
   });
 
+  it("tracks first-objective onboarding through lantern completion", () => {
+    expect(useGame.getState().onboarding).toEqual({
+      moved: false,
+      looked: false,
+      interacted: false,
+      firstObjectiveCompleted: false,
+    });
+    useGame.getState().completeOnboardingMilestone("moved");
+    useGame.getState().completeOnboardingMilestone("looked");
+    useGame.getState().setNearby(true);
+    useGame.getState().interact();
+    expect(useGame.getState().onboarding.firstObjectiveCompleted).toBe(false);
+    useGame.getState().completePuzzle();
+    expect(useGame.getState().onboarding).toEqual({
+      moved: true,
+      looked: true,
+      interacted: true,
+      firstObjectiveCompleted: true,
+    });
+  });
+
+  it("does not repeat the lantern trial after its milestone was saved", () => {
+    useGame.setState({
+      nearby: true,
+      puzzleSolvedCurrent: false,
+      onboarding: {
+        moved: true,
+        looked: true,
+        interacted: true,
+        firstObjectiveCompleted: true,
+      },
+    });
+    useGame.getState().interact();
+    expect(useGame.getState().puzzleActive).toBe(false);
+    expect(useGame.getState().dialogue).toEqual(storyScenes[0].steps[0].dialogue);
+  });
+
   it("advances only after all dialogue is read", () => {
     useGame.setState({ stepIndex: 1 });
     useGame.getState().setNearby(true);

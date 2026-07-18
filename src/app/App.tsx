@@ -230,6 +230,108 @@ function Controls() {
     </div>
   );
 }
+
+function FirstObjectiveCoach({
+  nearby,
+  guided,
+  onGuide,
+}: {
+  nearby: boolean;
+  guided: boolean;
+  onGuide: () => void;
+}) {
+  const onboarding = useGame((state) => state.onboarding);
+  const [showRescue, setShowRescue] = useState(false);
+  const learned = [
+    onboarding.moved,
+    onboarding.looked,
+    onboarding.interacted,
+  ].filter(Boolean).length;
+
+  useEffect(() => {
+    setShowRescue(false);
+    if (nearby || onboarding.firstObjectiveCompleted) return;
+    const timer = window.setTimeout(() => setShowRescue(true), 7_000);
+    return () => window.clearTimeout(timer);
+  }, [
+    nearby,
+    onboarding.moved,
+    onboarding.looked,
+    onboarding.firstObjectiveCompleted,
+  ]);
+
+  if (onboarding.firstObjectiveCompleted)
+    return (
+      <section
+        className="first-objective-coach complete"
+        data-testid="first-objective-coach"
+        role="status"
+        aria-live="polite"
+      >
+        <strong>✓ Lantern lit</strong>
+        <span>Controls remain available from Pause.</span>
+      </section>
+    );
+
+  return (
+    <section
+      className="first-objective-coach"
+      data-testid="first-objective-coach"
+      aria-label="First objective controls"
+    >
+      <header>
+        <strong>First steps</strong>
+        <span>{learned} / 3 learned</span>
+      </header>
+      <ol>
+        <li
+          data-milestone="moved"
+          data-complete={String(onboarding.moved)}
+        >
+          <i>{onboarding.moved ? "✓" : "1"}</i>
+          <span className="tutorial-desktop-copy">
+            <kbd>WASD</kbd> or <kbd>arrows</kbd> Move
+          </span>
+          <span className="tutorial-mobile-copy">Use arrow buttons to move</span>
+        </li>
+        <li
+          data-milestone="looked"
+          data-complete={String(onboarding.looked)}
+        >
+          <i>{onboarding.looked ? "✓" : "2"}</i>
+          <span className="tutorial-desktop-copy">
+            <kbd>Drag</kbd> Look around
+          </span>
+          <span className="tutorial-mobile-copy">Drag the world to look</span>
+        </li>
+        <li
+          data-milestone="interacted"
+          data-complete={String(onboarding.interacted)}
+          data-ready={String(nearby)}
+        >
+          <i>{onboarding.interacted ? "✓" : "3"}</i>
+          <span className="tutorial-desktop-copy">
+            <kbd>E</kbd> {nearby ? "Light lantern" : "Interact"}
+          </span>
+          <span className="tutorial-mobile-copy">
+            {nearby ? "Tap Light lantern" : "Tap action to interact"}
+          </span>
+        </li>
+      </ol>
+      {showRescue && !nearby && (
+        <button
+          className="tutorial-guide"
+          disabled={guided}
+          onClick={onGuide}
+        >
+          {guided ? "Guiding you to the lantern…" : "Guide me to the lantern"}
+          <span>→</span>
+        </button>
+      )}
+    </section>
+  );
+}
+
 function Overlay() {
   const game = useGame();
   const audioState = useSyncExternalStore(
@@ -382,6 +484,13 @@ function Overlay() {
           nearby={game.nearby}
           onGuide={game.beginGuidedTravel}
         />
+        {scene.id === "dream" && step.id === "lantern" && (
+          <FirstObjectiveCoach
+            nearby={game.nearby}
+            guided={game.guidedTravel}
+            onGuide={game.beginGuidedTravel}
+          />
+        )}
       </aside>
       {game.nearby &&
         !game.dialogue &&

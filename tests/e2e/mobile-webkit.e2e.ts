@@ -15,6 +15,12 @@ test("loads the first playable frame under production CSP", async ({ page }) => 
   await expect(canvas).toBeVisible();
   await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
+  await expect(page.getByTestId("first-objective-coach")).toContainText(
+    "arrow buttons",
+  );
+  await expect(page.getByTestId("first-objective-coach")).toContainText(
+    "Tap action",
+  );
   await expect
     .poll(async () => {
       const size = await canvas.evaluate((element) => ({
