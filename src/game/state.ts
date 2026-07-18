@@ -12,6 +12,18 @@ export type OnboardingProgress = {
 
 export type OnboardingMilestone = keyof OnboardingProgress;
 
+export type ReplayCheckpoint = {
+  sceneIndex: number;
+  stepIndex: number;
+  burden: number;
+  hasRoll: boolean;
+  hasKeyOfPromise: boolean;
+  equipment: string[];
+  onboarding: OnboardingProgress;
+  sceneComplete: boolean;
+  gameComplete: boolean;
+};
+
 const initialOnboarding: OnboardingProgress = {
   moved: false,
   looked: false,
@@ -47,6 +59,7 @@ type GameState = {
   checkpointRevision: number;
   guidedTravel: boolean;
   onboarding: OnboardingProgress;
+  replayCheckpoint?: ReplayCheckpoint;
   start: () => void;
   reset: () => void;
   togglePause: () => void;
@@ -67,7 +80,43 @@ type GameState = {
   beginGuidedTravel: () => void;
   stopGuidedTravel: () => void;
   completeOnboardingMilestone: (milestone: OnboardingMilestone) => void;
+  replayScene: (sceneIndex: number) => void;
+  returnFromReplay: () => void;
 };
+
+function chapterStartState(sceneIndex: number) {
+  let burden = 0;
+  let hasRoll = false;
+  let hasKeyOfPromise = false;
+  let equipment: string[] = [];
+  storyScenes.slice(0, sceneIndex).forEach((scene) => {
+    scene.steps.forEach((step) => {
+      burden = step.burden ?? burden;
+      hasRoll = step.roll ?? hasRoll;
+      hasKeyOfPromise = step.keyOfPromise ?? hasKeyOfPromise;
+      equipment = step.equipment ?? equipment;
+    });
+  });
+  return { burden, hasRoll, hasKeyOfPromise, equipment: [...equipment] };
+}
+
+function restoreReplayCheckpoint(checkpoint: ReplayCheckpoint) {
+  return {
+    ...checkpoint,
+    equipment: [...checkpoint.equipment],
+    onboarding: { ...checkpoint.onboarding },
+    replayCheckpoint: undefined,
+    paused: false,
+    journalOpen: false,
+    nearby: false,
+    dialogue: undefined,
+    dialogueIndex: 0,
+    choosing: false,
+    puzzleActive: false,
+    puzzleSolvedCurrent: false,
+    guidedTravel: false,
+  };
+}
 
 function finishStep(state: GameState) {
   const scene = storyScenes[state.sceneIndex];
@@ -141,6 +190,7 @@ export const useGame = create<GameState>()(
       checkpointRevision: 0,
       guidedTravel: false,
       onboarding: initialOnboarding,
+      replayCheckpoint: undefined,
       start: () => set({ started: true, paused: false }),
       reset: () =>
         set({
@@ -165,6 +215,7 @@ export const useGame = create<GameState>()(
           checkpointRevision: 0,
           guidedTravel: false,
           onboarding: initialOnboarding,
+          replayCheckpoint: undefined,
         }),
       togglePause: () => set((s) => ({ paused: !s.paused })),
       toggleJournal: () =>
@@ -200,6 +251,62 @@ export const useGame = create<GameState>()(
         set((state) => ({
           onboarding: { ...state.onboarding, [milestone]: true },
         })),
+      replayScene: (requestedSceneIndex) => {
+        const s = get();
+        const checkpoint = s.replayCheckpoint ?? {
+          sceneIndex: s.sceneIndex,
+          stepIndex: s.stepIndex,
+          burden: s.burden,
+          hasRoll: s.hasRoll,
+          hasKeyOfPromise: s.hasKeyOfPromise,
+          equipment: [...s.equipment],
+          onboarding: { ...s.onboarding },
+          sceneComplete: s.sceneComplete,
+          gameComplete: s.gameComplete,
+        };
+        const maxReplayIndex = checkpoint.gameComplete
+          ? storyScenes.length - 1
+          : checkpoint.sceneIndex - 1;
+        if (
+          requestedSceneIndex < 0 ||
+          requestedSceneIndex > maxReplayIndex ||
+          requestedSceneIndex >= storyScenes.length
+        )
+          return;
+        const chapterState = chapterStartState(requestedSceneIndex);
+        set({
+          ...chapterState,
+          sceneIndex: requestedSceneIndex,
+          stepIndex: 0,
+          replayCheckpoint: checkpoint,
+          paused: false,
+          journalOpen: false,
+          nearby: false,
+          message: `Replaying ${storyScenes[requestedSceneIndex].title}. Current journey saved.`,
+          dialogue: undefined,
+          dialogueIndex: 0,
+          choosing: false,
+          sceneComplete: false,
+          gameComplete: false,
+          puzzleActive: false,
+          puzzleSolvedCurrent: false,
+          checkpointRevision: s.checkpointRevision + 1,
+          guidedTravel: false,
+          onboarding:
+            requestedSceneIndex === 0
+              ? { ...initialOnboarding }
+              : { ...checkpoint.onboarding },
+        });
+      },
+      returnFromReplay: () => {
+        const s = get();
+        if (!s.replayCheckpoint) return;
+        set({
+          ...restoreReplayCheckpoint(s.replayCheckpoint),
+          checkpointRevision: s.checkpointRevision + 1,
+          message: `Returned to ${storyScenes[s.replayCheckpoint.sceneIndex].title}.`,
+        });
+      },
       recoverCheckpoint: () =>
         set((s) => ({
           paused: false,
@@ -271,6 +378,14 @@ export const useGame = create<GameState>()(
       },
       continueScene: () => {
         const s = get();
+        if (s.replayCheckpoint) {
+          set({
+            ...restoreReplayCheckpoint(s.replayCheckpoint),
+            checkpointRevision: s.checkpointRevision + 1,
+            message: `Returned to ${storyScenes[s.replayCheckpoint.sceneIndex].title}.`,
+          });
+          return;
+        }
         if (s.sceneIndex === storyScenes.length - 1)
           set({ sceneComplete: false, gameComplete: true, paused: true });
         else
@@ -288,7 +403,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 8,
+      version: 9,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -305,6 +420,7 @@ export const useGame = create<GameState>()(
         reducedMotion: state.reducedMotion,
         cinematicCamera: state.cinematicCamera,
         onboarding: state.onboarding,
+        replayCheckpoint: state.replayCheckpoint,
       }),
       migrate: (persisted, version) => {
         const saved = persisted as Partial<GameState>;
@@ -355,6 +471,8 @@ export const useGame = create<GameState>()(
           reducedMotion: saved.reducedMotion ?? false,
           cinematicCamera: saved.cinematicCamera ?? true,
           onboarding,
+          replayCheckpoint:
+            version < 9 ? undefined : saved.replayCheckpoint,
         };
       },
       merge: (persisted, current) => {
@@ -376,6 +494,7 @@ export const useGame = create<GameState>()(
           sceneIndex,
           stepIndex,
           onboarding: { ...initialOnboarding, ...saved.onboarding },
+          replayCheckpoint: saved.replayCheckpoint,
         };
       },
     },

@@ -173,6 +173,68 @@ test("shows the ordered story map without unlocking future chapters", async ({
   await expect(map).toBeHidden();
 });
 
+test("replays completed chapters without losing current progress", async ({
+  page,
+}) => {
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "narrow-way-save-v2",
+      JSON.stringify({
+        state: {
+          started: true,
+          sceneIndex: 6,
+          stepIndex: 2,
+          burden: 1,
+          soundEnabled: false,
+          reducedMotion: true,
+          cinematicCamera: false,
+        },
+        version: 8,
+      }),
+    ),
+  );
+  await page.reload();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+
+  await page.getByRole("button", { name: "Story map" }).click();
+  const map = page.getByRole("dialog", { name: "Story map" });
+  const gate = map.getByRole("listitem", {
+    name: /Chapter V: The Wicket Gate, Completed/i,
+  });
+  await gate.getByRole("button", { name: "Replay The Wicket Gate" }).click();
+  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
+  await expect(page.locator(".replay-status")).toContainText(
+    "progress saved at The Interpreter’s House",
+  );
+
+  await page.reload();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
+  await page.getByRole("button", { name: "Story map" }).click();
+  const replayMap = page.getByRole("dialog", { name: "Story map" });
+  await expect(
+    replayMap.getByRole("listitem", {
+      name: /Chapter VI: The Interpreter’s House, Current journey/i,
+    }),
+  ).toBeVisible();
+  const lockedCross = replayMap.getByRole("listitem", {
+    name: /Chapter VII: The Cross, Locked/i,
+  });
+  await expect(lockedCross).toBeVisible();
+  await expect(lockedCross.getByRole("button")).toHaveCount(0);
+  await expect(
+    replayMap.getByRole("button", { name: "Return to current journey" }),
+  ).toBeVisible();
+  await replayMap.getByRole("button", { name: "Return here" }).click();
+  await expect(page.getByTestId("game-hud")).toContainText(
+    "The Interpreter’s House",
+  );
+  await expect(page.locator(".objective")).toContainText(
+    storyScenes[6].steps[2].objective,
+  );
+  await expect(page.locator(".replay-status")).toHaveCount(0);
+});
+
 test("explains an incorrect focus and confirms when the light is clear", async ({
   page,
 }) => {

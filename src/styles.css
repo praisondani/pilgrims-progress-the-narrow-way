@@ -384,6 +384,15 @@ button {
   color: #fffaf0;
   text-shadow: 0 2px 6px #17221b;
 }
+.hud .replay-status {
+  display: block;
+  max-width: 240px;
+  margin-top: 0.22rem;
+  color: #ffe09a;
+  font-size: 0.58rem;
+  line-height: 1.25;
+  text-shadow: 0 1px 4px #17221b;
+}
 .hud-actions {
   display: flex;
   gap: 0.5rem;
@@ -440,6 +449,17 @@ button {
   background: #fffaf0;
   flex: 0 0 auto;
 }
+.story-map-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+.story-map .story-map-return {
+  border-color: #6f8e60;
+  background: #dfeeda;
+  font-weight: 750;
+}
 .story-map-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -493,6 +513,33 @@ button {
 .story-map-grid .complete {
   border-color: #91ad73;
   background: #f3f5e9;
+}
+.story-map-grid .replaying {
+  border-color: #d89a45;
+  background: #fff3d9;
+  box-shadow: 0 8px 22px #8b64293d;
+}
+.story-map-grid .resume-point {
+  border-color: #6f8e60;
+  background: #edf5e8;
+  box-shadow: inset 0 0 0 2px #ffffffa8;
+}
+.story-map-grid .chapter-replay {
+  width: 100%;
+  margin-top: 0.75rem;
+  border-color: #b8894c;
+  background: #fffaf0;
+  font-weight: 750;
+  cursor: pointer;
+}
+.story-map-grid .chapter-replay:hover,
+.story-map-grid .chapter-replay:focus-visible {
+  border-color: #9e6428;
+  background: #f6dfb6;
+}
+.story-map-grid .chapter-replay.resume {
+  border-color: #6f8e60;
+  background: #dfeeda;
 }
 .story-map-grid .locked {
   background: #e9e1d2;
@@ -923,6 +970,10 @@ button {
   }
   .modal.story-map > section > header {
     gap: 0.75rem;
+  }
+  .story-map-header-actions {
+    align-items: flex-end;
+    flex-direction: column-reverse;
   }
   .story-map-grid {
     grid-template-columns: minmax(0, 1fr);

@@ -348,10 +348,17 @@ function Overlay() {
   const storyMapAction = useRef<HTMLButtonElement>(null);
   const scene = storyScenes[game.sceneIndex];
   const step = scene.steps[game.stepIndex];
+  const progressSceneIndex =
+    game.replayCheckpoint?.sceneIndex ?? game.sceneIndex;
+  const progressStepIndex = game.replayCheckpoint?.stepIndex ?? game.stepIndex;
+  const progressSceneComplete =
+    game.replayCheckpoint?.sceneComplete ?? game.sceneComplete;
+  const progressGameComplete =
+    game.replayCheckpoint?.gameComplete ?? game.gameComplete;
   const completed =
     storyScenes
-      .slice(0, game.sceneIndex)
-      .reduce((n, s) => n + s.steps.length, 0) + game.stepIndex;
+      .slice(0, progressSceneIndex)
+      .reduce((n, s) => n + s.steps.length, 0) + progressStepIndex;
   const openStoryMap = () => {
     storyMapWasPaused.current = game.paused;
     useGame.setState({ paused: true });
@@ -416,6 +423,11 @@ function Overlay() {
         <div>
           <p>{scene.number}</p>
           <strong>{scene.title}</strong>
+          {game.replayCheckpoint && (
+            <small className="replay-status">
+              ↻ Replay · progress saved at {storyScenes[progressSceneIndex].title}
+            </small>
+          )}
         </div>
         <div className="story-progress">
           <span>
@@ -553,7 +565,9 @@ function Overlay() {
             <p>{scene.meaning}</p>
             <div className="chapter-progress">
               Journey{" "}
-              {Math.round(((game.sceneIndex + 1) / storyScenes.length) * 100)}%
+              {Math.round(
+                ((progressSceneIndex + 1) / storyScenes.length) * 100,
+              )}
               complete
             </div>
             <button
@@ -561,9 +575,11 @@ function Overlay() {
               className="primary"
               onClick={game.continueScene}
             >
-              {game.sceneIndex === storyScenes.length - 1
-                ? "Leave Doubting Castle"
-                : "Continue the journey"}{" "}
+              {game.replayCheckpoint
+                ? `Return to ${storyScenes[progressSceneIndex].title}`
+                : game.sceneIndex === storyScenes.length - 1
+                  ? "Leave Doubting Castle"
+                  : "Continue the journey"}{" "}
               →
             </button>
           </section>
@@ -602,36 +618,68 @@ function Overlay() {
                 <p className="eyebrow">THE ROAD AHEAD</p>
                 <h2 id="story-map-title">Story map</h2>
                 <p>
-                  See the whole journey. Chapters open in order as Christian
-                  completes the road before them.
+                  Replay any completed chapter without losing your current
+                  journey. Future chapters remain locked until reached in
+                  order.
                 </p>
               </div>
-              <button
-                ref={storyMapAction}
-                className="story-map-close"
-                onClick={closeStoryMap}
-                aria-label="Close story map"
-              >
-                Close
-              </button>
+              <div className="story-map-header-actions">
+                {game.replayCheckpoint && (
+                  <button
+                    className="story-map-return"
+                    onClick={() => {
+                      setStoryMapOpen(false);
+                      game.returnFromReplay();
+                    }}
+                  >
+                    Return to current journey
+                  </button>
+                )}
+                <button
+                  ref={storyMapAction}
+                  className="story-map-close"
+                  onClick={closeStoryMap}
+                  aria-label="Close story map"
+                >
+                  Close
+                </button>
+              </div>
             </header>
             <ol className="story-map-grid">
               {storyScenes.map((chapter, index) => {
                 const isComplete =
-                  game.gameComplete ||
-                  index < game.sceneIndex ||
-                  (index === game.sceneIndex && game.sceneComplete);
-                const isCurrent = index === game.sceneIndex && !isComplete;
-                const status = isComplete
-                  ? "Complete"
-                  : isCurrent
-                    ? "In progress"
-                    : "Locked";
+                  progressGameComplete ||
+                  index < progressSceneIndex ||
+                  (index === progressSceneIndex && progressSceneComplete);
+                const isCurrent =
+                  index === progressSceneIndex && !isComplete;
+                const isResumePoint =
+                  Boolean(game.replayCheckpoint) &&
+                  index === progressSceneIndex;
+                const isReplaying =
+                  Boolean(game.replayCheckpoint) && index === game.sceneIndex;
+                const status = isResumePoint
+                  ? "Current journey"
+                  : isReplaying
+                    ? "Replaying"
+                    : isComplete
+                      ? "Completed"
+                      : isCurrent
+                        ? "In progress"
+                        : "Locked";
                 return (
                   <li
                     key={chapter.id}
                     className={
-                      isComplete ? "complete" : isCurrent ? "current" : "locked"
+                      isResumePoint
+                        ? "resume-point"
+                        : isReplaying
+                          ? "replaying"
+                          : isComplete
+                            ? "complete"
+                            : isCurrent
+                              ? "current"
+                              : "locked"
                     }
                     aria-label={`${chapter.number}: ${chapter.title}, ${status}`}
                   >
@@ -642,9 +690,31 @@ function Overlay() {
                     <h3>{chapter.title}</h3>
                     <p>{chapter.meaning}</p>
                     <footer>
-                      {chapter.steps.length} story beats
+                      <span>{chapter.steps.length} story beats</span>
                       {!isComplete && !isCurrent && <b aria-hidden="true">◇</b>}
                     </footer>
+                    {isResumePoint ? (
+                      <button
+                        className="chapter-replay resume"
+                        onClick={() => {
+                          setStoryMapOpen(false);
+                          game.returnFromReplay();
+                        }}
+                      >
+                        Return here →
+                      </button>
+                    ) : isComplete ? (
+                      <button
+                        className="chapter-replay"
+                        onClick={() => {
+                          setStoryMapOpen(false);
+                          game.replayScene(index);
+                        }}
+                        aria-label={`${isReplaying ? "Restart" : "Replay"} ${chapter.title}`}
+                      >
+                        {isReplaying ? "Restart chapter" : "Replay chapter"} ↻
+                      </button>
+                    ) : null}
                   </li>
                 );
               })}

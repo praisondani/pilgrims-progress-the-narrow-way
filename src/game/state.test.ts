@@ -112,6 +112,44 @@ describe("story progression state machine", () => {
     });
   });
 
+  it("replays a completed chapter and restores the current journey", () => {
+    useGame.setState({
+      sceneIndex: 6,
+      stepIndex: 2,
+      burden: 1,
+      hasRoll: false,
+      sceneComplete: false,
+      gameComplete: false,
+    });
+
+    useGame.getState().replayScene(5);
+    expect(useGame.getState()).toMatchObject({
+      sceneIndex: 5,
+      stepIndex: 0,
+      sceneComplete: false,
+      gameComplete: false,
+      replayCheckpoint: {
+        sceneIndex: 6,
+        stepIndex: 2,
+        burden: 1,
+      },
+    });
+
+    useGame.getState().replayScene(7);
+    expect(useGame.getState().sceneIndex).toBe(5);
+
+    useGame.setState({ sceneComplete: true });
+    useGame.getState().continueScene();
+    expect(useGame.getState()).toMatchObject({
+      sceneIndex: 6,
+      stepIndex: 2,
+      burden: 1,
+      sceneComplete: false,
+      gameComplete: false,
+      replayCheckpoint: undefined,
+    });
+  });
+
   it("tracks the sealed roll through loss and recovery", () => {
     useGame.setState({
       sceneIndex: 11,
