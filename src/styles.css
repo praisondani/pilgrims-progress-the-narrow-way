@@ -149,6 +149,13 @@ button {
   line-height: 1.55;
   margin-top: 1.3rem;
 }
+.generation-credit {
+  margin: 0.85rem 0 0;
+  color: #8f8177;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  line-height: 1.45;
+}
 .title-art blockquote {
   position: relative;
   z-index: 1;

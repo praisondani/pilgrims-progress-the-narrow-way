@@ -100,6 +100,9 @@ function Title() {
             Move with WASD or arrow keys · Interact with E · Drag to look 360°
             · Press R to recenter
           </p>
+          <p className="generation-credit">
+            Generated using GPT 5.6 Sol on Codex
+          </p>
         </div>
         <div className="title-art" aria-label="Journey overview">
           <div className="title-vignette" aria-hidden="true" />
@@ -198,8 +201,7 @@ function Title() {
         <footer>
           This independent browser adaptation is a work in progress. The
           current journey reaches Doubting Castle; later chapters toward the
-          Celestial City are in development. Generated using GPT 5.6 Sol on
-          Codex.
+          Celestial City are in development.
         </footer>
       </section>
     </main>
