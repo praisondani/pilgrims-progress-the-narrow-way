@@ -101,7 +101,7 @@ function Title() {
             · Press R to recenter
           </p>
           <p className="generation-credit">
-            Generated using GPT 5.6 Sol on Codex
+            Generated using GPT 5.6 Sol on Codex.
           </p>
         </div>
         <div className="title-art" aria-label="Journey overview">
@@ -201,7 +201,8 @@ function Title() {
         <footer>
           This independent browser adaptation is a work in progress. The
           current journey reaches Doubting Castle; later chapters toward the
-          Celestial City are in development.
+          Celestial City are in development. Generated using GPT 5.6 Sol on
+          Codex.
         </footer>
       </section>
     </main>
