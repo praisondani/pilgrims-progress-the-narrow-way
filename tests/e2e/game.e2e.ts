@@ -202,6 +202,13 @@ test("replays completed chapters without losing current progress", async ({
     name: /Chapter V: The Wicket Gate, Completed/i,
   });
   await gate.getByRole("button", { name: "Replay The Wicket Gate" }).click();
+  const drawer = map.getByRole("complementary", {
+    name: "Replay controls for The Wicket Gate",
+  });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByText("Progress is preserved")).toBeVisible();
+  await expect(drawer.getByText("Select beat")).toBeVisible();
+  await drawer.getByRole("button", { name: "Start replay" }).click();
   await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
   await expect(page.locator(".replay-status")).toContainText(
     "progress saved at The Interpreter’s House",
@@ -222,8 +229,12 @@ test("replays completed chapters without losing current progress", async ({
   });
   await expect(lockedCross).toBeVisible();
   await expect(lockedCross.getByRole("button")).toHaveCount(0);
+  const replayDrawer = replayMap.getByRole("complementary", {
+    name: /Replay controls for The Wicket Gate/i,
+  });
+  await expect(replayDrawer).toBeVisible();
   await expect(
-    replayMap.getByRole("button", { name: "Return to current journey" }),
+    replayDrawer.getByRole("button", { name: "Return to saved progress" }),
   ).toBeVisible();
   await replayMap.getByRole("button", { name: "Return here" }).click();
   await expect(page.getByTestId("game-hud")).toContainText(

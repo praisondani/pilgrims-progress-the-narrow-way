@@ -135,6 +135,16 @@ describe("story progression state machine", () => {
       },
     });
 
+    useGame.getState().replayScene(5, 1);
+    expect(useGame.getState()).toMatchObject({
+      sceneIndex: 5,
+      stepIndex: 1,
+      replayCheckpoint: {
+        sceneIndex: 6,
+        stepIndex: 2,
+      },
+    });
+
     useGame.getState().replayScene(7);
     expect(useGame.getState().sceneIndex).toBe(5);
 

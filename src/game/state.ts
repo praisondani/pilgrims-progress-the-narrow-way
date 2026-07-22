@@ -80,11 +80,11 @@ type GameState = {
   beginGuidedTravel: () => void;
   stopGuidedTravel: () => void;
   completeOnboardingMilestone: (milestone: OnboardingMilestone) => void;
-  replayScene: (sceneIndex: number) => void;
+  replayScene: (sceneIndex: number, stepIndex?: number) => void;
   returnFromReplay: () => void;
 };
 
-function chapterStartState(sceneIndex: number) {
+function chapterStartState(sceneIndex: number, stepIndex = 0) {
   let burden = 0;
   let hasRoll = false;
   let hasKeyOfPromise = false;
@@ -96,6 +96,12 @@ function chapterStartState(sceneIndex: number) {
       hasKeyOfPromise = step.keyOfPromise ?? hasKeyOfPromise;
       equipment = step.equipment ?? equipment;
     });
+  });
+  storyScenes[sceneIndex]?.steps.slice(0, stepIndex).forEach((step) => {
+    burden = step.burden ?? burden;
+    hasRoll = step.roll ?? hasRoll;
+    hasKeyOfPromise = step.keyOfPromise ?? hasKeyOfPromise;
+    equipment = step.equipment ?? equipment;
   });
   return { burden, hasRoll, hasKeyOfPromise, equipment: [...equipment] };
 }
@@ -251,7 +257,7 @@ export const useGame = create<GameState>()(
         set((state) => ({
           onboarding: { ...state.onboarding, [milestone]: true },
         })),
-      replayScene: (requestedSceneIndex) => {
+      replayScene: (requestedSceneIndex, requestedStepIndex = 0) => {
         const s = get();
         const checkpoint = s.replayCheckpoint ?? {
           sceneIndex: s.sceneIndex,
@@ -267,22 +273,27 @@ export const useGame = create<GameState>()(
         const maxReplayIndex = checkpoint.gameComplete
           ? storyScenes.length - 1
           : checkpoint.sceneIndex - 1;
+        const scene = storyScenes[requestedSceneIndex];
+        const stepIndex = Math.max(
+          0,
+          Math.min(requestedStepIndex, (scene?.steps.length ?? 1) - 1),
+        );
         if (
           requestedSceneIndex < 0 ||
           requestedSceneIndex > maxReplayIndex ||
           requestedSceneIndex >= storyScenes.length
         )
           return;
-        const chapterState = chapterStartState(requestedSceneIndex);
+        const chapterState = chapterStartState(requestedSceneIndex, stepIndex);
         set({
           ...chapterState,
           sceneIndex: requestedSceneIndex,
-          stepIndex: 0,
+          stepIndex,
           replayCheckpoint: checkpoint,
           paused: false,
           journalOpen: false,
           nearby: false,
-          message: `Replaying ${storyScenes[requestedSceneIndex].title}. Current journey saved.`,
+          message: `Replaying ${scene.title}. Current journey saved.`,
           dialogue: undefined,
           dialogueIndex: 0,
           choosing: false,
@@ -293,7 +304,7 @@ export const useGame = create<GameState>()(
           checkpointRevision: s.checkpointRevision + 1,
           guidedTravel: false,
           onboarding:
-            requestedSceneIndex === 0
+            requestedSceneIndex === 0 && stepIndex === 0
               ? { ...initialOnboarding }
               : { ...checkpoint.onboarding },
         });

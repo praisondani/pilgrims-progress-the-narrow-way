@@ -344,12 +344,17 @@ function Overlay() {
     gameAudio.getSnapshot,
   );
   const [storyMapOpen, setStoryMapOpen] = useState(false);
+  const [replayDrawerIndex, setReplayDrawerIndex] = useState<number | null>(
+    null,
+  );
+  const [replayBeatIndex, setReplayBeatIndex] = useState(0);
   const storyMapWasPaused = useRef(false);
   const chapterAction = useRef<HTMLButtonElement>(null);
   const endingAction = useRef<HTMLButtonElement>(null);
   const journalAction = useRef<HTMLButtonElement>(null);
   const pauseAction = useRef<HTMLButtonElement>(null);
   const storyMapAction = useRef<HTMLButtonElement>(null);
+  const replayDrawerAction = useRef<HTMLButtonElement>(null);
   const scene = storyScenes[game.sceneIndex];
   const step = scene.steps[game.stepIndex];
   const progressSceneIndex =
@@ -363,23 +368,64 @@ function Overlay() {
     storyScenes
       .slice(0, progressSceneIndex)
       .reduce((n, s) => n + s.steps.length, 0) + progressStepIndex;
+  const replayDrawerChapter =
+    replayDrawerIndex == null ? null : storyScenes[replayDrawerIndex];
   const openStoryMap = () => {
     storyMapWasPaused.current = game.paused;
     useGame.setState({ paused: true });
     setStoryMapOpen(true);
+    if (game.replayCheckpoint) {
+      setReplayDrawerIndex(game.sceneIndex);
+      setReplayBeatIndex(game.stepIndex);
+    } else {
+      setReplayDrawerIndex(null);
+      setReplayBeatIndex(0);
+    }
+  };
+  const closeReplayDrawer = () => {
+    setReplayDrawerIndex(null);
+    setReplayBeatIndex(0);
   };
   const closeStoryMap = () => {
     setStoryMapOpen(false);
+    closeReplayDrawer();
     useGame.setState({ paused: storyMapWasPaused.current });
+  };
+  const openReplayDrawer = (chapterIndex: number) => {
+    setReplayDrawerIndex(chapterIndex);
+    setReplayBeatIndex(
+      game.replayCheckpoint && game.sceneIndex === chapterIndex
+        ? game.stepIndex
+        : 0,
+    );
+    window.setTimeout(() => replayDrawerAction.current?.focus(), 30);
+  };
+  const startReplayFromDrawer = () => {
+    if (replayDrawerIndex == null) return;
+    game.replayScene(replayDrawerIndex, replayBeatIndex);
+    closeStoryMap();
+  };
+  const returnToSavedProgress = () => {
+    if (game.replayCheckpoint) {
+      game.returnFromReplay();
+      closeStoryMap();
+      return;
+    }
+    closeReplayDrawer();
   };
   useEffect(() => {
     if (!storyMapOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeStoryMap();
+      if (event.key !== "Escape") return;
+      if (replayDrawerIndex != null) {
+        closeReplayDrawer();
+        return;
+      }
+      closeStoryMap();
     };
     addEventListener("keydown", closeOnEscape);
     return () => removeEventListener("keydown", closeOnEscape);
-  }, [storyMapOpen]);
+  }, [storyMapOpen, replayDrawerIndex]);
   useEffect(() => {
     if (!game.message) return;
     const t = setTimeout(() => game.setMessage(), 2600);
@@ -401,7 +447,9 @@ function Overlay() {
   }, [game.textSize, game.reducedMotion]);
   useEffect(() => {
     const target = storyMapOpen
-      ? storyMapAction
+      ? replayDrawerChapter
+        ? replayDrawerAction
+        : storyMapAction
       : game.sceneComplete
       ? chapterAction
       : game.gameComplete
@@ -416,6 +464,7 @@ function Overlay() {
     return () => window.clearTimeout(timer);
   }, [
     storyMapOpen,
+    replayDrawerChapter,
     game.sceneComplete,
     game.gameComplete,
     game.journalOpen,
@@ -616,113 +665,190 @@ function Overlay() {
           aria-modal="true"
           aria-labelledby="story-map-title"
         >
-          <section>
-            <header>
-              <div>
-                <p className="eyebrow">THE ROAD AHEAD</p>
-                <h2 id="story-map-title">Story map</h2>
-                <p>
-                  Replay any completed chapter without losing your current
-                  journey. Future chapters remain locked until reached in
-                  order.
-                </p>
-              </div>
-              <div className="story-map-header-actions">
-                {game.replayCheckpoint && (
+          <section
+            className={
+              replayDrawerChapter ? "story-map-shell drawer-open" : "story-map-shell"
+            }
+          >
+            {replayDrawerChapter && replayDrawerIndex != null && (
+              <aside
+                className="replay-drawer"
+                aria-label={`Replay controls for ${replayDrawerChapter.title}`}
+              >
+                <header className="replay-drawer-header">
+                  <div>
+                    <p className="eyebrow">Replay</p>
+                    <h2 id="replay-drawer-title">{replayDrawerChapter.title}</h2>
+                    <p>
+                      Progress is preserved at{" "}
+                      {storyScenes[progressSceneIndex].title}. Locked chapters
+                      stay locked.
+                    </p>
+                  </div>
                   <button
-                    className="story-map-return"
-                    onClick={() => {
-                      setStoryMapOpen(false);
-                      game.returnFromReplay();
-                    }}
+                    className="replay-drawer-close"
+                    onClick={closeReplayDrawer}
+                    aria-label="Close replay drawer"
                   >
-                    Return to current journey
+                    ✕
                   </button>
-                )}
-                <button
-                  ref={storyMapAction}
-                  className="story-map-close"
-                  onClick={closeStoryMap}
-                  aria-label="Close story map"
-                >
-                  Close
-                </button>
-              </div>
-            </header>
-            <ol className="story-map-grid">
-              {storyScenes.map((chapter, index) => {
-                const isComplete =
-                  progressGameComplete ||
-                  index < progressSceneIndex ||
-                  (index === progressSceneIndex && progressSceneComplete);
-                const isCurrent =
-                  index === progressSceneIndex && !isComplete;
-                const isResumePoint =
-                  Boolean(game.replayCheckpoint) &&
-                  index === progressSceneIndex;
-                const isReplaying =
-                  Boolean(game.replayCheckpoint) && index === game.sceneIndex;
-                const status = isResumePoint
-                  ? "Current journey"
-                  : isReplaying
-                    ? "Replaying"
-                    : isComplete
-                      ? "Completed"
-                      : isCurrent
-                        ? "In progress"
-                        : "Locked";
-                return (
-                  <li
-                    key={chapter.id}
-                    className={
-                      isResumePoint
-                        ? "resume-point"
-                        : isReplaying
-                          ? "replaying"
-                          : isComplete
-                            ? "complete"
-                            : isCurrent
-                              ? "current"
-                              : "locked"
-                    }
-                    aria-label={`${chapter.number}: ${chapter.title}, ${status}`}
+                </header>
+                <div className="replay-drawer-body">
+                  <p className="replay-drawer-label">Select beat</p>
+                  <ol className="replay-beat-list">
+                    {replayDrawerChapter.steps.map((beat, index) => {
+                      const selected = index === replayBeatIndex;
+                      return (
+                        <li key={beat.id}>
+                          <button
+                            type="button"
+                            className={
+                              selected
+                                ? "replay-beat selected"
+                                : "replay-beat"
+                            }
+                            aria-pressed={selected}
+                            onClick={() => setReplayBeatIndex(index)}
+                          >
+                            <span className="replay-beat-mark" aria-hidden="true">
+                              {String(index + 1)}
+                            </span>
+                            <span className="replay-beat-copy">
+                              <strong>{beat.action}</strong>
+                              <small>{beat.objective}</small>
+                            </span>
+                            <span className="replay-beat-chevron" aria-hidden="true">
+                              ›
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+                <footer className="replay-drawer-actions">
+                  <button
+                    ref={replayDrawerAction}
+                    type="button"
+                    className="replay-drawer-start"
+                    onClick={startReplayFromDrawer}
                   >
-                    <div>
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      <small>{status}</small>
-                    </div>
-                    <h3>{chapter.title}</h3>
-                    <p>{chapter.meaning}</p>
-                    <footer>
-                      <span>{chapter.steps.length} story beats</span>
-                      {!isComplete && !isCurrent && <b aria-hidden="true">◇</b>}
-                    </footer>
-                    {isResumePoint ? (
-                      <button
-                        className="chapter-replay resume"
-                        onClick={() => {
-                          setStoryMapOpen(false);
-                          game.returnFromReplay();
-                        }}
-                      >
-                        Return here →
-                      </button>
-                    ) : isComplete ? (
-                      <button
-                        className="chapter-replay"
-                        onClick={() => {
-                          setStoryMapOpen(false);
-                          game.replayScene(index);
-                        }}
-                        aria-label={`${isReplaying ? "Restart" : "Replay"} ${chapter.title}`}
-                      >
-                        {isReplaying ? "Restart chapter" : "Replay chapter"} ↻
-                      </button>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ol>
+                    Start replay
+                  </button>
+                  <button
+                    type="button"
+                    className="replay-drawer-return"
+                    onClick={returnToSavedProgress}
+                  >
+                    Return to saved progress
+                  </button>
+                </footer>
+              </aside>
+            )}
+            <div className="story-map-main">
+              <header>
+                <div>
+                  <p className="eyebrow">THE ROAD AHEAD</p>
+                  <h2 id="story-map-title">Story map</h2>
+                  <p>
+                    Replay any completed chapter without losing your current
+                    journey. Future chapters remain locked until reached in
+                    order.
+                  </p>
+                </div>
+                <div className="story-map-header-actions">
+                  <button
+                    ref={storyMapAction}
+                    className="story-map-close"
+                    onClick={closeStoryMap}
+                    aria-label="Close story map"
+                  >
+                    Close
+                  </button>
+                </div>
+              </header>
+              <ol className="story-map-grid">
+                {storyScenes.map((chapter, index) => {
+                  const isComplete =
+                    progressGameComplete ||
+                    index < progressSceneIndex ||
+                    (index === progressSceneIndex && progressSceneComplete);
+                  const isCurrent =
+                    index === progressSceneIndex && !isComplete;
+                  const isResumePoint =
+                    Boolean(game.replayCheckpoint) &&
+                    index === progressSceneIndex;
+                  const isReplaying =
+                    Boolean(game.replayCheckpoint) && index === game.sceneIndex;
+                  const isDrawerTarget = replayDrawerIndex === index;
+                  const status = isResumePoint
+                    ? "Current journey"
+                    : isReplaying
+                      ? "Replaying"
+                      : isComplete
+                        ? "Completed"
+                        : isCurrent
+                          ? "In progress"
+                          : "Locked";
+                  return (
+                    <li
+                      key={chapter.id}
+                      className={[
+                        isResumePoint
+                          ? "resume-point"
+                          : isReplaying
+                            ? "replaying"
+                            : isComplete
+                              ? "complete"
+                              : isCurrent
+                                ? "current"
+                                : "locked",
+                        isDrawerTarget ? "drawer-target" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      aria-label={`${chapter.number}: ${chapter.title}, ${status}`}
+                    >
+                      <div>
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        <small>{status}</small>
+                      </div>
+                      <h3>{chapter.title}</h3>
+                      <p>{chapter.meaning}</p>
+                      <footer>
+                        <span>{chapter.steps.length} story beats</span>
+                        {!isComplete && !isCurrent && (
+                          <b aria-hidden="true">◇</b>
+                        )}
+                      </footer>
+                      {isResumePoint ? (
+                        <button
+                          className="chapter-replay resume"
+                          onClick={() => {
+                            setStoryMapOpen(false);
+                            closeReplayDrawer();
+                            game.returnFromReplay();
+                          }}
+                        >
+                          Return here →
+                        </button>
+                      ) : isComplete ? (
+                        <button
+                          className="chapter-replay play"
+                          onClick={() => openReplayDrawer(index)}
+                          aria-label={`Replay ${chapter.title}`}
+                          aria-expanded={isDrawerTarget}
+                          aria-controls="replay-drawer-title"
+                        >
+                          <span aria-hidden="true">▶</span>
+                          <span className="replay-play-label">Replay</span>
+                        </button>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
           </section>
         </div>
       )}
