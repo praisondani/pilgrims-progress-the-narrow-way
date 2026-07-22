@@ -7,6 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "benchmark": "node tools/benchmark-runtime.mjs",
+    "asset:3d": "node tools/img2threejs-pipeline.mjs",
+    "asset:3d:test": "node tools/img2threejs-pipeline.mjs test",
     "check:bundle": "node tools/check-bundle.mjs",
     "check:secrets": "node tools/check-secrets.mjs",
     "e2e": "playwright test",

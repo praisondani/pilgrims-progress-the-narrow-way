@@ -11,6 +11,14 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+Initialize development tools after cloning:
+
+```bash
+git submodule update --init --recursive
+```
+
+Reference-image-to-procedural-Three.js workflow: [`docs/img2threejs-workflow.md`](docs/img2threejs-workflow.md).
+
 Production deployment and public-repository secret handling: [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
 ## Controls
