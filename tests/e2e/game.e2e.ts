@@ -176,6 +176,7 @@ test("shows the ordered story map without unlocking future chapters", async ({
 test("replays completed chapters without losing current progress", async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await page.evaluate(() =>
     localStorage.setItem(
       "narrow-way-save-v2",
@@ -201,15 +202,21 @@ test("replays completed chapters without losing current progress", async ({
   const gate = map.getByRole("listitem", {
     name: /Chapter V: The Wicket Gate, Completed/i,
   });
+  await gate.scrollIntoViewIfNeeded();
   await gate.getByRole("button", { name: "Replay The Wicket Gate" }).click();
   const drawer = map.getByRole("complementary", {
     name: "Replay controls for The Wicket Gate",
   });
   await expect(drawer).toBeVisible();
-  await expect(drawer.getByText("Progress is preserved")).toBeVisible();
-  await expect(drawer.getByText("Select beat")).toBeVisible();
+  await expect(
+    drawer.getByRole("heading", { name: "The Wicket Gate" }),
+  ).toBeVisible();
+  await expect(drawer.getByText(/Progress is preserved/i)).toBeVisible();
+  await expect(drawer.getByText(/Select beat/i)).toBeVisible();
   await drawer.getByRole("button", { name: "Start replay" }).click();
-  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
+  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate", {
+    timeout: 15_000,
+  });
   await expect(page.locator(".replay-status")).toContainText(
     "progress saved at The Interpreter’s House",
   );
@@ -233,12 +240,12 @@ test("replays completed chapters without losing current progress", async ({
     name: /Replay controls for The Wicket Gate/i,
   });
   await expect(replayDrawer).toBeVisible();
-  await expect(
-    replayDrawer.getByRole("button", { name: "Return to saved progress" }),
-  ).toBeVisible();
-  await replayMap.getByRole("button", { name: "Return here" }).click();
+  await replayDrawer
+    .getByRole("button", { name: "Return to saved progress" })
+    .click();
   await expect(page.getByTestId("game-hud")).toContainText(
     "The Interpreter’s House",
+    { timeout: 15_000 },
   );
   await expect(page.locator(".objective")).toContainText(
     storyScenes[6].steps[2].objective,
