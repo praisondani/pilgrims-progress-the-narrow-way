@@ -284,7 +284,7 @@ test("explains an incorrect focus and confirms when the light is clear", async (
   const slider = puzzle.getByRole("slider", { name: "Focus" });
   await slider.fill("72");
   await expect(puzzle.getByRole("status")).toContainText("light is clear");
-  await page.getByRole("button", { name: "Confirm clear light" }).click();
+  await page.getByRole("button", { name: "Hold this focus" }).click();
   await expect(puzzle).toBeHidden();
   await expect(page.locator(".spoken")).toBeVisible();
 });

@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T04:49:00-05:00",
+  "updatedAt": "2026-08-01T05:29:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -221,7 +221,9 @@
     "unitTests": "60/60 passed",
     "firstObjective": "desktop and mobile first-lantern flows pass; Dream den, book, and threshold routes are reachable through monotonic authored waypoints",
     "wicketGate": "desktop arrow-impact + six-beat real-door traversal 2/2 pass; mobile gate-specific touch-path cases intentionally skipped",
-    "browserRegression": "desktop game 15/15 pass; mobile Chromium 15/15 pass; mobile WebKit 3/3 pass; procedural 2/2 pass",
+    "browserRegression": "desktop game 15/15 pass plus full 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium 15/15 pass; mobile WebKit 3/3 pass; procedural 2/2 pass",
+    "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
+    "fullJourney": "Dream → Doubting Castle, all 25 scenes, every objective/puzzle/dialogue/ending — 1/1 pass, 26.2 minutes",
     "bundleBudget": "4.33 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v13 procedural reconstruction with near/far LOD proxies; Wicket Gate and Cross references intaken for staged reconstruction; no production GLB accepted yet",

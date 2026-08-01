@@ -41,7 +41,17 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
 
   return (
     <div className="puzzle-shell">
-      <section>
+      <section
+        onKeyDown={(event) => {
+          if (
+            puzzle.type === "focus" &&
+            (event.key === "Enter" || event.key === " ")
+          ) {
+            event.preventDefault();
+            confirm();
+          }
+        }}
+      >
         <p className="eyebrow">SYMBOLIC TRIAL</p>
         <h2>{puzzle.title}</h2>
         <p>{puzzle.instruction}</p>
@@ -97,7 +107,7 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
               aria-keyshortcuts="Enter Space"
               onClick={confirm}
             >
-              {focusIsClear ? "Confirm clear light" : "Test this focus"}
+              {focusIsClear ? "Hold this focus" : "Test this focus"}
             </button>
           </>
         )}
