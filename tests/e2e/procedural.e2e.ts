@@ -33,11 +33,22 @@ test("keeps every procedural countryside landmark reachable", async ({ page, isM
     await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
     const cue = page.locator(".navigation-cue");
     const interact = page.locator(".interact-prompt");
-    if (!(await interact.isVisible())) {
-      await expect(cue).toBeEnabled();
-      await cue.evaluate((element) => (element as HTMLButtonElement).click());
-    }
-    await expect(interact).toBeVisible({ timeout: 15_000 });
+    await expect
+      .poll(
+        async () => {
+          if (await interact.isVisible()) return true;
+          // A cue is intentionally disabled once the landmark is within
+          // reach. The interaction prompt can appear on the next render tick,
+          // so do not turn that valid state into a deployment failure.
+          if (await cue.isEnabled())
+            await cue.evaluate((element) =>
+              (element as HTMLButtonElement).click(),
+            );
+          return false;
+        },
+        { timeout: 15_000, intervals: [0, 200, 400] },
+      )
+      .toBe(true);
   }
 });
 

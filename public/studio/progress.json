@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T07:06:00-05:00",
+  "updatedAt": "2026-08-01T07:41:55-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -11,7 +11,8 @@
   ],
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
-    "status": "building",
+    "status": "paused",
+    "pauseReason": "User requested a pause after verified feature commits; the exhaustive 30-scene rerun remains queued.",
     "workstreams": [
       {
         "id": "baseline",
@@ -24,10 +25,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-8-required",
+        "status": "iteration-9-required",
         "builder": "ultracode hero builder",
-        "critic": "fresh builder/critic loop — fail, comparison v17",
-        "largestGap": "v17 moves the burden behind Christian, adds two asymmetric cloth lobes, compression folds, a shaped collar, facial volume, and stride-phase load settling. Profile/back comparison still fails the reference bar: central sack surface remains too planar, body anatomy remains stylized, and an external 19–24k sculpt/GLB is still required."
+        "critic": "fresh runtime critic — fail, comparison v18",
+        "largestGap": "v18 narrows the waist, tapers limbs, enlarges the head, and adds embedded orbital, cheek, brow, nose, beard, moustache, lip, and chin volumes while preserving four draws and 12,636 triangles. Front reads more human, but the profile/rear burden remains a rigid 1.48× shoulder-width shield, the 96 px silhouette loses hands/neck/waist/knees, and an external 19–24k sculpt/GLB is still required."
       },
       {
         "id": "dream",
@@ -60,6 +61,14 @@
         "builder": "main integration",
         "critic": "mobile accessibility smoke",
         "largestGap": "Directional controls now capture the pointer and release on up, cancel, or lost capture; physical-device Safari gesture validation remains outstanding."
+      },
+      {
+        "id": "audio",
+        "name": "Audio safety and browser unlock",
+        "status": "browser-verified-physical-QA-required",
+        "builder": "audio reliability builder",
+        "critic": "fresh desktop + mobile browser critic",
+        "largestGap": "Legacy scene and SFX calibration is clamped before the shared limiter, unlock requests are coalesced, transient voices are capped, and AudioContext interruptions now update the HUD and recover on gesture. Dedicated finale beds and physical-device listening QA remain outstanding."
       },
       {
         "id": "runtime",
@@ -211,7 +220,23 @@
       {
         "label": "Christian v17 — asymmetric cloth rear QA",
         "path": "/studio-evidence/vertical-slice-01/christian-v17-back.jpg"
-    },
+      },
+      {
+        "label": "Christian v18 — tapered anatomy front critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v18-front.png"
+      },
+      {
+        "label": "Christian v18 — facial volume and burden profile critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v18-profile.png"
+      },
+      {
+        "label": "Christian v18 — rear burden critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v18-back.png"
+      },
+      {
+        "label": "Christian v18 — loaded gameplay burden critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v18-gameplay-burden.png"
+      },
     {
       "label": "Dream loop 5 — moonlit S-curve",
       "path": "/studio-evidence/vertical-slice-01/dream-loop5-runtime-water-v2.jpg"
@@ -246,15 +271,15 @@
     }
   ],
   "gates": {
-    "unitTests": "61/61 passed",
+    "unitTests": "65/65 passed",
     "firstObjective": "desktop and mobile first-lantern flows pass; Dream den, book, and threshold routes are reachable through monotonic authored waypoints",
     "wicketGate": "desktop arrow-impact + six-beat real-door traversal 2/2 pass; mobile gate-specific touch-path cases intentionally skipped",
-    "browserRegression": "desktop focused flows 17/17 pass plus legacy 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium focused flows 17/17 pass; mobile WebKit 3/3 pass; procedural desktop 2/2 pass; mobile pointer capture hardening builds clean",
+    "browserRegression": "desktop focused flows 17/17 pass plus legacy 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium focused flows 17/17 pass; mobile WebKit 4/4 pass including forced AudioContext interruption recovery; procedural desktop 2/2 pass with disabled-cue race hardening; mobile pointer capture hardening builds clean",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
     "fullJourney": "Legacy Dream → Doubting Castle traversal 1/1 pass (26.2m); new Delectable Mountains → Celestial City finale smoke 1/1 pass (2.2m). Full 30-scene rerun remains queued.",
     "bundleBudget": "4.35 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
-    "img2threejs": "Christian v17 procedural reconstruction with near/far LOD proxies, asymmetric burden lobes, compression folds, facial volume, and animated load settling; staged references and comparison sheet recorded; no production GLB accepted yet",
+    "img2threejs": "Christian v18 procedural reconstruction with near/far LOD proxies, narrowed/tapered anatomy, embedded facial volume, asymmetric burden lobes, compression folds, and animated load settling; fresh runtime critic still fails the 96 px/reference bar; no production GLB accepted yet",
     "deployment": "not authorized until current vertical slice passes real gameplay and regression gates"
   }
 }

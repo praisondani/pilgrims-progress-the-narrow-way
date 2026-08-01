@@ -16,6 +16,8 @@
 - Forty-two reusable human character variants plus a bespoke Apollyon silhouette, with articulated walk and idle animation
 - Cinematic conversation camera, chapter pullback shots, and letterbox framing
 - Procedural Web Audio ambience, footsteps, interaction cues, and sound toggle
+- Bounded audio source gains, four-voice transient cap, coalesced browser unlock,
+  and interruption-aware AudioContext state reporting
 - Forty-seven symbolic trials using ordered-action and focus mechanics
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets
@@ -46,18 +48,22 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v17 img2threejs procedural burden/face pass with profile, rear, and gameplay evidence; external sculpt/GLB remains the target
+- Christian v18 img2threejs procedural anatomy/face pass with profile, rear, and
+  gameplay evidence; external sculpt/GLB remains the target
+- Exhaustive Dream-to-Celestial City real-controls rerun queued after pause
 
 ## Blocked
 
 - Studio visual bar is not met yet: current hero/environment geometry remains procedural low-poly, and no licensed 19–24k Christian GLB has passed review
 - Physical-device performance sign-off is still outstanding; current headless benchmarks are not hardware claims
+- Dedicated finale music beds and physical-device listening QA are still outstanding
 
 ## Next
 
-1. Validate every Chapter II objective and seed exclusion on desktop/mobile
-2. Move terrain/scatter array generation to a worker after profiling proves need
-3. Add region lifecycle/disposal and repeated-transition memory test
-4. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
-5. Build licensed GLB hero pipeline; replace characters scene by scene
-6. Produce dedicated finale audio beds and complete physical-device audio/performance QA
+1. Complete and record the exhaustive Dream-to-Celestial City journey rerun
+2. Validate every Chapter II objective and seed exclusion on desktop/mobile
+3. Move terrain/scatter array generation to a worker after profiling proves need
+4. Add region lifecycle/disposal and repeated-transition memory test
+5. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
+6. Build licensed GLB hero pipeline; replace characters scene by scene
+7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

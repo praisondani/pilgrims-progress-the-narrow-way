@@ -637,11 +637,13 @@ test("completes the full Dream-to-Celestial City journey through real controls",
   const interactPrompt = page.locator(".interact-prompt");
   const walkToTarget = async (sceneId: string, stepId: string) => {
     if (await interactPrompt.isVisible()) return;
-    await expect(cue).toBeEnabled();
     await expect
       .poll(
         async () => {
           if (await interactPrompt.isVisible()) return true;
+          // Once the player is inside the interaction radius the navigation
+          // cue is correctly disabled. Wait for the prompt instead of making
+          // a transient disabled state fail the exhaustive journey.
           if (await cue.isEnabled())
             await cue.evaluate((element) =>
               (element as HTMLButtonElement).click(),
