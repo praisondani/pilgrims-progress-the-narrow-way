@@ -1,0 +1,64 @@
+{
+  "id": "baseline-f7c09f4",
+  "commit": "f7c09f4",
+  "capturedAt": "2026-07-28T13:18:00-05:00",
+  "reviewer": "fresh-context ultracode critic",
+  "verdict": "fail",
+  "overallVisualShippingReadiness": 2.8,
+  "scoresOutOf10": {
+    "cohesion": 3,
+    "protagonistAppealAndAnatomy": 2,
+    "animation": 2.5,
+    "environments": 2,
+    "lighting": 2.5,
+    "cinematics": 2,
+    "ui": 6,
+    "audio": 4,
+    "responsiveness": 4,
+    "atmosphere": 2.5
+  },
+  "singleLargestGap": "Authored hero and world-scale environment art. Flat circular dioramas, primitives, weak materials, and toy-proportioned characters prevent story stakes from landing.",
+  "rankedGaps": [
+    "Hero/world assets and composition",
+    "Startup and render responsiveness",
+    "Locomotion, facial, and cinematic animation",
+    "Lighting, materials, and atmosphere",
+    "Audio and cinematic presentation",
+    "Generic web-title visual grammar"
+  ],
+  "measured": {
+    "sceneReadyTypicalMs": [7900, 11300],
+    "sceneReadyCrossMs": 28500,
+    "instrumentedSoftwareWebglFps": [1, 3.1],
+    "drawCalls": [54, 92],
+    "triangles": [14500, 15800],
+    "coldProductionStartUsableMs": 10225,
+    "coldTransferBytes": 1223410,
+    "coldDecodedBytes": 3624431
+  },
+  "strengths": [
+    "Clear current objective",
+    "Persistent first-objective control teaching",
+    "Guided travel",
+    "Labeled accessible controls",
+    "Text, contrast, reduced-motion, and cinematic options",
+    "Keyboard movement and orbit camera work once loaded"
+  ],
+  "blindABProtocol": {
+    "pair": "baseline versus iteration 2",
+    "clips": [
+      "idle three-quarter",
+      "run-turn-stop",
+      "landmark approach",
+      "dialogue close-up",
+      "chapter reveal"
+    ],
+    "pass": "Iteration 2 wins at least 70% overall and 75% for protagonist and environment; median first focus reaches Christian or landmark within 1.5 seconds."
+  },
+  "officialCalibrationSources": [
+    "https://www.playstation.com/en-us/games/kena-bridge-of-spirits/",
+    "https://annapurnainteractive.com/games/the-pathless",
+    "https://www.playstation.com/en-us/games/rime/",
+    "https://blog.playstation.com/2014/08/21/rime-on-ps4-a-guide-to-the-trailer/"
+  ]
+}

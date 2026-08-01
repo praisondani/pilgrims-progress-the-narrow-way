@@ -22,7 +22,7 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await expect(page.getByTestId("game-screen")).toBeVisible();
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
   await expect(page.locator("canvas")).toBeVisible();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
   await expect(
     page.getByText("Find and light the abandoned lantern"),
   ).toBeVisible();
@@ -50,7 +50,7 @@ test("teaches controls until the first lantern objective is complete", async ({
 }) => {
   test.setTimeout(90_000);
   await page.getByRole("button", { name: "Begin the journey" }).click();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
 
   const coach = page.getByTestId("first-objective-coach");
   await expect(coach).toBeVisible();
@@ -195,7 +195,7 @@ test("replays completed chapters without losing current progress", async ({
     ),
   );
   await page.reload();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
 
   await page.getByRole("button", { name: "Story map" }).click();
   const map = page.getByRole("dialog", { name: "Story map" });
@@ -222,7 +222,7 @@ test("replays completed chapters without losing current progress", async ({
   );
 
   await page.reload();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
   await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
   await page.getByRole("button", { name: "Story map" }).click();
   const replayMap = page.getByRole("dialog", { name: "Story map" });

@@ -9,6 +9,7 @@ import {
   SRGBColorSpace,
 } from "three";
 import { useGame } from "./state";
+import type { GateController } from "./gate/GateController";
 
 export type CharacterVariant =
   | "christian"
@@ -567,12 +568,16 @@ export function GateInscription({
 
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillStyle = "#f7dfaa";
-    context.shadowColor = "rgba(25, 12, 4, 0.9)";
-    context.shadowBlur = 8;
-    context.font = "700 58px Georgia, serif";
+    context.fillStyle = "#f4d6a0";
+    context.strokeStyle = "rgba(35, 18, 10, 0.92)";
+    context.lineWidth = 5;
+    context.shadowColor = "rgba(15, 9, 6, 0.72)";
+    context.shadowBlur = 3;
+    context.font = "700 60px Georgia, serif";
+    context.strokeText("KNOCK, AND IT SHALL BE", canvas.width / 2, 88);
     context.fillText("KNOCK, AND IT SHALL BE", canvas.width / 2, 88);
     context.font = "700 66px Georgia, serif";
+    context.strokeText("OPENED UNTO YOU", canvas.width / 2, 170);
     context.fillText("OPENED UNTO YOU", canvas.width / 2, 170);
 
     const canvasTexture = new CanvasTexture(canvas);
@@ -586,12 +591,393 @@ export function GateInscription({
     <group position={position}>
       <mesh castShadow>
         <boxGeometry args={[4.35, 0.92, 0.18]} />
-        <meshStandardMaterial color="#473b38" roughness={0.92} />
+        <meshStandardMaterial color="#5e3c29" roughness={0.9} />
       </mesh>
       <mesh position={[0, 0, 0.101]}>
         <planeGeometry args={[4.08, 0.78]} />
         <meshBasicMaterial map={texture} transparent toneMapped={false} />
       </mesh>
+      {([-1, 1] as const).map((side) => (
+        <mesh key={side} position={[0, side * 0.41, 0.14]}>
+          <boxGeometry args={[4.48, 0.075, 0.11]} />
+          <meshStandardMaterial color="#392316" roughness={0.94} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function WicketLantern({ side }: { side: -1 | 1 }) {
+  return (
+    <group position={[side * 2.08, 2.55, 0.64]}>
+      <mesh
+        castShadow
+        position={[-side * 0.13, 0.34, -0.1]}
+        rotation={[0, 0, side * -0.48]}
+      >
+        <cylinderGeometry args={[0.04, 0.05, 0.62, 8]} />
+        <meshStandardMaterial color="#241a14" metalness={0.68} roughness={0.42} />
+      </mesh>
+      <mesh castShadow position={[0, 0.16, 0]}>
+        <cylinderGeometry args={[0.21, 0.26, 0.12, 8]} />
+        <meshStandardMaterial color="#2a2019" metalness={0.62} roughness={0.45} />
+      </mesh>
+      <mesh position={[0, 0.43, 0]}>
+        <boxGeometry args={[0.34, 0.5, 0.34]} />
+        <meshStandardMaterial
+          color="#ffd28a"
+          emissive="#ff9e43"
+          emissiveIntensity={1.55}
+          roughness={0.24}
+          transparent
+          opacity={0.78}
+        />
+      </mesh>
+      <mesh position={[0, 0.43, 0]}>
+        <boxGeometry args={[0.39, 0.56, 0.39]} />
+        <meshStandardMaterial
+          color="#2a2019"
+          wireframe
+          metalness={0.62}
+          roughness={0.45}
+        />
+      </mesh>
+      <mesh castShadow position={[0, 0.74, 0]}>
+        <coneGeometry args={[0.27, 0.2, 8]} />
+        <meshStandardMaterial color="#2a2019" metalness={0.62} roughness={0.45} />
+      </mesh>
+      <pointLight
+        position={[0, 0.42, 0.24]}
+        color="#ffb35d"
+        intensity={4.4}
+        distance={6}
+        decay={2}
+      />
+    </group>
+  );
+}
+
+/**
+ * Authored Wicket Gate landmark. Built as a small runtime hierarchy so the
+ * entrance reads as one destination from the default third-person camera.
+ */
+function WicketDoorLeaf({
+  side,
+  controller,
+}: {
+  side: -1 | 1;
+  controller: GateController;
+}) {
+  const hinge = useRef<Group>(null);
+  const knocker = useRef<Group>(null);
+  const bolt = useRef<Group>(null);
+  const opening = useRef(controller.doorOpen ? 1 : 0);
+  const releasing = useRef(controller.boltsReleased ? 1 : 0);
+
+  useFrame(({ clock }, delta) => {
+    const doorTarget = controller.doorOpen ? 1 : 0;
+    const boltTarget = controller.boltsReleased ? 1 : 0;
+    const smoothing = controller.reducedMotion ? 1 : 1 - Math.exp(-4.5 * delta);
+    opening.current += (doorTarget - opening.current) * smoothing;
+    releasing.current += (boltTarget - releasing.current) * smoothing;
+    const knocking = controller.knockSide === side;
+    const shudder =
+      knocking && !controller.reducedMotion
+        ? Math.sin(clock.elapsedTime * 28) * 0.025
+        : 0;
+    if (hinge.current)
+      hinge.current.rotation.y = -side * opening.current * 1.18 + shudder;
+    if (knocker.current)
+      knocker.current.rotation.x =
+        knocking && !controller.reducedMotion
+          ? Math.max(0, Math.sin(clock.elapsedTime * 18)) * 0.72
+          : 0;
+    if (bolt.current) {
+      bolt.current.position.x =
+        -side * (1.05 - releasing.current * 0.44);
+      bolt.current.rotation.z = side * releasing.current * 0.16;
+    }
+  });
+
+  return (
+    <group ref={hinge} position={[side * 1.4, 0, 0.26]}>
+      {Array.from({ length: 4 }, (_, index) => (
+        <mesh
+          key={`slat-${index}`}
+          castShadow
+          position={[-side * (0.18 + index * 0.35), 1.68, (index % 2) * 0.018]}
+        >
+          <boxGeometry args={[0.32, 3.16 - (index % 2) * 0.04, 0.22]} />
+          <meshStandardMaterial
+            color={index % 2 ? "#70462d" : "#825538"}
+            emissive="#27150e"
+            emissiveIntensity={0.22}
+            roughness={0.88}
+          />
+        </mesh>
+      ))}
+      {[0.72, 2.48].map((y) => (
+        <mesh key={y} castShadow position={[-side * 0.7, y, 0.17]}>
+          <boxGeometry args={[1.2, 0.14, 0.16]} />
+          <meshStandardMaterial color="#2c211a" roughness={0.84} metalness={0.18} />
+        </mesh>
+      ))}
+      {[0.72, 2.48].flatMap((y) =>
+        [-0.34, 0, 0.34].map((offset) => (
+          <mesh
+            key={`${y}-${offset}`}
+            position={[-side * 0.7 + offset, y, 0.28]}
+            rotation={[Math.PI / 2, 0, 0]}
+          >
+            <sphereGeometry args={[0.045, 8, 6]} />
+            <meshStandardMaterial color="#181718" metalness={0.78} roughness={0.34} />
+          </mesh>
+        )),
+      )}
+      <group ref={bolt} position={[-side * 1.05, 2.02, 0.31]}>
+        <mesh castShadow>
+          <boxGeometry args={[0.68, 0.12, 0.13]} />
+          <meshStandardMaterial color="#211f20" metalness={0.86} roughness={0.28} />
+        </mesh>
+        <mesh position={[side * 0.33, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.09, 0.09, 0.11, 10]} />
+          <meshStandardMaterial color="#171719" metalness={0.9} roughness={0.22} />
+        </mesh>
+      </group>
+      <group ref={knocker} position={[-side * 0.84, 1.42, 0.31]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.13, 0.027, 7, 18]} />
+          <meshStandardMaterial color="#282424" metalness={0.82} roughness={0.28} />
+        </mesh>
+        <mesh position={[0, 0.15, -0.015]}>
+          <sphereGeometry args={[0.055, 8, 6]} />
+          <meshStandardMaterial color="#282424" metalness={0.82} roughness={0.28} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+function GateGoodwill({ controller }: { controller: GateController }) {
+  const root = useRef<Group>(null);
+  useFrame((_, delta) => {
+    if (!root.current) return;
+    const targetZ = controller.pulling ? -0.42 : -1.03;
+    root.current.position.z +=
+      (targetZ - root.current.position.z) *
+      (controller.reducedMotion ? 1 : 1 - Math.exp(-3.8 * delta));
+  });
+  if (!controller.goodwillVisible) return null;
+  return (
+    <group ref={root} position={[0, 0, -1.03]} name="gate-goodwill">
+      <Character variant="goodwill" scale={0.96} />
+      <pointLight position={[0, 1.4, 0.4]} color="#ffd28a" intensity={3.4} distance={4.5} />
+    </group>
+  );
+}
+
+export function WicketGateLandmark({
+  position = [0, 0, -7],
+  controller,
+}: {
+  position?: [number, number, number];
+  controller: GateController;
+}) {
+  const stones = useRef<InstancedMesh>(null);
+  const moss = useRef<InstancedMesh>(null);
+  const cobbles = useRef<InstancedMesh>(null);
+  const wallBlocks = useMemo(
+    () =>
+      ([-1, 1] as const).flatMap((side) =>
+        Array.from({ length: 24 }, (_, index) => {
+          const row = Math.floor(index / 6);
+          const column = index % 6;
+          return {
+            position: [
+              side * (2.08 + column * 0.73 + (row % 2) * 0.16),
+              0.35 + row * 0.7,
+              -0.12 + ((column + row) % 3) * 0.09,
+            ] as [number, number, number],
+            rotation: [
+              ((index % 3) - 1) * 0.025,
+              ((index % 5) - 2) * 0.035,
+              side * ((column % 2) - 0.5) * 0.035,
+            ] as [number, number, number],
+            scale: [
+              0.68 + (index % 3) * 0.055,
+              0.56 + ((index + 1) % 3) * 0.045,
+              0.74 + (index % 2) * 0.12,
+            ] as [number, number, number],
+          };
+        }),
+      ),
+    [],
+  );
+  const mossClumps = useMemo(
+    () =>
+      Array.from({ length: 18 }, (_, index) => {
+        const side = index % 2 ? 1 : -1;
+        const column = index % 6;
+        return {
+          position: [
+            side * (2.15 + column * 0.68),
+            0.35 + ((index * 7) % 9) * 0.28,
+            0.58,
+          ] as [number, number, number],
+          scale: [
+            0.17 + (index % 3) * 0.045,
+            0.075 + (index % 2) * 0.025,
+            0.085,
+          ] as [number, number, number],
+        };
+      }),
+    [],
+  );
+  const approachCobbles = useMemo(
+    () =>
+      Array.from({ length: 46 }, (_, index) => {
+        const row = Math.floor(index / 3);
+        const lane = (index % 3) - 1;
+        const width = 1.05 + row * 0.035;
+        return {
+          position: [
+            lane * width + Math.sin(index * 2.17) * 0.12,
+            0.045 + (index % 2) * 0.008,
+            0.55 + row * 0.86 + Math.cos(index * 1.31) * 0.08,
+          ] as [number, number, number],
+          rotation: [0, index * 0.83, 0] as [number, number, number],
+          scale: [
+            0.55 + (index % 4) * 0.06,
+            0.08 + (index % 2) * 0.018,
+            0.34 + ((index + 2) % 3) * 0.055,
+          ] as [number, number, number],
+        };
+      }),
+    [],
+  );
+
+  useLayoutEffect(() => {
+    const dummy = new Object3D();
+    wallBlocks.forEach((block, index) => {
+      dummy.position.set(...block.position);
+      dummy.rotation.set(...block.rotation);
+      dummy.scale.set(...block.scale);
+      dummy.updateMatrix();
+      stones.current?.setMatrixAt(index, dummy.matrix);
+      stones.current?.setColorAt(
+        index,
+        new Color(index % 4 === 0 ? "#62665c" : index % 3 === 0 ? "#706d62" : "#555c55"),
+      );
+    });
+    if (stones.current) {
+      stones.current.instanceMatrix.needsUpdate = true;
+      if (stones.current.instanceColor) stones.current.instanceColor.needsUpdate = true;
+    }
+
+    mossClumps.forEach((clump, index) => {
+      dummy.position.set(...clump.position);
+      dummy.rotation.set(0, index * 1.37, 0);
+      dummy.scale.set(...clump.scale);
+      dummy.updateMatrix();
+      moss.current?.setMatrixAt(index, dummy.matrix);
+      moss.current?.setColorAt(index, new Color(index % 3 ? "#40533a" : "#586446"));
+    });
+    if (moss.current) {
+      moss.current.instanceMatrix.needsUpdate = true;
+      if (moss.current.instanceColor) moss.current.instanceColor.needsUpdate = true;
+    }
+
+    approachCobbles.forEach((cobble, index) => {
+      dummy.position.set(...cobble.position);
+      dummy.rotation.set(...cobble.rotation);
+      dummy.scale.set(...cobble.scale);
+      dummy.updateMatrix();
+      cobbles.current?.setMatrixAt(index, dummy.matrix);
+      cobbles.current?.setColorAt(
+        index,
+        new Color(index % 4 ? "#756c5b" : "#8b816c"),
+      );
+    });
+    if (cobbles.current) {
+      cobbles.current.instanceMatrix.needsUpdate = true;
+      if (cobbles.current.instanceColor) cobbles.current.instanceColor.needsUpdate = true;
+    }
+  }, [approachCobbles, mossClumps, wallBlocks]);
+
+  return (
+    <group position={position} name="authored-wicket-gate">
+      <mesh receiveShadow position={[0, 0.036, 6.7]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3.7, 13.5]} />
+        <meshStandardMaterial color="#504b40" roughness={1} />
+      </mesh>
+      <instancedMesh
+        ref={cobbles}
+        args={[undefined, undefined, approachCobbles.length]}
+        castShadow
+        receiveShadow
+      >
+        <dodecahedronGeometry args={[1, 0]} />
+        <meshStandardMaterial
+          vertexColors
+          color="#ffffff"
+          emissive="#2b2822"
+          emissiveIntensity={0.24}
+          roughness={0.96}
+        />
+      </instancedMesh>
+      <instancedMesh
+        ref={stones}
+        args={[undefined, undefined, wallBlocks.length]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          vertexColors
+          color="#ffffff"
+          emissive="#31352f"
+          emissiveIntensity={0.28}
+          roughness={0.94}
+        />
+      </instancedMesh>
+      <instancedMesh ref={moss} args={[undefined, undefined, mossClumps.length]}>
+        <dodecahedronGeometry args={[1, 1]} />
+        <meshStandardMaterial
+          vertexColors
+          color="#ffffff"
+          emissive="#263b25"
+          emissiveIntensity={0.3}
+          roughness={1}
+        />
+      </instancedMesh>
+
+      {([-1, 1] as const).map((side) => (
+        <group key={`timber-post-${side}`}>
+          <mesh castShadow position={[side * 1.72, 1.9, 0.08]}>
+            <boxGeometry args={[0.48, 3.8, 0.62]} />
+            <meshStandardMaterial color="#382319" roughness={0.92} />
+          </mesh>
+          <mesh castShadow position={[side * 1.72, 4.08, 0.08]}>
+            <boxGeometry args={[0.68, 0.42, 0.78]} />
+            <meshStandardMaterial color="#2d2019" roughness={0.96} />
+          </mesh>
+        </group>
+      ))}
+      <mesh castShadow position={[0, 3.66, 0.08]}>
+        <boxGeometry args={[4.08, 0.5, 0.68]} />
+        <meshStandardMaterial color="#382319" roughness={0.92} />
+      </mesh>
+      <GateGoodwill controller={controller} />
+      <WicketDoorLeaf side={-1} controller={controller} />
+      <WicketDoorLeaf side={1} controller={controller} />
+      <GateInscription position={[0, 3.98, 0.42]} />
+      <WicketLantern side={-1} />
+      <WicketLantern side={1} />
+      <mesh position={[0, 0.09, 0.62]} receiveShadow>
+        <boxGeometry args={[3.12, 0.18, 0.72]} />
+        <meshStandardMaterial color="#68645a" roughness={0.94} />
+      </mesh>
+      <pointLight position={[0, 2.4, 1.1]} color="#ffc36e" intensity={4} distance={8} />
     </group>
   );
 }

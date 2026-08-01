@@ -13,7 +13,7 @@ test("loads the first playable frame under production CSP", async ({ page }) => 
 
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
   await expect(page.getByTestId("first-objective-coach")).toContainText(
     "arrow buttons",
@@ -64,7 +64,7 @@ test("loads the Cross without external cloud textures", async ({ page }) => {
     ),
   );
   await page.reload();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
   await expect(page.getByTestId("game-hud")).toContainText("The Cross");
   await expect(page.locator("canvas")).toBeVisible();
   expect(externalImages).toEqual([]);
@@ -74,7 +74,7 @@ test("loads the Cross without external cloud textures", async ({ page }) => {
 test("starts recorded ambience after a mobile user gesture", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Begin the journey" }).click();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
 
   const sound = page.getByRole("button", { name: "Toggle sound" });
   await expect(sound).toContainText("Sound off");

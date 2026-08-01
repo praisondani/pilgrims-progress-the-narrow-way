@@ -1,3 +1,5 @@
+import { GATE_ANCHORS } from "./gate/GateController";
+
 export type StepKind =
   | "book"
   | "person"
@@ -62,7 +64,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Find and light the abandoned lantern",
         action: "Light lantern",
         kind: "fire",
-        position: [-5, -4],
+        position: [-4, -4],
         dialogue: [
           "NARRATOR: As I walked through the wilderness of this world, I came upon a certain place where there was a den.",
           "Night gathers around you. One small flame makes the path visible.",
@@ -556,7 +558,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Cross the exposed approach",
         action: "Run to the stone cover",
         kind: "path",
-        position: [-5, -5],
+        position: GATE_ANCHORS.approach,
         dialogue: [
           "Arrows strike the ground from a distant stronghold.",
           "Accusing voices follow each shot: “Too late. Too stained. Turn back.”",
@@ -567,7 +569,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Advance when the arrows pause",
         action: "Cross to the gate wall",
         kind: "path",
-        position: [5, -2],
+        position: GATE_ANCHORS["second-cover"],
         dialogue: [
           "The road narrows until only one traveler can approach at a time.",
           "Warm light shines beneath an old wooden door.",
@@ -578,7 +580,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Read the words above the gate",
         action: "Read inscription",
         kind: "book",
-        position: [-3, 4],
+        position: GATE_ANCHORS.inscription,
         dialogue: [
           "Written above the door: KNOCK, AND IT SHALL BE OPENED UNTO YOU.",
           "Christian raises his hand.",
@@ -589,7 +591,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Knock at the gate",
         action: "Knock once",
         kind: "gate",
-        position: [3, 5],
+        position: GATE_ANCHORS["knock-one"],
         dialogue: [
           "The knock echoes. For a moment, nothing moves.",
           "Another arrow breaks against the stone beside Christian.",
@@ -600,7 +602,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Knock again and call for mercy",
         action: "Knock again",
         kind: "gate",
-        position: [-3, -4],
+        position: GATE_ANCHORS["knock-two"],
         dialogue: [
           "CHRISTIAN: May I enter? I am a burdened sinner from the City of Destruction!",
           "Bolts turn from within.",
@@ -611,7 +613,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Take Goodwill’s hand",
         action: "Enter the gate",
         kind: "person",
-        position: [4, -5],
+        position: GATE_ANCHORS.goodwill,
         dialogue: [
           "Goodwill seizes Christian and pulls him through as arrows strike the door.",
           "GOODWILL: No one who truly knocks is refused entrance.",

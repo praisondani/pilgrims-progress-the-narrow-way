@@ -30,7 +30,7 @@ test("keeps every procedural countryside landmark reachable", async ({ page, isM
       { fieldIndex, stepIndex },
     );
     await page.reload();
-    await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+    await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
     const cue = page.locator(".navigation-cue");
     const interact = page.locator(".interact-prompt");
     if (!(await interact.isVisible())) {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { storyScenes, totalStoryBeats } from "./story";
 import { puzzles } from "./puzzles";
+import { GATE_ANCHORS } from "./gate/GateController";
 
 describe("Part One story journey", () => {
   it("covers the complete planned journey through Doubting Castle", () => {
@@ -50,6 +51,12 @@ describe("Part One story journey", () => {
       scene.steps.map((step) => `${scene.id}:${step.id}`),
     );
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("routes every Wicket Gate beat through the authored Gate anchors", () => {
+    const gate = storyScenes.find((scene) => scene.id === "gate")!;
+    expect(Object.fromEntries(gate.steps.map((step) => [step.id, step.position])))
+      .toEqual(GATE_ANCHORS);
   });
 
   it("removes the burden only at the Cross", () => {

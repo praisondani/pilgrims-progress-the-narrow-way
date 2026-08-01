@@ -1,0 +1,226 @@
+{
+  "project": "Pilgrim’s Progress: The Narrow Way",
+  "program": "Studio-quality third-person narrative adventure overhaul",
+  "updatedAt": "2026-08-01T04:49:00-05:00",
+  "productionUrl": "https://pilgrims.biblequick.com",
+  "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
+  "qualityBar": [
+    "Kena: Bridge of Spirits",
+    "The Pathless",
+    "RiME"
+  ],
+  "currentSprint": {
+    "name": "Vertical Slice 01 — Christian and The Dreamer",
+    "status": "building",
+    "workstreams": [
+      {
+        "id": "baseline",
+        "name": "Independent baseline audit",
+        "status": "failed",
+        "builder": "current game",
+        "critic": "fresh ultracode critic",
+        "largestGap": "Fresh critic scored visual shipping readiness 2.8/10; authored hero and world-scale environment art are largest gap."
+      },
+      {
+        "id": "hero",
+        "name": "Christian protagonist",
+        "status": "iteration-7-required",
+        "builder": "ultracode hero builder",
+        "critic": "fresh visual critic — fail, 3.0/10 on v11",
+        "largestGap": "The burden reads as a rigid board and the body remains an 8,694-triangle procedural blockout; target is an authored 19–24k sculpt with real LODs, cloth compression, and readable face/anatomy."
+      },
+      {
+        "id": "dream",
+        "name": "The Dreamer environment",
+        "status": "gameplay-verified-visual-iteration-required",
+        "builder": "ultracode environment builder",
+        "critic": "fresh gameplay critic — fail, 4.5/10 loop 5",
+        "largestGap": "Dream guided travel now uses monotonic authored bends, every clearing is reachable, and the medium collision runtime is mounted. The remaining gap is visual: the shrine, vegetation, and water still need a stronger focal hierarchy and authored asset fidelity."
+      },
+      {
+        "id": "wicket-gate",
+        "name": "The Wicket Gate authored beat",
+        "status": "gameplay-verified-visual-iteration-required",
+        "builder": "GateController landmark builder",
+        "critic": "fresh live critic — fail, visual bar; gameplay contract now passes",
+        "largestGap": "The six beats now share real gate anchors, animated leaves/bolts, Goodwill reveal, entry bounds, and telegraphed swept arrows; desktop gameplay is green. The remaining gap is authored rendering quality: low-poly masonry/vegetation, flat path, and weak material depth versus the keyframe bar."
+      },
+      {
+        "id": "runtime",
+        "name": "Performance and loading",
+        "status": "blocked",
+        "builder": "main integration",
+        "critic": "automated runtime benchmark",
+        "largestGap": "Loop 3 benchmark reaches scene-ready in 15.2s at 4.5 instrumented headless FPS, 151 draws, and 29,128 triangles; startup and draw count remain release blockers."
+      },
+      {
+        "id": "progress-board",
+        "name": "Live progress board",
+        "status": "blocked",
+        "builder": "main integration",
+        "critic": "Lazyweb design report",
+        "largestGap": "Lazyweb MCP tools are unavailable in this task; data feed is live, visual board awaits connector refresh."
+      }
+    ]
+  },
+  "baseline": {
+    "commit": "f7c09f4",
+    "capturedAt": "2026-07-28T13:14:00-05:00",
+    "visualScore": "2.8 / 10",
+    "performance": {
+      "profile": "desktop headless Chromium",
+      "sceneIndex": 2,
+      "sceneReadyMs": 13813,
+      "fps": 0.9,
+      "drawCallsMean": 109,
+      "trianglesMean": 56944,
+      "liveTextures": 7,
+      "liveBuffers": 314
+    },
+    "captures": [
+      {
+        "label": "Title — before",
+        "path": "/studio-evidence/baseline/title-before.png"
+      },
+      {
+        "label": "Dream first objective — before",
+        "path": "/studio-evidence/baseline/dream-first-objective-before.png"
+      },
+      {
+        "label": "Wicket Gate — critic baseline",
+        "path": "/studio-evidence/baseline/critic/wicket-gate.png"
+      },
+      {
+        "label": "Interpreter — critic baseline",
+        "path": "/studio-evidence/baseline/critic/interpreter.png"
+      },
+      {
+        "label": "Cross — critic baseline",
+        "path": "/studio-evidence/baseline/critic/cross-at-30s.png"
+      }
+    ]
+  },
+  "references": [
+    {
+      "label": "Christian turnaround v1",
+      "path": "/studio-evidence/hero-reference/christian-turnaround-v1.png",
+      "purpose": "img2threejs character reconstruction reference"
+    },
+    {
+      "label": "Dream environment keyframe v1",
+      "path": "/studio-evidence/environment-reference/dream-keyframe-v1.png",
+      "purpose": "authored composition, materials, and lighting target"
+    },
+      {
+        "label": "Dream shrine turnaround v1",
+        "path": "/studio-evidence/environment-reference/dream-shrine-turnaround-v1.png",
+        "purpose": "img2threejs architecture reconstruction and material reference"
+      },
+      {
+        "label": "Wicket Gate keyframe v1",
+        "path": "/studio-evidence/environment-reference/wicket-gate-keyframe-v1.png",
+        "purpose": "authored gate architecture, inscription, arrows, and sunset composition reference"
+      },
+      {
+        "label": "Cross keyframe v1",
+        "path": "/studio-evidence/environment-reference/cross-keyframe-v1.png",
+        "purpose": "future burden-release landmark composition and lighting reference"
+      }
+  ],
+  "currentCaptures": [
+    {
+      "label": "Christian iteration 2 — critic evidence",
+      "path": "/studio-evidence/vertical-slice-01/christian-three-quarter-v2.png"
+    },
+    {
+      "label": "Dream vertical slice iteration 2",
+      "path": "/studio-evidence/vertical-slice-01/dream-integrated-v2.png"
+    },
+    {
+      "label": "Christian iteration 3 — corrected burden contact",
+      "path": "/studio-evidence/vertical-slice-01/christian-three-quarter-v3.jpg"
+    },
+    {
+      "label": "Dream vertical slice iteration 3 — authored depth",
+      "path": "/studio-evidence/vertical-slice-01/dream-integrated-v3.jpg"
+    },
+    {
+      "label": "Critic view — Christian profile and burden",
+      "path": "/studio-evidence/vertical-slice-01/critic-v2/hero/profile.jpg"
+    },
+    {
+      "label": "Critic view — Dream rear orbit failure",
+      "path": "/studio-evidence/vertical-slice-01/critic-v2/dream/rear-orbit.jpg"
+    },
+    {
+      "label": "Critic view — Dream mobile composition",
+      "path": "/studio-evidence/vertical-slice-01/critic-v2/dream/mobile-camera.jpg"
+    },
+    {
+      "label": "Critic loop 3 — Christian profile",
+      "path": "/studio-evidence/vertical-slice-01/critic-v3/hero/profile.jpg"
+    },
+    {
+      "label": "Christian unified v10 — front",
+      "path": "/studio-evidence/vertical-slice-01/christian-unified-v10-front.jpg"
+    },
+    {
+      "label": "Christian unified v10 — burden profile",
+      "path": "/studio-evidence/vertical-slice-01/christian-unified-v10-profile.jpg"
+    },
+    {
+      "label": "Dream loop 4 — real gameplay camera",
+      "path": "/studio-evidence/vertical-slice-01/dream-loop4-runtime.jpg"
+    },
+      {
+        "label": "Christian v13 — front, tunic folds + loaded QA",
+        "path": "/studio-evidence/vertical-slice-01/christian-v13-front.jpg"
+      },
+      {
+        "label": "Christian v12 — burden profile, rounded sack",
+        "path": "/studio-evidence/vertical-slice-01/christian-v12-profile.jpg"
+      },
+      {
+        "label": "Christian v12 — burden back, rope contact",
+        "path": "/studio-evidence/vertical-slice-01/christian-v12-back.jpg"
+    },
+    {
+      "label": "Dream loop 5 — moonlit S-curve",
+      "path": "/studio-evidence/vertical-slice-01/dream-loop5-runtime-water-v2.jpg"
+    },
+    {
+      "label": "Wicket Gate concept — inscription and arrow approach",
+      "path": "/studio-evidence/environment-reference/wicket-gate-keyframe-v1.png"
+    },
+    {
+      "label": "Cross concept — burden release landmark",
+      "path": "/studio-evidence/environment-reference/cross-keyframe-v1.png"
+    },
+    {
+      "label": "Wicket Gate controller — establishing shot",
+      "path": "/studio-evidence/vertical-slice-02/wicket-gate-controller-front.jpg"
+    },
+    {
+      "label": "Wicket Gate controller — inscription close-up",
+      "path": "/studio-evidence/vertical-slice-02/wicket-gate-controller-close.jpg"
+    },
+    {
+      "label": "Wicket Gate controller — swept arrow impact",
+      "path": "/studio-evidence/vertical-slice-02/wicket-gate-controller-impact.jpg"
+    },
+    {
+      "label": "Dream loop 6 — collision and route runtime",
+      "path": "/studio-evidence/vertical-slice-01/dream-loop6-collision-runtime.jpg"
+    }
+  ],
+  "gates": {
+    "unitTests": "60/60 passed",
+    "firstObjective": "desktop and mobile first-lantern flows pass; Dream den, book, and threshold routes are reachable through monotonic authored waypoints",
+    "wicketGate": "desktop arrow-impact + six-beat real-door traversal 2/2 pass; mobile gate-specific touch-path cases intentionally skipped",
+    "browserRegression": "desktop game 15/15 pass; mobile Chromium 15/15 pass; mobile WebKit 3/3 pass; procedural 2/2 pass",
+    "bundleBudget": "4.33 MB JavaScript + 2.16 MB audio — pass",
+    "secretAudit": "pass",
+    "img2threejs": "Christian v13 procedural reconstruction with near/far LOD proxies; Wicket Gate and Cross references intaken for staged reconstruction; no production GLB accepted yet",
+    "deployment": "not authorized until current vertical slice passes real gameplay and regression gates"
+  }
+}

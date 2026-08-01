@@ -9,8 +9,16 @@ import { Group, Vector3 } from "three";
 import { useGame } from "./state";
 import { storyScenes } from "./story";
 import { Character } from "./Visuals";
+import { PilgrimHero } from "./assets/hero";
 import { gameAudio } from "./audio";
 import { cameraControl, playerImpact, playerMotion } from "./camera";
+import {
+  dreamGuidedWaypoint,
+} from "./assets/environment/dream";
+import {
+  deriveGateController,
+  gatePlayerBounds,
+} from "./gate/GateController";
 
 const keys = new Set<string>();
 export const mobileInput = { x: 0, z: 0 };
@@ -71,6 +79,7 @@ export function Player() {
     dialogue,
     choosing,
     guidedTravel,
+    reducedMotion,
   } = useGame();
   const burdenWeight = burden > 0 ? Math.min(1, 0.55 + sceneIndex * 0.07) : 0;
   useEffect(() => {
@@ -143,13 +152,25 @@ export function Player() {
     if (manual.lengthSq() > 0 && guidedTravel)
       useGame.getState().stopGuidedTravel();
     const step = storyScenes[sceneIndex].steps[useGame.getState().stepIndex];
+    const dreamGuided = storyScenes[sceneIndex].id === "dream";
+    const guidedPoint =
+      dreamGuided
+        ? dreamGuidedWaypoint(
+            [p.x, p.z],
+            [step.position[0], step.position[1]],
+          )
+        : step.position;
+    const guidedWaypointIsFinal =
+      !dreamGuided ||
+      (guidedPoint[0] === step.position[0] &&
+        guidedPoint[1] === step.position[1]);
     const guided = new Vector3(
-      step.position[0] - p.x,
+      guidedPoint[0] - p.x,
       0,
-      step.position[1] - p.z,
+      guidedPoint[1] - p.z,
     );
     const guidedDistance = guided.length();
-    if (guidedTravel && guidedDistance < 1.45) {
+    if (guidedTravel && guidedDistance < 1.45 && guidedWaypointIsFinal) {
       useGame.getState().stopGuidedTravel();
       body.current.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
       playerMotion.moving = false;
@@ -180,8 +201,28 @@ export function Player() {
       playerMotion.yaw = Math.atan2(dir.x, dir.z);
       if (model.current) model.current.rotation.y = playerMotion.yaw;
     }
-    const clampedX = Math.max(-7.2, Math.min(7.2, p.x));
-    const clampedZ = Math.max(-7.2, Math.min(7.2, p.z));
+    const runtimeState = useGame.getState();
+    const runtimeScene = storyScenes[runtimeState.sceneIndex];
+    const runtimeStep = runtimeScene.steps[runtimeState.stepIndex];
+    const bounds =
+      runtimeScene.id === "gate"
+        ? gatePlayerBounds(
+            deriveGateController({
+              stepId: runtimeStep.id,
+              dialogueActive: Boolean(runtimeState.dialogue),
+              dialogueIndex: runtimeState.dialogueIndex,
+              sceneComplete: runtimeState.sceneComplete,
+              reducedMotion: runtimeState.reducedMotion,
+            }),
+          )
+        : {
+            minimumX: -7.2,
+            maximumX: 7.2,
+            minimumZ: -7.2,
+            maximumZ: 7.2,
+          };
+    const clampedX = Math.max(bounds.minimumX, Math.min(bounds.maximumX, p.x));
+    const clampedZ = Math.max(bounds.minimumZ, Math.min(bounds.maximumZ, p.z));
     if (clampedX !== p.x || clampedZ !== p.z)
       body.current.setTranslation({ x: clampedX, y: p.y, z: clampedZ }, true);
     if (p.y < -3) body.current.setTranslation({ x: 0, y: 1.2, z: 7 }, true);
@@ -196,12 +237,13 @@ export function Player() {
     >
       <CapsuleCollider args={[0.42, 0.38]} />
       <group ref={model} position={[0, -0.58, 0]} rotation={[0, Math.PI, 0]}>
-        <Character
+        <PilgrimHero
           variant="christian"
           walking={walking}
           burden={burdenWeight}
           hasRoll={hasRoll}
           equipped={equipment.length > 0}
+          reducedMotion={reducedMotion}
         />
       </group>
     </RigidBody>
