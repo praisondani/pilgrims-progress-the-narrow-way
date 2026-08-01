@@ -1,17 +1,24 @@
 # Christian production asset handoff
 
-The current v17 procedural reconstruction is a reviewed runtime prototype, not
+The current v18 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It now keeps Christian's burden behind his scapulae,
 uses two asymmetric cloth lobes with compression folds and rope contact,
 embeds facial volume in the skinned body draw, and adds restrained loaded-cloth
-secondary motion. The comparison sheet remains below the acceptance bar:
+secondary motion. The v18 anatomy pass narrows the waist, tapers the limbs, and
+adds embedded orbital, cheek, brow, nose, beard, moustache, lip, and chin
+volumes. The comparison remains below the acceptance bar:
 
 - reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
-- v17 profile render: `public/studio-evidence/vertical-slice-01/christian-v17-profile.jpg`
-- v17 rear render: `public/studio-evidence/vertical-slice-01/christian-v17-back.jpg`
+- v18 front render: `public/studio-evidence/vertical-slice-01/christian-v18-front.png`
+- v18 profile render: `public/studio-evidence/vertical-slice-01/christian-v18-profile.png`
+- v18 rear render: `public/studio-evidence/vertical-slice-01/christian-v18-back.png`
+- v18 gameplay burden render: `public/studio-evidence/vertical-slice-01/christian-v18-gameplay-burden.png`
 - staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
 
-The Loop 5 acceptance bar still requires an external DCC-authored character.
+The fresh v18 runtime critic still fails the Loop 5 acceptance bar: the current
+pack is too wide and planar, the face and anatomy remain toy-like at 96 px, and
+the body/burden geometry is 12,636 triangles versus the 19–24k target. An
+external DCC-authored character/GLB remains required.
 The procedural BufferGeometry remains useful as the API/rig and gameplay
 fallback while that source sculpt is produced.
 

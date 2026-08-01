@@ -1,6 +1,6 @@
 # Asset Generation Pipeline
 
-Current game uses code-authored primitives. Christian v17 is the latest reviewed
+Current game uses code-authored primitives. Christian v18 is the latest reviewed
 img2threejs procedural fallback, with burden/face/profile evidence recorded in
 `src/game/assets/hero/AUTHORED_ASSET_HANDOFF.md`; no generated hero GLB is
 production-approved yet.
@@ -41,4 +41,8 @@ assets/
 - Modular prop: 300–8k depending on screen size.
 - Collision: simple primitives first; dedicated low-poly mesh only when required.
 
-Generated output is a source—not a shippable asset—until all checks pass.
+Generated output is a source—not a shippable asset—until all checks pass. The
+v18 runtime review is intentionally recorded as a fail: the procedural hero is
+12,636 triangles and still below the 19–24k authored-hero target. Keep the API,
+sockets, colliders, LOD contract, and procedural fallback while a licensed DCC
+sculpt/GLB is produced and reviewed from front, profile, rear, and 96 px views.
