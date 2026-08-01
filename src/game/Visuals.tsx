@@ -6,6 +6,7 @@ import {
   Group,
   InstancedMesh,
   Object3D,
+  Shape,
   SRGBColorSpace,
 } from "three";
 import { useGame } from "./state";
@@ -855,6 +856,15 @@ export function WicketGateLandmark({
       }),
     [],
   );
+  const gateTrailShape = useMemo(() => {
+    const shape = new Shape();
+    shape.moveTo(-1.88, -6.75);
+    shape.lineTo(-1.52, 6.75);
+    shape.lineTo(1.52, 6.75);
+    shape.lineTo(1.88, -6.75);
+    shape.closePath();
+    return shape;
+  }, []);
 
   useLayoutEffect(() => {
     const dummy = new Object3D();
@@ -907,8 +917,20 @@ export function WicketGateLandmark({
   return (
     <group position={position} name="authored-wicket-gate">
       <mesh receiveShadow position={[0, 0.036, 6.7]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[3.7, 13.5]} />
-        <meshStandardMaterial color="#504b40" roughness={1} />
+        <extrudeGeometry
+          args={[
+            gateTrailShape,
+            {
+              depth: 0.08,
+              bevelEnabled: true,
+              bevelSegments: 1,
+              bevelSize: 0.035,
+              bevelThickness: 0.02,
+              curveSegments: 2,
+            },
+          ]}
+        />
+        <meshStandardMaterial color="#4c5148" roughness={0.98} />
       </mesh>
       <instancedMesh
         ref={cobbles}
@@ -931,7 +953,7 @@ export function WicketGateLandmark({
         castShadow
         receiveShadow
       >
-        <boxGeometry args={[1, 1, 1]} />
+        <dodecahedronGeometry args={[0.82, 0]} />
         <meshStandardMaterial
           vertexColors
           color="#ffffff"

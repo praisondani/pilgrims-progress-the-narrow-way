@@ -505,14 +505,26 @@ function GateRidge({
       renderOrder={-6}
       rotation={[0, 0, 0]}
     >
-      <shapeGeometry args={[silhouette]} />
+      <extrudeGeometry
+        args={[
+          silhouette,
+          {
+            depth: 1.8,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            bevelSize: 0.08,
+            bevelThickness: 0.16,
+            curveSegments: 2,
+          },
+        ]}
+      />
       <meshBasicMaterial
         color={color}
         transparent={opacity < 1}
         opacity={opacity}
-        depthWrite={false}
         side={DoubleSide}
         fog
+        depthWrite={false}
       />
     </mesh>
   );
