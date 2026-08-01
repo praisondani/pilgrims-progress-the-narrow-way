@@ -65,7 +65,46 @@ export const audioMix = {
   ambienceBusGain: 0.6,
   sfxBusGain: 0.45,
   masterGain: 0.8,
+  // Source calibration values are intentionally bounded before they reach
+  // the shared limiter. A few legacy scenes were calibrated with very large
+  // positive offsets; those can become speaker spikes when voices overlap.
+  minSourceGainDb: -48,
+  maxAmbienceSourceGainDb: 3,
+  maxSfxSourceGainDb: -6,
+  maxConcurrentSfx: 4,
 } as const;
+
+export const clampSourceGainDb = (
+  decibels: number,
+  maximum: number,
+) => {
+  const finite = Number.isFinite(decibels)
+    ? decibels
+    : audioMix.minSourceGainDb;
+  return Math.min(
+    maximum,
+    Math.max(audioMix.minSourceGainDb, finite),
+  );
+};
+
+export const ambienceSourceGainDb = (sceneId: string) =>
+  clampSourceGainDb(
+    (sceneGainDb[sceneId] ?? 0) + audioMix.ambienceNormalizationLiftDb,
+    audioMix.maxAmbienceSourceGainDb,
+  );
+
+export const sfxSourceGainDb = (name: string) =>
+  clampSourceGainDb(
+    sfxGainDb[name] ?? audioMix.minSourceGainDb,
+    audioMix.maxSfxSourceGainDb,
+  );
+
+export const ambienceSourceGain = (sceneId: string) =>
+  dbToGain(ambienceSourceGainDb(sceneId));
+
+export const sfxSourceGain = (name: string) =>
+  dbToGain(sfxSourceGainDb(name));
+
 export const normalizedAmbienceOutputDb = () =>
   audioMix.measuredAmbienceRmsDb +
   audioMix.ambienceNormalizationLiftDb +
@@ -84,7 +123,7 @@ export type AudioPlaybackState =
   | "playing"
   | "error";
 
-class GameAudio {
+export class GameAudio {
   private ctx?: AudioContext;
   private master?: GainNode;
   private ambienceBus?: GainNode;
@@ -99,6 +138,8 @@ class GameAudio {
   private enabled = false;
   private playbackState: AudioPlaybackState = "muted";
   private listeners = new Set<() => void>();
+  private resumeRequest?: Promise<boolean>;
+  private activeSfx: AudioBufferSourceNode[] = [];
 
   getSnapshot = () => this.playbackState;
 
@@ -112,30 +153,59 @@ class GameAudio {
     scene?: string,
   ) {
     this.playbackState = state;
-    if (typeof document === "undefined") return;
-    document.documentElement.dataset.audioState = state;
-    document.documentElement.dataset.audioContext = this.ctx?.state ?? "none";
-    if (scene) document.documentElement.dataset.audioScene = scene;
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.audioState = state;
+      document.documentElement.dataset.audioContext = this.ctx?.state ?? "none";
+      if (scene) document.documentElement.dataset.audioScene = scene;
+    }
     this.listeners.forEach((listener) => listener());
   }
 
   start() {
+    if (!this.enabled) {
+      this.markState("muted", this.pendingScene);
+      return;
+    }
     if (!this.ctx) this.buildGraph();
+    if (!this.ctx) return;
     void this.resumeAndPlay();
   }
 
   private async resumeAndPlay() {
     if (!this.ctx) this.buildGraph();
     if (!this.ctx || !this.enabled) return false;
-    try {
-      await Promise.race([
-        this.ctx.resume(),
-        new Promise<void>((resolve) => window.setTimeout(resolve, 180)),
-      ]);
-    } catch {
-      // Browsers reject resume outside a trusted user gesture.
+    const context = this.ctx;
+    if (context.state !== "running") {
+      if (!this.resumeRequest) {
+        this.resumeRequest = (async () => {
+          try {
+            // Safari can take a few hundred milliseconds to settle a trusted
+            // gesture. The old 180ms race reported a false "blocked" state
+            // while the context was already on its way to running. Keep a
+            // bounded wait, then let the next pointer/keyboard gesture retry.
+            await Promise.race([
+              context.resume(),
+              new Promise<void>((resolve) => setTimeout(resolve, 1_200)),
+            ]);
+          } catch {
+            // Autoplay policy rejects resume until a trusted user gesture.
+          }
+          const running = context.state === "running";
+          if (!running && this.enabled) {
+            this.markState("blocked", this.pendingScene);
+          }
+          return running;
+        })().finally(() => {
+          this.resumeRequest = undefined;
+        });
+      }
+      if (!(await this.resumeRequest)) return false;
     }
-    if (this.ctx.state !== "running") {
+    if (!this.enabled) {
+      this.markState("muted", this.pendingScene);
+      return false;
+    }
+    if (context.state !== "running") {
       this.markState("blocked", this.pendingScene);
       return false;
     }
@@ -146,7 +216,14 @@ class GameAudio {
 
   setEnabled(value: boolean) {
     this.enabled = value;
-    this.markState(value ? "loading" : "muted", this.pendingScene);
+    if (!value) {
+      // Invalidate a pending decode so it cannot start an ambience source
+      // after the user has muted audio while it was loading.
+      this.sceneRequest += 1;
+      this.markState("muted", this.pendingScene);
+    } else {
+      this.markState("loading", this.pendingScene);
+    }
     if (!this.ctx || !this.master) {
       if (value) this.start();
       return;
@@ -158,7 +235,21 @@ class GameAudio {
   }
 
   private buildGraph() {
-    this.ctx = new AudioContext();
+    if (typeof window === "undefined") return;
+    const AudioContextConstructor =
+      window.AudioContext ??
+      (window as Window & { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AudioContextConstructor) {
+      this.markState("error", this.pendingScene);
+      return;
+    }
+    try {
+      this.ctx = new AudioContextConstructor();
+    } catch {
+      this.markState("error", this.pendingScene);
+      return;
+    }
     const lowpass = this.ctx.createBiquadFilter();
     lowpass.type = "lowpass";
     lowpass.frequency.value = 9_000;
@@ -185,8 +276,29 @@ class GameAudio {
     const unlock = () => {
       if (this.enabled && this.ctx?.state !== "running") void this.resumeAndPlay();
     };
-    window.addEventListener("pointerdown", unlock, { capture: true });
+    // Mobile Safari can suspend or interrupt an AudioContext when the page is
+    // backgrounded, the output route changes, or the device locks. Keep the
+    // HUD truthful instead of leaving “Sound on” visible over silence.
+    this.ctx.addEventListener("statechange", () => {
+      const contextState = this.ctx?.state as string | undefined;
+      if (!this.enabled) {
+        this.markState("muted", this.pendingScene);
+      } else if (contextState === "running") {
+        this.markState(this.current ? "playing" : "loading", this.pendingScene);
+      } else if (contextState === "closed") {
+        this.markState("error", this.pendingScene);
+      } else {
+        this.markState("blocked", this.pendingScene);
+      }
+    });
+    window.addEventListener("pointerdown", unlock, {
+      capture: true,
+      passive: true,
+    });
     window.addEventListener("keydown", unlock, { capture: true });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") unlock();
+    });
   }
 
   private async load(url: string) {
@@ -235,7 +347,13 @@ class GameAudio {
     this.markState("loading", id);
     const request = ++this.sceneRequest;
     const buffer = await this.load(ambienceUrl(id));
-    if (!buffer || request !== this.sceneRequest || id !== this.pendingScene) {
+    if (
+      !buffer ||
+      !this.enabled ||
+      this.ctx.state !== "running" ||
+      request !== this.sceneRequest ||
+      id !== this.pendingScene
+    ) {
       if (!buffer && request === this.sceneRequest) this.markState("error", id);
       return;
     }
@@ -246,12 +364,7 @@ class GameAudio {
     source.buffer = buffer;
     source.loop = true;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(
-      dbToGain(
-        (sceneGainDb[id] ?? 0) + audioMix.ambienceNormalizationLiftDb,
-      ),
-      now + 1.4,
-    );
+    gain.gain.exponentialRampToValueAtTime(ambienceSourceGain(id), now + 1.4);
     source.connect(gain).connect(this.ambienceBus);
     source.start();
     this.markState("playing", id);
@@ -278,8 +391,19 @@ class GameAudio {
     const source = this.ctx.createBufferSource();
     const gain = this.ctx.createGain();
     source.buffer = buffer;
-    gain.gain.value = dbToGain(sfxGainDb[name] ?? 0);
+    gain.gain.value = sfxSourceGain(name);
     source.connect(gain).connect(this.sfxBus);
+
+    // Do not let repeated focus/impact callbacks stack indefinitely. Keeping
+    // four voices retains tactile feedback while bounding total transient
+    // energy before the shared compressor.
+    if (this.activeSfx.length >= audioMix.maxConcurrentSfx) {
+      this.activeSfx.shift()?.stop();
+    }
+    this.activeSfx.push(source);
+    source.onended = () => {
+      this.activeSfx = this.activeSfx.filter((active) => active !== source);
+    };
     source.start();
   }
 

@@ -109,3 +109,72 @@ test("starts recorded ambience after a mobile user gesture", async ({ page }) =>
     "running",
   );
 });
+
+test("reports an interrupted audio context and recovers on the next gesture", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const browserWindow = window as Window & {
+      webkitAudioContext?: typeof AudioContext;
+      __testAudioContexts?: AudioContext[];
+    };
+    const AudioContextConstructor =
+      browserWindow.AudioContext ?? browserWindow.webkitAudioContext;
+    if (!AudioContextConstructor) return;
+    const contexts: AudioContext[] = [];
+    browserWindow.__testAudioContexts = contexts;
+    const WrappedAudioContext = new Proxy(AudioContextConstructor, {
+      construct(target, args, newTarget) {
+        const context = Reflect.construct(target, args, newTarget) as AudioContext;
+        contexts.push(context);
+        return context;
+      },
+    });
+    Object.defineProperty(browserWindow, "AudioContext", {
+      configurable: true,
+      value: WrappedAudioContext,
+    });
+  });
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Begin the journey" }).click();
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
+  const sound = page.getByRole("button", { name: "Toggle sound" });
+  await sound.click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "playing",
+    { timeout: 15_000 },
+  );
+
+  const suspendedState = await page.evaluate(async () => {
+    const contexts = (
+      window as typeof window & { __testAudioContexts?: AudioContext[] }
+    ).__testAudioContexts;
+    const context = contexts?.[0];
+    if (!context) return "missing";
+    await context.suspend();
+    return context.state;
+  });
+  expect(suspendedState).toBe("suspended");
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "blocked",
+  );
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-context",
+    "suspended",
+  );
+  await expect(sound).toContainText("Start sound");
+
+  await sound.click();
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-state",
+    "playing",
+    { timeout: 15_000 },
+  );
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-audio-context",
+    "running",
+  );
+});
