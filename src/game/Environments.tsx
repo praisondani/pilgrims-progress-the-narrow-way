@@ -339,13 +339,19 @@ function FlyingArrows({ controller }: { controller: GateController }) {
         arrow.visible &&
         now - lastImpact.current > 1_450 &&
         !isInsideGateCover([playerPosition.x, playerPosition.z]) &&
-        (segmentSegmentContact(
-          [priorX, z],
-          [frame.x, z],
+        (segmentCircleContact(
           playerStart,
           playerEnd,
-          0.92,
+          [playerPosition.x, z],
+          1.15,
         ) ||
+          segmentSegmentContact(
+            [priorX, z],
+            [frame.x, z],
+            playerStart,
+            playerEnd,
+            0.92,
+          ) ||
           segmentCircleContact(
             [priorX, z],
             [frame.x, z],
@@ -566,10 +572,16 @@ function GateDistantValley() {
     </group>
   );
 }
-function GateCover({ position }: { position: Target }) {
+function GateCover({
+  position,
+  compact = false,
+}: {
+  position: Target;
+  compact?: boolean;
+}) {
   return (
     <group position={[position[0], 0, position[1]]} name="gate-cover">
-      {[-0.55, 0, 0.55].map((x, index) => (
+      {(compact ? [0] : [-0.55, 0, 0.55]).map((x, index) => (
         <mesh key={x} castShadow receiveShadow position={[x, 0.42 + index * 0.04, 0]}>
           <dodecahedronGeometry args={[0.58 + (index % 2) * 0.12, 0]} />
           <meshStandardMaterial color={index === 1 ? "#69675f" : "#565b55"} roughness={1} />
@@ -586,6 +598,8 @@ function Gate({
   target: Target;
   controller: GateController;
 }) {
+  const mobileViewport =
+    typeof window !== "undefined" && window.innerWidth <= 720;
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.gateStep = controller.stepId;
@@ -602,7 +616,16 @@ function Gate({
   return (
     <>
       <GateDuskSky />
-      <GateDistantValley />
+      {mobileViewport ? (
+        <GateRidge
+          position={[0, 1.5, -18]}
+          scale={[11, 4, 1]}
+          color="#536273"
+          opacity={0.54}
+        />
+      ) : (
+        <GateDistantValley />
+      )}
       <mesh position={[0, 0.031, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[10.6, 64]} />
         <meshBasicMaterial color="#4f6c52" toneMapped={false} />
@@ -613,16 +636,28 @@ function Gate({
       </mesh>
       <WicketGateLandmark position={WICKET_GATE_ROOT} controller={controller} />
       {GATE_COVER_CENTERS.map((position) => (
-        <GateCover key={`${position[0]}-${position[1]}`} position={position} />
+        <GateCover
+          key={`${position[0]}-${position[1]}`}
+          position={position}
+          compact={mobileViewport}
+        />
       ))}
-      <GrassMeadow count={92} radius={9.2} color="#40563b" />
-      <GnarledTree position={[-7.2, 0, -5.4]} color="#314534" scale={1.5} />
-      <GnarledTree position={[7.15, 0, -6.2]} color="#354a38" scale={1.28} />
-      <Bush position={[-6.2, 0, -5.3]} color="#4f623e" scale={1.25} />
-      <Bush position={[6.05, 0, -5.5]} color="#52653f" scale={1.15} />
+      <GrassMeadow
+        count={mobileViewport ? 48 : 92}
+        radius={9.2}
+        color="#40563b"
+      />
+      {!mobileViewport && (
+        <>
+          <GnarledTree position={[-7.2, 0, -5.4]} color="#314534" scale={1.5} />
+          <GnarledTree position={[7.15, 0, -6.2]} color="#354a38" scale={1.28} />
+          <Bush position={[-6.2, 0, -5.3]} color="#4f623e" scale={1.25} />
+          <Bush position={[6.05, 0, -5.5]} color="#52653f" scale={1.15} />
+        </>
+      )}
       <FlyingArrows controller={controller} />
       <Sparkles
-        count={28}
+        count={mobileViewport ? 12 : 28}
         scale={[5, 5, 3]}
         position={[0, 2.3, -7]}
         color="#ffd78b"

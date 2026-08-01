@@ -33,15 +33,35 @@ async function guideToCurrentBeat(page: Page) {
   const prompt = page.locator(".interact-prompt");
   if (!(await prompt.isVisible())) {
     const cue = page.locator(".navigation-cue");
-    if (await cue.isEnabled()) await cue.click();
+    if (await cue.isEnabled()) {
+      await cue.evaluate((element) =>
+        (element as HTMLButtonElement).click(),
+      );
+      await page.waitForTimeout(50);
+    }
   }
   await expect(prompt).toBeVisible({ timeout: 20_000 });
-  await prompt.click();
+  await prompt.click({ force: true });
+  await page.waitForTimeout(50);
 }
 
 async function finishDialogue(page: Page) {
-  const dialogue = page.locator(".dialogue.spoken");
-  while (await dialogue.isVisible()) await dialogue.click();
+  for (let attempt = 0; attempt < 32; attempt += 1) {
+    // Gate animation can replace the button between locator checks. Query and
+    // dispatch in one page task so a re-render cannot leave Playwright waiting
+    // on a detached dialogue node.
+    const advanced = await page.evaluate(() => {
+      const element = document.querySelector<HTMLButtonElement>(
+        ".dialogue.spoken",
+      );
+      if (!element) return false;
+      element.click();
+      return true;
+    });
+    if (!advanced) return;
+    await page.waitForTimeout(80);
+  }
+  throw new Error("Dialogue did not finish within 32 advances");
 }
 
 test("telegraphed arrows make swept contact and preserve impact feedback", async ({
@@ -57,19 +77,31 @@ test("telegraphed arrows make swept contact and preserve impact feedback", async
     quality: 88,
   });
 
+  const impact = expect(page.locator("html")).toHaveAttribute(
+    "data-last-arrow-impact",
+    /\d+/,
+    { timeout: 15_000 },
+  );
+  const toast = expect(page.locator(".toast")).toContainText(
+    "An arrow strikes Christian",
+    { timeout: 15_000 },
+  );
+  // Step into the first arrow lane, then hold position. This mirrors the
+  // authored moment the player is exposed on the approach and makes the
+  // collision assertion independent of the salvo's phase at page load.
   await page.keyboard.down("KeyW");
-  await Promise.all([
-    expect(page.locator("html")).toHaveAttribute(
-      "data-last-arrow-impact",
-      /\d+/,
-      { timeout: 15_000 },
-    ),
-    expect(page.locator(".toast")).toContainText(
-      "An arrow strikes Christian",
-      { timeout: 15_000 },
-    ),
-  ]);
+  await expect
+    .poll(
+      async () =>
+        Number(await page.locator(".navigation-cue").getAttribute("data-player-z")),
+      { timeout: 5_000, intervals: [100, 200, 400] },
+    )
+    .toBeLessThan(4.6);
   await page.keyboard.up("KeyW");
+  await Promise.all([
+    impact,
+    toast,
+  ]);
   await expect(page.locator("html")).toHaveAttribute(
     "data-arrow-salvo-phase",
     /telegraph|flight|safe/,

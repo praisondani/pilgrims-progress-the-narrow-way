@@ -784,6 +784,8 @@ export function WicketGateLandmark({
   position?: [number, number, number];
   controller: GateController;
 }) {
+  const mobileViewport =
+    typeof window !== "undefined" && window.innerWidth <= 720;
   const stones = useRef<InstancedMesh>(null);
   const moss = useRef<InstancedMesh>(null);
   const cobbles = useRef<InstancedMesh>(null);
@@ -993,7 +995,7 @@ export function WicketGateLandmark({
       <WicketDoorLeaf side={-1} controller={controller} />
       <WicketDoorLeaf side={1} controller={controller} />
       <GateInscription position={[0, 3.98, 0.42]} />
-      <WicketLantern side={-1} />
+      {!mobileViewport && <WicketLantern side={-1} />}
       <WicketLantern side={1} />
       <mesh position={[0, 0.09, 0.62]} receiveShadow>
         <boxGeometry args={[3.12, 0.18, 0.72]} />

@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T05:29:00-05:00",
+  "updatedAt": "2026-08-01T06:02:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -43,7 +43,7 @@
         "status": "gameplay-verified-visual-iteration-required",
         "builder": "GateController landmark builder",
         "critic": "fresh live critic — fail, visual bar; gameplay contract now passes",
-        "largestGap": "The six beats now share real gate anchors, animated leaves/bolts, Goodwill reveal, entry bounds, and telegraphed swept arrows; desktop gameplay is green. The remaining gap is authored rendering quality: low-poly masonry/vegetation, flat path, and weak material depth versus the keyframe bar."
+        "largestGap": "The six beats now share real gate anchors, animated leaves/bolts, Goodwill reveal, entry bounds, and telegraphed swept arrows; the desktop arrow-impact and full traversal suites are green. The remaining gap is authored rendering quality: low-poly masonry/vegetation, flat path, and weak material depth versus the keyframe bar."
       },
       {
         "id": "runtime",
@@ -51,7 +51,7 @@
         "status": "blocked",
         "builder": "main integration",
         "critic": "automated runtime benchmark",
-        "largestGap": "Current Gate benchmark reaches scene-ready in 5.83s desktop / 5.65s mobile at 4.4 / 5.7 headless FPS, with 145 / 123 draw-call p95 and 33,764 / 31,308 triangle p95. Hardware FPS is unverified; mobile draw count and cold startup remain release blockers."
+        "largestGap": "Current Gate benchmark reaches scene-ready in 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS, with 124 / 88 draw-call p95 and 33,786 / 29,582 triangle p95. Mobile draw count is now under 100; hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
       },
       {
         "id": "progress-board",
