@@ -610,20 +610,20 @@ test("escapes Doubting Castle with the Key of Promise", async ({ page }) => {
   await spoken.click();
   await spoken.click();
   const chapterCta = page.locator(".chapter-card .primary");
-  await expect(chapterCta).toContainText("Leave Doubting Castle");
+  await expect(chapterCta).toContainText("Continue the journey");
   await chapterCta.click();
-  await expect(page.locator(".ending")).toContainText(
-    "The mountains rise ahead",
+  await expect(page.getByTestId("game-hud")).toContainText(
+    "The Delectable Mountains",
   );
 });
 
-test("completes the full Dream-to-Doubting journey through real controls", async ({
+test("completes the full Dream-to-Celestial City journey through real controls", async ({
   page,
   isMobile,
 }) => {
   test.skip(
     Boolean(process.env.CI),
-    "Exhaustive 45-minute physics journey runs locally; CI covers focused flows and story invariants.",
+    "Exhaustive full-story physics journey runs locally; CI covers focused flows and story invariants.",
   );
   test.skip(
     Boolean(isMobile),
@@ -712,7 +712,7 @@ test("completes the full Dream-to-Doubting journey through real controls", async
     await expect(chapterCta).toBeVisible();
     await expect(chapterCta).toContainText(
       sceneIndex === storyScenes.length - 1
-        ? "Leave Doubting Castle"
+        ? "Enter the Celestial City"
         : "Continue the journey",
     );
     await expect
@@ -728,7 +728,7 @@ test("completes the full Dream-to-Doubting journey through real controls", async
 
   await expect(page.locator(".ending")).toBeVisible();
   await expect(page.locator(".ending")).toContainText(
-    "The mountains rise ahead",
+    "The road ends in welcome",
   );
   console.info(
     `[journey] complete (${Math.round((Date.now() - journeyStartedAt) / 1000)}s)`,

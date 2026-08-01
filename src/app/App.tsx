@@ -80,8 +80,8 @@ function Title() {
           <p className="subtitle">The Narrow Way</p>
           <p className="intro">
             A story-driven 3D adaptation of John Bunyan’s 1678 allegory. Walk
-            with Christian from the City of Destruction through Doubting
-            Castle, where every person, place, and trial carries a deeper
+            with Christian from the City of Destruction through the Celestial
+            City, where every person, place, and trial carries a deeper
             meaning.
           </p>
           <div className="title-actions">
@@ -112,7 +112,7 @@ function Title() {
               <dd>chapters playable</dd>
             </div>
             <div>
-              <dt>191</dt>
+              <dt>{totalStoryBeats}</dt>
               <dd>story beats</dd>
             </div>
             <div>
@@ -200,9 +200,9 @@ function Title() {
 
         <footer>
           This independent browser adaptation is a work in progress. The
-          current journey reaches Doubting Castle; later chapters toward the
-          Celestial City are in development. Generated using GPT 5.6 Sol on
-          Codex.
+          journey now continues from the City of Destruction through Doubting
+          Castle, the river, and the Celestial City. Generated using GPT 5.6
+          Sol on Codex.
         </footer>
       </section>
     </main>
@@ -631,7 +631,7 @@ function Overlay() {
               {game.replayCheckpoint
                 ? `Return to ${storyScenes[progressSceneIndex].title}`
                 : game.sceneIndex === storyScenes.length - 1
-                  ? "Leave Doubting Castle"
+                  ? "Enter the Celestial City"
                   : "Continue the journey"}{" "}
               →
             </button>
@@ -641,16 +641,17 @@ function Overlay() {
       {game.gameComplete && (
         <div className="modal ending">
           <section>
-            <p className="eyebrow">PROMISE REMEMBERED · DESPAIR ESCAPED</p>
-            <h2>The mountains rise ahead.</h2>
+            <p className="eyebrow">PROMISE KEPT · THE CITY RECEIVED</p>
+            <h2>The road ends in welcome.</h2>
             <p>
-              Christian and Hopeful refused convenient religion and Lucre,
-              owned the error of By-Path Meadow, remembered the Key of Promise,
-              and escaped Doubting Castle together.
+              Christian and Hopeful crossed the Delectable Mountains, stayed
+              awake through the Enchanted Ground, entered Beulah, and crossed
+              the river together. The road’s hardships become a testimony of
+              grace rather than a record of self-rescue.
             </p>
             <div className="ending-road">
-              Delectable Mountains · Ignorance · Little-Faith · Flatterer ·
-              Enchanted Ground · Beulah · River · Celestial City
+              Delectable Mountains · Enchanted Ground · Beulah · River ·
+              Celestial City
             </div>
             <button ref={endingAction} className="primary" onClick={game.reset}>
               Dream again

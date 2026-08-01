@@ -24,6 +24,11 @@ const sceneGainDb: Record<string, number> = {
   demas: 3.5,
   bypath: 21.1,
   doubting: 11,
+  delectable: 7.8,
+  enchanted: -2.4,
+  beulah: 13.6,
+  river: 5.1,
+  celestial: 16.2,
 };
 
 const sfxGainDb: Record<string, number> = {
@@ -37,8 +42,20 @@ const sfxGainDb: Record<string, number> = {
   success: 5.8,
 };
 
+// The finale reuses the measured, mastered beds from nearby chapters until
+// dedicated Beulah and City recordings are authored. Keeping this alias map
+// local preserves the no-external-audio contract and avoids a silent 404 while
+// the finale remains fully playable.
+const ambienceSource: Record<string, string> = {
+  delectable: "hill",
+  enchanted: "shadow",
+  beulah: "hopeful",
+  river: "cross",
+  celestial: "palace",
+};
+
 export const ambienceUrl = (sceneId: string) =>
-  `/audio/ambience/${sceneId}.mp3`;
+  `/audio/ambience/${ambienceSource[sceneId] ?? sceneId}.mp3`;
 export const sfxUrl = (name: string) => `/audio/sfx/${name}.mp3`;
 export const dbToGain = (decibels: number) => 10 ** (decibels / 20);
 export const audioSceneIds = Object.keys(sceneGainDb);

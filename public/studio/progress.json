@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T06:02:00-05:00",
+  "updatedAt": "2026-08-01T06:35:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -46,12 +46,20 @@
         "largestGap": "The six beats now share real gate anchors, animated leaves/bolts, Goodwill reveal, entry bounds, and telegraphed swept arrows; the desktop arrow-impact and full traversal suites are green. The remaining gap is authored rendering quality: low-poly masonry/vegetation, flat path, and weak material depth versus the keyframe bar."
       },
       {
+        "id": "finale",
+        "name": "Delectable Mountains to Celestial City finale",
+        "status": "gameplay-verified-visual-iteration-required",
+        "builder": "main integration + environment pass",
+        "critic": "focused real-controls finale smoke test — pass, 2.2m",
+        "largestGap": "Five new chapters complete Part One through the River and Celestial City with authored lighting, water, skyline, and watchfulness motifs. The remaining gap is a fresh visual critic pass and dedicated finale audio beds; River mobile tier is 96 draw calls p95 after its compact presentation."
+      },
+      {
         "id": "runtime",
         "name": "Performance and loading",
         "status": "blocked",
         "builder": "main integration",
         "critic": "automated runtime benchmark",
-        "largestGap": "Current Gate benchmark reaches scene-ready in 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS, with 124 / 88 draw-call p95 and 33,786 / 29,582 triangle p95. Mobile draw count is now under 100; hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
+        "largestGap": "Gate remains 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS with 124 / 88 draw-call p95; the new River finale tier is 7.06s desktop / 6.97s mobile at 142 / 96 draw-call p95 and 41,142 / 39,038 triangles. Hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
       },
       {
         "id": "progress-board",
@@ -218,13 +226,13 @@
     }
   ],
   "gates": {
-    "unitTests": "60/60 passed",
+    "unitTests": "61/61 passed",
     "firstObjective": "desktop and mobile first-lantern flows pass; Dream den, book, and threshold routes are reachable through monotonic authored waypoints",
     "wicketGate": "desktop arrow-impact + six-beat real-door traversal 2/2 pass; mobile gate-specific touch-path cases intentionally skipped",
-    "browserRegression": "desktop game 15/15 pass plus full 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium 15/15 pass; mobile WebKit 3/3 pass; procedural 2/2 pass",
+    "browserRegression": "desktop focused flows 17/17 pass plus legacy 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium focused flows 17/17 pass; mobile WebKit 3/3 pass; procedural desktop 2/2 pass",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
-    "fullJourney": "Dream → Doubting Castle, all 25 scenes, every objective/puzzle/dialogue/ending — 1/1 pass, 26.2 minutes",
-    "bundleBudget": "4.33 MB JavaScript + 2.16 MB audio — pass",
+    "fullJourney": "Legacy Dream → Doubting Castle traversal 1/1 pass (26.2m); new Delectable Mountains → Celestial City finale smoke 1/1 pass (2.2m). Full 30-scene rerun remains queued.",
+    "bundleBudget": "4.35 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v13 procedural reconstruction with near/far LOD proxies; Wicket Gate and Cross references intaken for staged reconstruction; no production GLB accepted yet",
     "deployment": "not authorized until current vertical slice passes real gameplay and regression gates"

@@ -11,8 +11,25 @@ export type ChapterCameraProfile = {
 };
 
 const INTIMATE = new Set(["gate", "interpreter", "palace", "faithful", "talkative"]);
-const OMINOUS = new Set(["dream", "slough", "shadow", "vanity", "bypath", "doubting"]);
-const MONUMENTAL = new Set(["cross", "hill", "warning", "lions", "humiliation"]);
+const OMINOUS = new Set([
+  "dream",
+  "slough",
+  "shadow",
+  "vanity",
+  "bypath",
+  "doubting",
+  "enchanted",
+]);
+const MONUMENTAL = new Set([
+  "cross",
+  "hill",
+  "warning",
+  "lions",
+  "humiliation",
+  "delectable",
+  "river",
+  "celestial",
+]);
 
 export function cameraMoodFor(sceneId: string): CameraMood {
   if (INTIMATE.has(sceneId)) return "intimate";

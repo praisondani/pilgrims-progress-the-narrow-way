@@ -8,11 +8,11 @@
 - 360-degree third-person orbit/follow camera with zoom, camera-relative movement, and smooth recenter
 - Local persisted story state
 - Title, HUD, objectives, pause, and journal UI
-- 191 gated story beats across 25 chapters from Dream through escape from Doubting Castle
+- 223 gated story beats across 30 chapters from Dream through the Celestial City
 - Multi-line dialogue, response choices, chapter transitions, journal discoveries, and ending
 - Burden appears in City, affects movement, and is removed only at Cross
 - Automated story structure and save-ID invariants
-- Twenty-five scene-authored painterly low-poly environment families
+- Thirty scene-authored painterly low-poly environment families
 - Forty-two reusable human character variants plus a bespoke Apollyon silhouette, with articulated walk and idle animation
 - Cinematic conversation camera, chapter pullback shots, and letterbox framing
 - Procedural Web Audio ambience, footsteps, interaction cues, and sound toggle
@@ -21,7 +21,7 @@
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets
 - WASD and arrow-key movement documented and browser-tested
 - Split production chunks with enforced bundle budget
-- Desktop and mobile Chromium smoke tests plus exhaustive real-control journey coverage
+- Desktop and mobile Chromium smoke tests plus legacy exhaustive and finale real-control journey coverage
 - GitHub Actions unit/build/bundle/browser quality gates
 - Persistent normal/large/largest text settings
 - Reduced-motion and cinematic-camera comfort controls

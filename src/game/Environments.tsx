@@ -1565,6 +1565,272 @@ function DoubtingCastle({ stepIndex }: { stepIndex: number }) {
   );
 }
 
+function DelectableMountains({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <Stars radius={30} depth={18} count={180} factor={1.25} fade />
+      <group position={[0, 0, -10]}>
+        <Mountain position={[-5, 0, 0]} color="#708a83" />
+        <Mountain position={[5, -0.35, -1.5]} color="#58736f" />
+        <Mountain position={[0, -0.8, -3.5]} color="#8aa095" />
+      </group>
+      <GrassMeadow count={84} radius={8.8} color="#658456" flowers />
+      <WaterPool
+        position={[0, 0.035, -3.2]}
+        scale={[2.6, 1, 0.72]}
+        color="#6f9ca0"
+      />
+      {[
+        [-6.2, 0, -3.8],
+        [6.3, 0, -3.1],
+        [-6, 0, 3.8],
+        [6, 0, 4.2],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color={index % 2 ? "#466a4e" : "#54744e"}
+            scale={0.9 + (index % 2) * 0.18}
+          />
+        ))}
+      <group position={[0, 0, -7.2]}>
+        <StoneArch position={[0, 0, 0]} />
+        <mesh position={[0, 2.85, 0]}>
+          <coneGeometry args={[0.6, 1.25, 6]} />
+          <meshStandardMaterial color="#d5c58b" emissive="#8e7a3c" emissiveIntensity={0.35} />
+        </mesh>
+      </group>
+      <Sparkles
+        count={stepIndex >= 5 ? 72 : 42}
+        scale={[14, 6, 14]}
+        color="#f4e2a0"
+        opacity={0.34}
+        size={2.4}
+        speed={0.12}
+      />
+    </>
+  );
+}
+
+function EnchantedGround({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <Stars radius={25} depth={16} count={260} factor={1.15} fade speed={0.04} />
+      <GrassMeadow
+        count={stepIndex >= 4 ? 108 : 82}
+        radius={8.5}
+        color="#4f6b4f"
+        flowers
+      />
+      {[
+        [-5.8, 0, -3.8],
+        [5.8, 0, -3.3],
+        [-5.7, 0, 3.4],
+        [5.7, 0, 3.9],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#3b5746"
+            scale={1 + (index % 2) * 0.16}
+          />
+        ))}
+      <group position={[0, 0, -5.8]}>
+        <mesh position={[0, 1.15, 0]}>
+          <cylinderGeometry args={[0.48, 0.68, 2.3, 10]} />
+          <meshStandardMaterial color="#4b4939" roughness={1} />
+        </mesh>
+        <mesh position={[0, 2.35, 0]} scale={[1.35, 0.7, 0.92]}>
+          <sphereGeometry args={[1.35, 18, 10]} />
+          <meshStandardMaterial color="#5c7950" roughness={0.98} />
+        </mesh>
+        <pointLight
+          position={[0, 1.55, 0.4]}
+          color="#d8c67c"
+          intensity={stepIndex >= 4 ? 6 : 3.5}
+          distance={7}
+        />
+      </group>
+      <Sparkles
+        count={stepIndex >= 4 ? 110 : 70}
+        scale={[13, 5.5, 13]}
+        color="#d7c881"
+        opacity={0.3}
+        size={2.2}
+        speed={0.1}
+      />
+    </>
+  );
+}
+
+function Beulah({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <GrassMeadow count={118} radius={9.4} color="#789d65" flowers />
+      <WaterPool
+        position={[0, 0.04, -6.6]}
+        scale={[5.2, 1, 1.25]}
+        color="#6fabb0"
+      />
+      <group position={[0, 0, -10]}>
+        <mesh position={[-3.2, 2.2, 0]}>
+          <cylinderGeometry args={[1.05, 1.3, 4.4, 8]} />
+          <meshStandardMaterial color="#d8d6bd" roughness={0.86} />
+        </mesh>
+        <mesh position={[3.2, 2.8, -0.8]}>
+          <cylinderGeometry args={[1.2, 1.5, 5.6, 8]} />
+          <meshStandardMaterial color="#c9d3c1" roughness={0.86} />
+        </mesh>
+        <mesh position={[0, 4.9, -0.5]}>
+          <coneGeometry args={[1.7, 2.5, 8]} />
+          <meshStandardMaterial color="#e4d7a3" emissive="#bd9b4f" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+      {[
+        [-6.1, 0, -3.2],
+        [6.1, 0, -2.6],
+        [-6, 0, 3.8],
+        [6, 0, 4.1],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#6d914f"
+            scale={0.86 + (index % 2) * 0.16}
+          />
+        ))}
+      <Sparkles
+        count={stepIndex >= 4 ? 140 : 96}
+        scale={[15, 7, 15]}
+        color="#fff0af"
+        opacity={0.42}
+        size={2.6}
+        speed={0.14}
+      />
+    </>
+  );
+}
+
+function RiverApproach({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  const mobileViewport =
+    typeof window !== "undefined" && window.innerWidth <= 720;
+  const stones = mobileViewport ? [] : [-4.8, -2.4, 0, 2.4, 4.8];
+  return (
+    <>
+      <Stars radius={32} depth={20} count={mobileViewport ? 80 : 120} factor={1.3} fade />
+      <GrassMeadow count={mobileViewport ? 42 : 62} radius={8.8} color="#5d8067" flowers={false} />
+      <WaterPool
+        position={[0, 0.045, -5.7]}
+        scale={[7.4, 1, 1.65]}
+        color="#4d8493"
+      />
+      {!mobileViewport && <Reeds count={16} radius={7.6} color="#718d68" />}
+      {stones.map((x, index) => (
+        <mesh
+          key={x}
+          castShadow
+          position={[x, 0.2 + (index % 2) * 0.08, -3.8 - (index % 3) * 0.65]}
+          rotation={[0, index * 0.55, 0]}
+        >
+          <dodecahedronGeometry args={[0.48 + (index % 2) * 0.16, 0]} />
+          <meshStandardMaterial color="#78817c" roughness={1} />
+        </mesh>
+      ))}
+      <group position={[0, 0, -9.6]}>
+        <StoneArch position={[0, 0, 0]} gate />
+        <pointLight
+          position={[0, 2.1, 1]}
+          color="#fff2b2"
+          intensity={stepIndex >= 4 ? 8 : 4}
+          distance={10}
+        />
+      </group>
+      <Sparkles
+        count={stepIndex >= 4 ? 86 : 54}
+        scale={[15, 5, 14]}
+        position={[0, 2.1, -5]}
+        color="#f7e7ae"
+        opacity={0.3}
+        size={2.5}
+        speed={0.11}
+      />
+    </>
+  );
+}
+
+function CelestialCity({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <Stars radius={35} depth={24} count={240} factor={1.4} fade speed={0.02} />
+      <GrassMeadow count={98} radius={9.5} color="#86a66d" flowers />
+      <group position={[0, 0, -8.5]}>
+        {[-4.8, -2.4, 0, 2.4, 4.8].map((x, index) => (
+          <group key={x} position={[x, 0, (index % 2) * -0.7]}>
+            <mesh castShadow position={[0, 2.3 + (index % 2) * 0.65, 0]}>
+              <cylinderGeometry args={[0.62, 0.85, 4.6 + (index % 2) * 1.3, 8]} />
+              <meshStandardMaterial
+                color={index % 2 ? "#d6d8c1" : "#eee2b2"}
+                roughness={0.78}
+              />
+            </mesh>
+            <mesh position={[0, 4.95 + (index % 2) * 0.65, 0]}>
+              <coneGeometry args={[0.9, 1.55, 8]} />
+              <meshStandardMaterial
+                color="#f1d783"
+                emissive="#c79a4b"
+                emissiveIntensity={0.48}
+                roughness={0.62}
+              />
+            </mesh>
+            <pointLight
+              position={[0, 3.1, 0.62]}
+              color="#fff1b1"
+              intensity={stepIndex >= 2 ? 3.6 : 1.9}
+              distance={5.5}
+            />
+          </group>
+        ))}
+        <StoneArch position={[0, 0, 1.5]} gate />
+      </group>
+      {[
+        [-6.3, 0, -3.4],
+        [6.3, 0, -3.1],
+        [-6, 0, 4],
+        [6, 0, 4.2],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#88a36b"
+            scale={0.85 + (index % 2) * 0.14}
+          />
+        ))}
+      <Float speed={0.45} floatIntensity={0.1}>
+        <mesh position={[0, 6.8, -5.5]}>
+          <octahedronGeometry args={[0.35, 0]} />
+          <meshBasicMaterial color="#fff6c9" toneMapped={false} />
+        </mesh>
+      </Float>
+      <Sparkles
+        count={stepIndex >= 4 ? 180 : 120}
+        scale={[16, 8, 16]}
+        color="#fff2b5"
+        opacity={0.5}
+        size={2.8}
+        speed={0.08}
+      />
+    </>
+  );
+}
+
 export function SceneEnvironment({
   id,
   stepIndex,
@@ -1606,5 +1872,10 @@ export function SceneEnvironment({
   if (id === "byends") return <ByEndsRoad target={target} />;
   if (id === "demas") return <DemasMine target={target} />;
   if (id === "bypath") return <ByPathMeadow stepIndex={stepIndex} target={target} />;
+  if (id === "delectable") return <DelectableMountains stepIndex={stepIndex} target={target} />;
+  if (id === "enchanted") return <EnchantedGround stepIndex={stepIndex} target={target} />;
+  if (id === "beulah") return <Beulah stepIndex={stepIndex} target={target} />;
+  if (id === "river") return <RiverApproach stepIndex={stepIndex} target={target} />;
+  if (id === "celestial") return <CelestialCity stepIndex={stepIndex} target={target} />;
   return <DoubtingCastle stepIndex={stepIndex} />;
 }
