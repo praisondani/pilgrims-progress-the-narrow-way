@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T06:35:00-05:00",
+  "updatedAt": "2026-08-01T06:42:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -52,6 +52,14 @@
         "builder": "main integration + environment pass",
         "critic": "focused real-controls finale smoke test — pass, 2.2m",
         "largestGap": "Five new chapters complete Part One through the River and Celestial City with authored lighting, water, skyline, and watchfulness motifs. The remaining gap is a fresh visual critic pass and dedicated finale audio beds; River mobile tier is 96 draw calls p95 after its compact presentation."
+      },
+      {
+        "id": "mobile-controls",
+        "name": "Mobile touch movement",
+        "status": "hardened",
+        "builder": "main integration",
+        "critic": "mobile accessibility smoke",
+        "largestGap": "Directional controls now capture the pointer and release on up, cancel, or lost capture; physical-device Safari gesture validation remains outstanding."
       },
       {
         "id": "runtime",
@@ -229,7 +237,7 @@
     "unitTests": "61/61 passed",
     "firstObjective": "desktop and mobile first-lantern flows pass; Dream den, book, and threshold routes are reachable through monotonic authored waypoints",
     "wicketGate": "desktop arrow-impact + six-beat real-door traversal 2/2 pass; mobile gate-specific touch-path cases intentionally skipped",
-    "browserRegression": "desktop focused flows 17/17 pass plus legacy 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium focused flows 17/17 pass; mobile WebKit 3/3 pass; procedural desktop 2/2 pass",
+    "browserRegression": "desktop focused flows 17/17 pass plus legacy 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium focused flows 17/17 pass; mobile WebKit 3/3 pass; procedural desktop 2/2 pass; mobile pointer capture hardening builds clean",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
     "fullJourney": "Legacy Dream → Doubting Castle traversal 1/1 pass (26.2m); new Delectable Mountains → Celestial City finale smoke 1/1 pass (2.2m). Full 30-scene rerun remains queued.",
     "bundleBudget": "4.35 MB JavaScript + 2.16 MB audio — pass",

@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { GameCanvas } from "../game/GameCanvas";
 import { mobileInput } from "../game/Player";
 import { useGame } from "../game/state";
@@ -209,7 +215,8 @@ function Title() {
   );
 }
 function Controls() {
-  const press = (x: number, z: number) => () => {
+  const press = (x: number, z: number) => (event: ReactPointerEvent<HTMLButtonElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
     mobileInput.x = x;
     mobileInput.z = z;
   };
@@ -217,18 +224,26 @@ function Controls() {
     mobileInput.x = 0;
     mobileInput.z = 0;
   };
+  const buttonProps = (x: number, z: number, label: string) => ({
+    type: "button" as const,
+    "aria-label": label,
+    onPointerDown: press(x, z),
+    onPointerUp: release,
+    onPointerCancel: release,
+    onLostPointerCapture: release,
+  });
   return (
     <div className="mobile-controls">
-      <button onPointerDown={press(-1, 0)} onPointerUp={release}>
+      <button {...buttonProps(-1, 0, "Move left")}>
         ←
       </button>
-      <button onPointerDown={press(0, -1)} onPointerUp={release}>
+      <button {...buttonProps(0, -1, "Move forward")}>
         ↑
       </button>
-      <button onPointerDown={press(0, 1)} onPointerUp={release}>
+      <button {...buttonProps(0, 1, "Move backward")}>
         ↓
       </button>
-      <button onPointerDown={press(1, 0)} onPointerUp={release}>
+      <button {...buttonProps(1, 0, "Move right")}>
         →
       </button>
     </div>

@@ -925,6 +925,8 @@ button {
   bottom: 1rem;
   grid-template-columns: repeat(4, 44px);
   gap: 4px;
+  touch-action: none;
+  user-select: none;
 }
 .mobile-controls button {
   width: 44px;
@@ -934,6 +936,7 @@ button {
   background: #fff5dfed;
   color: #4d4037;
   box-shadow: 0 5px 16px #26332840;
+  touch-action: none;
 }
 .story-progress {
   position: absolute;
