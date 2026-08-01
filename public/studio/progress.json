@@ -51,7 +51,7 @@
         "status": "blocked",
         "builder": "main integration",
         "critic": "automated runtime benchmark",
-        "largestGap": "Loop 3 benchmark reaches scene-ready in 15.2s at 4.5 instrumented headless FPS, 151 draws, and 29,128 triangles; startup and draw count remain release blockers."
+        "largestGap": "Current Gate benchmark reaches scene-ready in 5.83s desktop / 5.65s mobile at 4.4 / 5.7 headless FPS, with 145 / 123 draw-call p95 and 33,764 / 31,308 triangle p95. Hardware FPS is unverified; mobile draw count and cold startup remain release blockers."
       },
       {
         "id": "progress-board",
