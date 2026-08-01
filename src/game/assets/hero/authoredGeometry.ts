@@ -69,18 +69,23 @@ export class AuthoredGeometryBuilder {
     rings: AuthoredLoftRing[],
     radialSegments = 14,
     cap: boolean | "start" | "end" = true,
+    deform?: (position: Vector3, normal: Vector3, ringIndex: number) => Vector3,
   ) {
     const ringStarts: number[] = [];
-    for (const ring of rings) {
+    for (let ringIndex = 0; ringIndex < rings.length; ringIndex += 1) {
+      const ring = rings[ringIndex];
       ringStarts.push(this.vertexCount);
       for (let segment = 0; segment < radialSegments; segment += 1) {
         const angle = (segment / radialSegments) * Math.PI * 2;
+        const normal = new Vector3(Math.cos(angle), 0, Math.sin(angle));
+        let position = new Vector3(
+          ring.center[0] + normal.x * ring.radiusX,
+          ring.center[1],
+          ring.center[2] + normal.z * ring.radiusZ,
+        );
+        if (deform) position = deform(position, normal, ringIndex);
         this.vertex(
-          [
-            ring.center[0] + Math.cos(angle) * ring.radiusX,
-            ring.center[1],
-            ring.center[2] + Math.sin(angle) * ring.radiusZ,
-          ],
+          [position.x, position.y, position.z],
           ring.color,
           ring.skin,
         );

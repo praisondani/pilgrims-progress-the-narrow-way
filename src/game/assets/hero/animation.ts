@@ -114,16 +114,20 @@ export function createHeroAnimator(rig: HeroAnimationRig) {
 
     rig.burdenVisual.visible = smooth.burden > 0.002;
     rig.burdenHarness.visible = smooth.burden > 0.002;
-    rig.burdenVisual.scale.set(
-      1.1 + smooth.burden * 0.08,
-      1.15 + smooth.burden * 0.1,
-      1.05 + smooth.burden * 0.08,
-    );
     const loadLag = Math.sin(phase - 0.32) * motionScale;
+    // Cloth load settles one beat behind Christian. Tiny phase-driven squash
+    // and sway sell mass without ever detaching the socket or changing its
+    // collision bounds.
+    const clothPulse = loadLag * smooth.burden * 0.018;
+    rig.burdenVisual.scale.set(
+      (1.1 + smooth.burden * 0.08) * (1 + clothPulse),
+      (1.15 + smooth.burden * 0.1) * (1 - clothPulse * 0.72),
+      (1.05 + smooth.burden * 0.08) * (1 + clothPulse * 0.58),
+    );
     rig.burdenVisual.position.y =
-      rest.burdenY + Math.abs(loadLag) * 0.009;
+      rest.burdenY + Math.abs(loadLag) * 0.009 - Math.max(0, -loadLag) * 0.003;
     rig.burdenVisual.rotation.x =
-      rest.burdenX - smooth.burden * 0.105 - loadLag * 0.014;
+      rest.burdenX - smooth.burden * 0.105 - loadLag * 0.018;
     rig.burdenVisual.rotation.z =
       rest.burdenZ + loadLag * 0.024;
     rig.rollVisual.visible = state.hasRoll;

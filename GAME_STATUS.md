@@ -46,15 +46,18 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
+- Christian v17 img2threejs procedural burden/face pass with profile, rear, and gameplay evidence; external sculpt/GLB remains the target
 
 ## Blocked
 
-- None for current procedural-art MVP
+- Studio visual bar is not met yet: current hero/environment geometry remains procedural low-poly, and no licensed 19–24k Christian GLB has passed review
+- Physical-device performance sign-off is still outstanding; current headless benchmarks are not hardware claims
 
 ## Next
 
 1. Validate every Chapter II objective and seed exclusion on desktop/mobile
 2. Move terrain/scatter array generation to a worker after profiling proves need
 3. Add region lifecycle/disposal and repeated-transition memory test
-4. Upgrade Slough only after countryside phase gates pass
+4. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
 5. Build licensed GLB hero pipeline; replace characters scene by scene
+6. Produce dedicated finale audio beds and complete physical-device audio/performance QA

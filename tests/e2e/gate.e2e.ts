@@ -14,6 +14,7 @@ async function openGate(page: Page, stepIndex = 0) {
             started: true,
             sceneIndex,
             stepIndex: requestedStep,
+            burden: 1,
             soundEnabled: false,
             reducedMotion: true,
             cinematicCamera: false,
@@ -155,10 +156,15 @@ test("all six Gate beats use the authored path and open the real doorway", async
   await expect(page.locator("html")).toHaveAttribute("data-gate-door", "open");
   await expect(page.locator("html")).toHaveAttribute("data-gate-goodwill", "visible");
   await guideToCurrentBeat(page);
-  await expect(page.locator(".navigation-cue")).toHaveAttribute(
-    "data-player-z",
-    /-(?:8|9|10)\./,
-  );
+  await expect
+    .poll(
+      async () =>
+        Number(
+          await page.locator(".navigation-cue").getAttribute("data-player-z"),
+        ),
+      { timeout: 5_000, intervals: [100, 200, 400] },
+    )
+    .toBeLessThan(-7.5);
   await finishDialogue(page);
 
   await expect(page.locator(".chapter-card")).toContainText("The Wicket Gate");

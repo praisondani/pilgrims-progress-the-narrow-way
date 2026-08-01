@@ -1,8 +1,19 @@
 # Christian production asset handoff
 
-The Loop 5 acceptance bar requires an external DCC-authored character. The
-current procedural BufferGeometry is useful as an API/rig prototype, but it is
-not an acceptable source sculpt.
+The current v17 procedural reconstruction is a reviewed runtime prototype, not
+the final studio asset. It now keeps Christian's burden behind his scapulae,
+uses two asymmetric cloth lobes with compression folds and rope contact,
+embeds facial volume in the skinned body draw, and adds restrained loaded-cloth
+secondary motion. The comparison sheet remains below the acceptance bar:
+
+- reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
+- v17 profile render: `public/studio-evidence/vertical-slice-01/christian-v17-profile.jpg`
+- v17 rear render: `public/studio-evidence/vertical-slice-01/christian-v17-back.jpg`
+- staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
+
+The Loop 5 acceptance bar still requires an external DCC-authored character.
+The procedural BufferGeometry remains useful as the API/rig and gameplay
+fallback while that source sculpt is produced.
 
 ## Required deliverables
 

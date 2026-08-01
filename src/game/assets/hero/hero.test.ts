@@ -47,7 +47,7 @@ describe("authored Christian hero", () => {
       "hero.attachment.burden",
     ) as Group;
     expect(burden.position.y).toBeCloseTo(-0.1);
-    expect(burden.position.z).toBeCloseTo(-0.035);
+    expect(burden.position.z).toBeCloseTo(-0.08);
     expect(
       runtime.root.getObjectByName("hero.mesh.authored-burden"),
     ).toBeTruthy();
@@ -140,6 +140,21 @@ describe("authored Christian hero", () => {
       .toBe(true);
     expect(runtime.root.getObjectByName("hero.equipment.authored")?.visible)
       .toBe(true);
+    runtime.dispose();
+  });
+
+  it("lets loaded cloth settle a beat behind the walking stride", () => {
+    const runtime = createPilgrimHero({ burden: 1 });
+    const burden = runtime.root.getObjectByName(
+      "hero.attachment.burden",
+    ) as Group;
+    const initialScale = burden.scale.clone();
+    for (let index = 0; index < 18; index += 1)
+      runtime.update(0.05, { burden: 1, walking: true });
+
+    expect(burden.scale.x).not.toBeCloseTo(initialScale.x, 4);
+    expect(burden.position.y).toBeGreaterThanOrEqual(-0.1);
+    expect(burden.rotation.x).toBeLessThan(-0.08);
     runtime.dispose();
   });
 

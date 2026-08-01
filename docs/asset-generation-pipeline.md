@@ -1,6 +1,9 @@
 # Asset Generation Pipeline
 
-Current game uses code-authored primitives. No generated hero asset is production-approved yet.
+Current game uses code-authored primitives. Christian v17 is the latest reviewed
+img2threejs procedural fallback, with burden/face/profile evidence recorded in
+`src/game/assets/hero/AUTHORED_ASSET_HANDOFF.md`; no generated hero GLB is
+production-approved yet.
 
 ## Directory contract
 

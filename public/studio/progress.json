@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T06:42:00-05:00",
+  "updatedAt": "2026-08-01T07:06:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -24,10 +24,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-7-required",
+        "status": "iteration-8-required",
         "builder": "ultracode hero builder",
-        "critic": "fresh visual critic — fail, 3.0/10 on v11",
-        "largestGap": "The burden reads as a rigid board and the body remains an 8,694-triangle procedural blockout; target is an authored 19–24k sculpt with real LODs, cloth compression, and readable face/anatomy."
+        "critic": "fresh builder/critic loop — fail, comparison v17",
+        "largestGap": "v17 moves the burden behind Christian, adds two asymmetric cloth lobes, compression folds, a shaped collar, facial volume, and stride-phase load settling. Profile/back comparison still fails the reference bar: central sack surface remains too planar, body anatomy remains stylized, and an external 19–24k sculpt/GLB is still required."
       },
       {
         "id": "dream",
@@ -199,6 +199,18 @@
       {
         "label": "Christian v12 — burden back, rope contact",
         "path": "/studio-evidence/vertical-slice-01/christian-v12-back.jpg"
+      },
+      {
+        "label": "Christian v17 — authored burden front QA",
+        "path": "/studio-evidence/vertical-slice-01/christian-v17-front.jpg"
+      },
+      {
+        "label": "Christian v17 — burden profile contact QA",
+        "path": "/studio-evidence/vertical-slice-01/christian-v17-profile.jpg"
+      },
+      {
+        "label": "Christian v17 — asymmetric cloth rear QA",
+        "path": "/studio-evidence/vertical-slice-01/christian-v17-back.jpg"
     },
     {
       "label": "Dream loop 5 — moonlit S-curve",
@@ -242,7 +254,7 @@
     "fullJourney": "Legacy Dream → Doubting Castle traversal 1/1 pass (26.2m); new Delectable Mountains → Celestial City finale smoke 1/1 pass (2.2m). Full 30-scene rerun remains queued.",
     "bundleBudget": "4.35 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
-    "img2threejs": "Christian v13 procedural reconstruction with near/far LOD proxies; Wicket Gate and Cross references intaken for staged reconstruction; no production GLB accepted yet",
+    "img2threejs": "Christian v17 procedural reconstruction with near/far LOD proxies, asymmetric burden lobes, compression folds, facial volume, and animated load settling; staged references and comparison sheet recorded; no production GLB accepted yet",
     "deployment": "not authorized until current vertical slice passes real gameplay and regression gates"
   }
 }
