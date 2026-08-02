@@ -42,7 +42,20 @@ async function guideToCurrentBeat(page: Page) {
     }
   }
   await expect(prompt).toBeVisible({ timeout: 20_000 });
-  await prompt.click({ force: true });
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const element = document.querySelector<HTMLButtonElement>(
+            ".interact-prompt",
+          );
+          if (!element) return false;
+          element.click();
+          return true;
+        }),
+      { timeout: 5_000, intervals: [0, 50, 100] },
+    )
+    .toBe(true);
   await page.waitForTimeout(50);
 }
 
@@ -78,15 +91,6 @@ test("telegraphed arrows make swept contact and preserve impact feedback", async
     quality: 88,
   });
 
-  const impact = expect(page.locator("html")).toHaveAttribute(
-    "data-last-arrow-impact",
-    /\d+/,
-    { timeout: 15_000 },
-  );
-  const toast = expect(page.locator(".toast")).toContainText(
-    "An arrow strikes Christian",
-    { timeout: 15_000 },
-  );
   // Step into the first arrow lane, then hold position. This mirrors the
   // authored moment the player is exposed on the approach and makes the
   // collision assertion independent of the salvo's phase at page load.
@@ -99,10 +103,15 @@ test("telegraphed arrows make swept contact and preserve impact feedback", async
     )
     .toBeLessThan(4.6);
   await page.keyboard.up("KeyW");
-  await Promise.all([
-    impact,
-    toast,
-  ]);
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-last-arrow-impact",
+    /\d+/,
+    { timeout: 15_000 },
+  );
+  await expect(page.locator(".toast")).toContainText(
+    "An arrow strikes Christian",
+    { timeout: 15_000 },
+  );
   await expect(page.locator("html")).toHaveAttribute(
     "data-arrow-salvo-phase",
     /telegraph|flight|safe/,
