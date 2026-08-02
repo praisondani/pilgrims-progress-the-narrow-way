@@ -414,7 +414,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 10,
+      version: 11,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -430,6 +430,7 @@ export const useGame = create<GameState>()(
         textSize: state.textSize,
         reducedMotion: state.reducedMotion,
         cinematicCamera: state.cinematicCamera,
+        puzzleActive: state.puzzleActive,
         onboarding: state.onboarding,
         replayCheckpoint: state.replayCheckpoint,
       }),
@@ -490,6 +491,7 @@ export const useGame = create<GameState>()(
           textSize: saved.textSize ?? "normal",
           reducedMotion: saved.reducedMotion ?? false,
           cinematicCamera: saved.cinematicCamera ?? true,
+          puzzleActive: saved.puzzleActive ?? false,
           onboarding,
           replayCheckpoint:
             version < 9 ? undefined : saved.replayCheckpoint,
