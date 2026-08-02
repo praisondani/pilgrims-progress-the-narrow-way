@@ -4,6 +4,9 @@ export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.ts',
   timeout: 30_000,
+  // WebGL and Rapier share a browser process; serial local runs avoid
+  // renderer contention that makes otherwise deterministic journeys flaky.
+  workers: 1,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL: 'http://127.0.0.1:4173', trace: 'on-first-retry' },
