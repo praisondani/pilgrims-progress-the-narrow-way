@@ -11,8 +11,8 @@
   ],
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
-    "status": "paused",
-    "pauseReason": "User requested a pause after verified feature commits; the exhaustive 30-scene rerun remains queued.",
+    "status": "building",
+    "resumeNote": "Resumed from the pushed milestone; the exhaustive 30-scene rerun remains queued while the next authored visual pass is reviewed.",
     "workstreams": [
       {
         "id": "baseline",

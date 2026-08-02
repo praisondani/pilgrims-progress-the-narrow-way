@@ -1050,59 +1050,61 @@ export function createAuthoredPilgrimHero(
     [
       {
         center: [-0.07, -0.52, -0.012],
-        radiusX: 0.2,
-        radiusZ: 0.15,
+        radiusX: 0.16,
+        radiusZ: 0.13,
         color: palette.burdenShadow,
         skin: { bone: 0 },
       },
       {
         center: [-0.045, -0.4, -0.028],
-        radiusX: 0.31,
-        radiusZ: 0.2,
-        color: burdenCloth,
-        skin: { bone: 0 },
-      },
-      {
-        center: [-0.02, -0.12, -0.038],
-        radiusX: 0.37,
-        radiusZ: 0.235,
-        color: new Color(burdenCloth).lerp(new Color("#5a4637"), 0.18),
-        skin: { bone: 0 },
-      },
-      {
-        center: [0.02, 0.13, -0.025],
-        radiusX: 0.35,
-        radiusZ: 0.22,
-        color: new Color(burdenCloth).lerp(new Color("#b19779"), 0.14),
-        skin: { bone: 0 },
-      },
-      {
-        center: [0.065, 0.36, -0.012],
-        radiusX: 0.24,
+        radiusX: 0.25,
         radiusZ: 0.18,
         color: burdenCloth,
         skin: { bone: 0 },
       },
       {
+        center: [-0.02, -0.12, -0.038],
+        radiusX: 0.31,
+        radiusZ: 0.21,
+        color: new Color(burdenCloth).lerp(new Color("#5a4637"), 0.18),
+        skin: { bone: 0 },
+      },
+      {
+        center: [0.02, 0.13, -0.025],
+        radiusX: 0.3,
+        radiusZ: 0.2,
+        color: new Color(burdenCloth).lerp(new Color("#b19779"), 0.14),
+        skin: { bone: 0 },
+      },
+      {
+        center: [0.065, 0.36, -0.012],
+        radiusX: 0.21,
+        radiusZ: 0.16,
+        color: burdenCloth,
+        skin: { bone: 0 },
+      },
+      {
         center: [0.09, 0.43, -0.006],
-        radiusX: 0.11,
-        radiusZ: 0.11,
+        radiusX: 0.095,
+        radiusZ: 0.095,
         color: palette.burdenShadow,
         skin: { bone: 0 },
       },
     ],
-    22,
+    26,
     true,
     (position, normal, ringIndex) => {
-      // Low-amplitude deterministic cloth breakup prevents a board-like rear
-      // silhouette while keeping the four-draw hero budget intact.
+      // Broad, low-frequency relief gives the smaller sack a stuffed-cloth
+      // silhouette instead of a flat shield. Keep the deformation deterministic
+      // and restrained so the attachment remains stable in gameplay.
       const fold =
-        Math.sin(position.y * 19 + position.x * 13 + normal.z * 2.4) * 0.009;
-      const sag = Math.sin(((ringIndex + 0.35) / 5) * Math.PI) * 0.012;
+        Math.sin(position.y * 18 + position.x * 13 + normal.z * 2.4) * 0.014 +
+        Math.cos(position.y * 7 - normal.x * 3.2) * 0.005;
+      const sag = Math.sin(((ringIndex + 0.35) / 5) * Math.PI) * 0.016;
       position.x += fold * (0.45 + Math.abs(normal.x) * 0.55);
       position.z +=
         sag * (0.25 + Math.abs(normal.z) * 0.75) +
-        Math.sin(position.y * 15 + normal.x * 3.1) * 0.006;
+        Math.sin(position.y * 15 + normal.x * 3.1) * 0.01;
       return position;
     },
   );
@@ -1110,40 +1112,40 @@ export function createAuthoredPilgrimHero(
   // They share the burden geometry/material budget while giving the cloth a
   // tied, asymmetrical shoulder silhouette from front, profile, and rear.
   for (const [x, y, rx, ry, rz, phase] of [
-    [-0.145, 0.2, 0.205, 0.23, 0.17, 0.4],
-    [0.155, 0.13, 0.19, 0.27, 0.18, 1.9],
+    [-0.115, 0.18, 0.17, 0.22, 0.155, 0.4],
+    [0.12, 0.1, 0.16, 0.24, 0.165, 1.9],
   ] as const)
     burdenBuilder.addEllipsoid(
       [x, y, -0.04],
       [rx, ry, rz],
       (normal, position) => {
-        position.x += Math.sin(position.y * 23 + phase) * 0.009;
-        position.z += Math.sin(position.x * 18 + phase) * 0.008;
+        position.x += Math.sin(position.y * 23 + phase) * 0.012;
+        position.z += Math.sin(position.x * 18 + phase) * 0.012;
         return normal.y > 0.35
           ? burdenCloth
           : new Color(burdenCloth).lerp(new Color(palette.burdenShadow), 0.18);
       },
       { bone: 0 },
-      16,
-      12,
+      20,
+      14,
     );
   for (const [y, radiusX, radiusZ] of [
-    [-0.25, 0.25, 0.22],
-    [0.0, 0.3, 0.26],
-    [0.2, 0.25, 0.22],
+    [-0.25, 0.21, 0.19],
+    [0.0, 0.25, 0.22],
+    [0.2, 0.21, 0.19],
   ] as const)
     burdenBuilder.addTube(
-      ellipseLoop([0, y, 0], [radiusX, 0, radiusZ], "xz", 26),
-      0.009,
+      ellipseLoop([0, y, 0], [radiusX, 0, radiusZ], "xz", 30),
+      0.011,
       palette.rope,
       { bone: 0 },
       5,
       true,
     );
-  for (const x of [-0.115, 0.115])
+  for (const x of [-0.095, 0.095])
     burdenBuilder.addTube(
-      ellipseLoop([x, -0.01, 0], [0, 0.31, 0.22], "yz", 28),
-      0.009,
+      ellipseLoop([x, -0.01, 0], [0, 0.27, 0.19], "yz", 30),
+      0.011,
       palette.rope,
       { bone: 0 },
       5,
@@ -1152,12 +1154,12 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const)
     burdenBuilder.addTube(
       [
-        [side * 0.12, 0.29, 0.01],
-        [side * 0.17, 0.22, 0.11],
-        [side * 0.18, 0.1, 0.17],
-        [side * 0.16, -0.08, 0.15],
-        [side * 0.2, -0.2, 0.11],
-        [side * 0.17, -0.29, 0.03],
+        [side * 0.1, 0.27, 0.01],
+        [side * 0.14, 0.21, 0.1],
+        [side * 0.16, 0.1, 0.15],
+        [side * 0.14, -0.08, 0.13],
+        [side * 0.17, -0.2, 0.1],
+        [side * 0.14, -0.28, 0.03],
       ],
       0.014,
       palette.leather,
@@ -1167,27 +1169,27 @@ export function createAuthoredPilgrimHero(
   // Irregular cloth folds replace the old flat rear panel. The sack should
   // compress under the rope, not read as a shield bolted to Christian's back.
   for (const [x, top, bottom] of [
-    [-0.15, 0.26, -0.28],
-    [0.08, 0.3, -0.36],
-    [0.19, 0.18, -0.22],
+    [-0.12, 0.24, -0.26],
+    [0.06, 0.28, -0.34],
+    [0.15, 0.17, -0.21],
   ] as const)
     burdenBuilder.addTube(
       [
-        [x, top, -0.24],
-        [x + (x < 0 ? -0.018 : 0.014), (top + bottom) * 0.45, -0.255],
-        [x + (x < 0 ? 0.01 : -0.012), bottom, -0.23],
+        [x, top, -0.21],
+        [x + (x < 0 ? -0.022 : 0.016), (top + bottom) * 0.45, -0.235],
+        [x + (x < 0 ? 0.012 : -0.014), bottom, -0.205],
       ],
-      0.012,
+      0.014,
       burdenFold,
       { bone: 0 },
       5,
     );
   burdenBuilder.addTube(
     [
-      [0, 0.31, -0.285],
-      [0.01, 0.08, -0.295],
-      [-0.015, -0.18, -0.285],
-      [0, -0.41, -0.24],
+      [0, 0.29, -0.25],
+      [0.012, 0.08, -0.265],
+      [-0.018, -0.18, -0.25],
+      [0, -0.4, -0.215],
     ],
     0.012,
     palette.rope,
@@ -1195,12 +1197,12 @@ export function createAuthoredPilgrimHero(
     5,
   );
   for (const [x, y] of [
-    [-0.115, 0.01],
-    [0.115, -0.02],
+    [-0.095, 0.01],
+    [0.095, -0.02],
   ] as const)
     burdenBuilder.addEllipsoid(
-      [x, y, -0.285],
-      [0.035, 0.028, 0.022],
+      [x, y, -0.25],
+      [0.038, 0.03, 0.025],
       palette.rope,
       { bone: 0 },
       8,
@@ -1211,10 +1213,10 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const)
     burdenBuilder.addTube(
       [
-        [side * 0.24, 0.36, -0.22],
-        [side * 0.29, 0.14, -0.27],
-        [side * 0.3, -0.14, -0.27],
-        [side * 0.24, -0.4, -0.22],
+        [side * 0.19, 0.34, -0.18],
+        [side * 0.23, 0.14, -0.22],
+        [side * 0.24, -0.14, -0.22],
+        [side * 0.2, -0.38, -0.18],
       ],
       0.018,
       palette.leather,
@@ -1223,9 +1225,9 @@ export function createAuthoredPilgrimHero(
     );
   burdenBuilder.addTube(
     [
-      [-0.34, 0.12, -0.27],
-      [0, 0.08, -0.29],
-      [0.34, 0.12, -0.27],
+      [-0.27, 0.12, -0.22],
+      [0, 0.08, -0.24],
+      [0.27, 0.12, -0.22],
     ],
     0.018,
     palette.rope,
@@ -1245,10 +1247,10 @@ export function createAuthoredPilgrimHero(
   const burdenFarBuilder = new AuthoredGeometryBuilder();
   burdenFarBuilder.addLoft(
     [
-      { center: [-0.04, -0.48, -0.01], radiusX: 0.18, radiusZ: 0.12, color: palette.burdenShadow, skin: { bone: 0 } },
-      { center: [0, -0.18, -0.02], radiusX: 0.31, radiusZ: 0.19, color: burdenCloth, skin: { bone: 0 } },
-      { center: [0.03, 0.16, -0.015], radiusX: 0.29, radiusZ: 0.18, color: burdenCloth, skin: { bone: 0 } },
-      { center: [0.06, 0.38, -0.01], radiusX: 0.19, radiusZ: 0.12, color: palette.burdenShadow, skin: { bone: 0 } },
+      { center: [-0.035, -0.48, -0.01], radiusX: 0.14, radiusZ: 0.1, color: palette.burdenShadow, skin: { bone: 0 } },
+      { center: [0, -0.18, -0.02], radiusX: 0.25, radiusZ: 0.16, color: burdenCloth, skin: { bone: 0 } },
+      { center: [0.025, 0.16, -0.015], radiusX: 0.24, radiusZ: 0.15, color: burdenCloth, skin: { bone: 0 } },
+      { center: [0.05, 0.38, -0.01], radiusX: 0.16, radiusZ: 0.1, color: palette.burdenShadow, skin: { bone: 0 } },
     ],
     8,
   );
