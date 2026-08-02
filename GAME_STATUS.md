@@ -8,20 +8,22 @@
 - 360-degree third-person orbit/follow camera with zoom, camera-relative movement, and smooth recenter
 - Local persisted story state
 - Title, HUD, objectives, pause, and journal UI
-- 191 gated story beats across 25 chapters from Dream through escape from Doubting Castle
+- 223 gated story beats across 30 chapters from Dream through the Celestial City
 - Multi-line dialogue, response choices, chapter transitions, journal discoveries, and ending
 - Burden appears in City, affects movement, and is removed only at Cross
 - Automated story structure and save-ID invariants
-- Twenty-five scene-authored painterly low-poly environment families
+- Thirty scene-authored painterly low-poly environment families
 - Forty-two reusable human character variants plus a bespoke Apollyon silhouette, with articulated walk and idle animation
 - Cinematic conversation camera, chapter pullback shots, and letterbox framing
 - Procedural Web Audio ambience, footsteps, interaction cues, and sound toggle
+- Bounded audio source gains, four-voice transient cap, coalesced browser unlock,
+  and interruption-aware AudioContext state reporting
 - Forty-seven symbolic trials using ordered-action and focus mechanics
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets
 - WASD and arrow-key movement documented and browser-tested
 - Split production chunks with enforced bundle budget
-- Desktop and mobile Chromium smoke tests plus exhaustive real-control journey coverage
+- Desktop and mobile Chromium smoke tests plus legacy exhaustive and finale real-control journey coverage
 - GitHub Actions unit/build/bundle/browser quality gates
 - Persistent normal/large/largest text settings
 - Reduced-motion and cinematic-camera comfort controls
@@ -46,15 +48,22 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
+- Christian v18 img2threejs procedural anatomy/face pass with profile, rear, and
+  gameplay evidence; external sculpt/GLB remains the target
+- Exhaustive Dream-to-Celestial City real-controls rerun queued after pause
 
 ## Blocked
 
-- None for current procedural-art MVP
+- Studio visual bar is not met yet: current hero/environment geometry remains procedural low-poly, and no licensed 19–24k Christian GLB has passed review
+- Physical-device performance sign-off is still outstanding; current headless benchmarks are not hardware claims
+- Dedicated finale music beds and physical-device listening QA are still outstanding
 
 ## Next
 
-1. Validate every Chapter II objective and seed exclusion on desktop/mobile
-2. Move terrain/scatter array generation to a worker after profiling proves need
-3. Add region lifecycle/disposal and repeated-transition memory test
-4. Upgrade Slough only after countryside phase gates pass
-5. Build licensed GLB hero pipeline; replace characters scene by scene
+1. Complete and record the exhaustive Dream-to-Celestial City journey rerun
+2. Validate every Chapter II objective and seed exclusion on desktop/mobile
+3. Move terrain/scatter array generation to a worker after profiling proves need
+4. Add region lifecycle/disposal and repeated-transition memory test
+5. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
+6. Build licensed GLB hero pipeline; replace characters scene by scene
+7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

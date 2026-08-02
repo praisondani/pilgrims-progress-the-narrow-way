@@ -1,13 +1,12 @@
 import { Float, Sparkles, Stars } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
-import { Group } from "three";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { DoubleSide, Group, Shape } from "three";
 import {
   Bush,
   Character,
   CrookedHouse,
   CrossMonument,
-  GateInscription,
   GnarledTree,
   GrassMeadow,
   Grave,
@@ -16,6 +15,7 @@ import {
   Room,
   StoneArch,
   WaterPool,
+  WicketGateLandmark,
 } from "./Visuals";
 import { ProceduralCountryside } from "./procedural/ProceduralCountryside";
 import { renderingFeatureFlags } from "./rendering/capabilities";
@@ -23,6 +23,17 @@ import { playerPosition } from "./Player";
 import { requestPlayerImpact } from "./camera";
 import { useGame } from "./state";
 import { gameAudio } from "./audio";
+import { DreamEnvironmentKit } from "./assets/environment/dream";
+import {
+  GATE_ARROW_LANES,
+  GATE_COVER_CENTERS,
+  WICKET_GATE_ROOT,
+  gateArrowFrame,
+  isInsideGateCover,
+  segmentCircleContact,
+  segmentSegmentContact,
+  type GateController,
+} from "./gate/GateController";
 
 type Target = [number, number];
 const clearsTarget = (position: number[], target: Target, radius = 2.35) =>
@@ -94,32 +105,17 @@ function Rocks({ pale = false, target }: { pale?: boolean; target: Target }) {
     </>
   );
 }
-function Dream({ target }: { target: Target }) {
+function Dream({ stepIndex }: { stepIndex: number }) {
+  const reducedMotion = useGame((state) => state.reducedMotion);
   return (
-    <>
-      <Stars radius={30} depth={18} count={900} factor={2} fade speed={0.2} />
-      <Rocks target={target} />
-      {[
-        [-5, 0, -3],
-        [5, 0, 1],
-      ]
-        .filter((p) => clearsTarget(p, target))
-        .map((p, i) => (
-          <GnarledTree
-            key={i}
-            position={p as [number, number, number]}
-            dead
-            scale={i ? 1.3 : 1}
-          />
-        ))}
-      <StoneArch position={[0, 0, -6]} />
-      <pointLight
-        position={[-4, 2, -3]}
-        color="#d8a25f"
-        intensity={5}
-        distance={6}
-      />
-    </>
+    <DreamEnvironmentKit
+      quality="medium"
+      water="moonlit"
+      atmosphere="fog"
+      includeBackground
+      lanternLit={stepIndex > 0}
+      reducedMotion={reducedMotion}
+    />
   );
 }
 function City({ target }: { target: Target }) {
@@ -282,9 +278,14 @@ function Worldly({ target }: { target: Target }) {
     </>
   );
 }
-function FlyingArrows() {
+function FlyingArrows({ controller }: { controller: GateController }) {
   const arrows = useRef<(Group | null)[]>([]);
-  const hiddenUntil = useRef<number[]>([]);
+  const warnings = useRef<(Group | null)[]>([]);
+  const previousX = useRef<number[]>([]);
+  const previousCycle = useRef<number[]>([]);
+  const previousPlayer = useRef<[number, number] | null>(null);
+  const hitCycle = useRef<number[]>([]);
+  const lastPhase = useRef("");
   const lastImpact = useRef(0);
   const impactPosition = useRef<[number, number, number]>([0, 1.25, 0]);
   const [impactVisible, setImpactVisible] = useState(false);
@@ -298,33 +299,69 @@ function FlyingArrows() {
       !state.puzzleActive &&
       !state.sceneComplete,
   );
-  const lanes = [-5.2, -3, -0.8, 1.4, 3.6];
   useEffect(() => {
     delete document.documentElement.dataset.lastArrowImpact;
     return () => {
       if (impactTimer.current) window.clearTimeout(impactTimer.current);
       delete document.documentElement.dataset.lastArrowImpact;
+      delete document.documentElement.dataset.arrowSalvoPhase;
     };
   }, []);
   useFrame(({ clock }) => {
     const now = performance.now();
+    const playerEnd: [number, number] = [playerPosition.x, playerPosition.z];
+    const playerStart = previousPlayer.current ?? playerEnd;
+    previousPlayer.current = playerEnd;
+    const sharedFrame = gateArrowFrame(clock.elapsedTime, 0);
+    if (lastPhase.current !== sharedFrame.phase) {
+      lastPhase.current = sharedFrame.phase;
+      document.documentElement.dataset.arrowSalvoPhase = sharedFrame.phase;
+    }
     arrows.current.forEach((arrow, index) => {
       if (!arrow) return;
-      const x = ((clock.elapsedTime * 4.6 + index * 3.7) % 20) - 10;
+      const frame = gateArrowFrame(clock.elapsedTime, index);
+      const z = GATE_ARROW_LANES[index];
       const y = 1.05 + (index % 3) * 0.22;
-      const z = lanes[index];
-      arrow.position.set(x, y, z);
-      arrow.visible = now >= (hiddenUntil.current[index] ?? 0);
+      const priorX =
+        previousCycle.current[index] === frame.cycle
+          ? (previousX.current[index] ?? frame.x)
+          : -9.4;
+      previousCycle.current[index] = frame.cycle;
+      previousX.current[index] = frame.x;
+      arrow.position.set(frame.x, y, z);
+      arrow.visible = frame.visible && hitCycle.current[index] !== frame.cycle;
+      if (warnings.current[index])
+        warnings.current[index]!.visible =
+          frame.targeted && frame.phase === "telegraph";
       if (
         vulnerable &&
+        !controller.doorwayOpen &&
         arrow.visible &&
         now - lastImpact.current > 1_450 &&
-        Math.abs(playerPosition.x - x) < 0.95 &&
-        Math.abs(playerPosition.z - z) < 0.86 &&
+        !isInsideGateCover([playerPosition.x, playerPosition.z]) &&
+        (segmentCircleContact(
+          playerStart,
+          playerEnd,
+          [playerPosition.x, z],
+          1.15,
+        ) ||
+          segmentSegmentContact(
+            [priorX, z],
+            [frame.x, z],
+            playerStart,
+            playerEnd,
+            0.92,
+          ) ||
+          segmentCircleContact(
+            [priorX, z],
+            [frame.x, z],
+            playerEnd,
+            0.92,
+          )) &&
         Math.abs(playerPosition.y - y) < 1.05
       ) {
         lastImpact.current = now;
-        hiddenUntil.current[index] = now + 900;
+        hitCycle.current[index] = frame.cycle;
         arrow.visible = false;
         impactPosition.current = [playerPosition.x - 0.35, y, playerPosition.z];
         setImpactVisible(true);
@@ -339,22 +376,46 @@ function FlyingArrows() {
   });
   return (
     <group>
-      {lanes.map((z, i) => (
-        <group
-          key={z}
-          ref={(element) => {
-            arrows.current[i] = element;
-          }}
-          rotation={[0, 0, -Math.PI / 2]}
-        >
-          <mesh>
-            <cylinderGeometry args={[0.025, 0.025, 1.3, 6]} />
-            <meshStandardMaterial color="#5b402e" />
-          </mesh>
-          <mesh position={[0, 0.75, 0]}>
-            <coneGeometry args={[0.1, 0.25, 5]} />
-            <meshStandardMaterial color="#aaa5a0" metalness={0.7} />
-          </mesh>
+      {GATE_ARROW_LANES.map((z, i) => (
+        <group key={z}>
+          <group
+            ref={(element) => {
+              warnings.current[i] = element;
+            }}
+            position={[0, 0.065, z]}
+          >
+            <mesh rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[18, 0.16]} />
+              <meshBasicMaterial color="#ff9b55" transparent opacity={0.36} depthWrite={false} />
+            </mesh>
+            <mesh position={[-8.3, 0.18, 0]} rotation={[0, 0, -Math.PI / 2]}>
+              <coneGeometry args={[0.17, 0.45, 6]} />
+              <meshBasicMaterial color="#ffc06d" />
+            </mesh>
+          </group>
+          <group
+            ref={(element) => {
+              arrows.current[i] = element;
+            }}
+            rotation={[0, 0, -Math.PI / 2]}
+          >
+            <mesh>
+              <cylinderGeometry args={[0.025, 0.025, 1.3, 6]} />
+              <meshStandardMaterial color="#5b402e" />
+            </mesh>
+            <mesh position={[0, 0.75, 0]}>
+              <coneGeometry args={[0.1, 0.25, 5]} />
+              <meshStandardMaterial color="#d5d0c8" metalness={0.7} roughness={0.28} />
+            </mesh>
+            <mesh position={[0, -0.58, 0]} rotation={[0, 0, Math.PI / 4]}>
+              <boxGeometry args={[0.065, 0.14, 0.012]} />
+              <meshStandardMaterial color="#d8c7ad" roughness={0.78} side={2} />
+            </mesh>
+            <mesh position={[0, -0.58, 0]} rotation={[0, 0, -Math.PI / 4]}>
+              <boxGeometry args={[0.065, 0.14, 0.012]} />
+              <meshStandardMaterial color="#bda98f" roughness={0.82} side={2} />
+            </mesh>
+          </group>
         </group>
       ))}
       {impactVisible && (
@@ -379,33 +440,230 @@ function FlyingArrows() {
     </group>
   );
 }
-function Gate({ target }: { target: Target }) {
-  const walls = [
-    [-5.5, 1.7, -4],
-    [5.5, 1.7, -4],
-  ].filter((p) => clearsTarget(p, target, 2.6));
+function GateDuskSky() {
   return (
-    <>
-      {walls.map((p) => (
-        <mesh key={p[0]} position={p as [number, number, number]}>
-          <boxGeometry args={[3, 3.4, 1.2]} />
-          <meshStandardMaterial color="#383b49" roughness={1} />
+    <mesh renderOrder={-20}>
+      <sphereGeometry args={[36, 32, 18]} />
+      <shaderMaterial
+        side={1}
+        depthWrite={false}
+        toneMapped={false}
+        vertexShader={`
+          varying vec3 vDirection;
+          void main() {
+            vDirection = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={`
+          varying vec3 vDirection;
+          void main() {
+            vec3 direction = normalize(vDirection);
+            float horizonBlend = smoothstep(-0.12, 0.68, direction.y);
+            float lowerBlend = smoothstep(-0.34, -0.04, direction.y);
+            vec3 lower = vec3(0.17, 0.20, 0.24);
+            vec3 horizon = vec3(0.62, 0.39, 0.34);
+            vec3 zenith = vec3(0.12, 0.15, 0.25);
+            vec3 color = mix(lower, horizon, lowerBlend);
+            color = mix(color, zenith, horizonBlend);
+            vec3 sunDirection = normalize(vec3(0.72, 0.13, -1.0));
+            float sunGlow = pow(max(dot(direction, sunDirection), 0.0), 120.0);
+            float sunCore = pow(max(dot(direction, sunDirection), 0.0), 1600.0);
+            color += vec3(1.0, 0.46, 0.18) * sunGlow * 0.32;
+            color += vec3(1.0, 0.82, 0.48) * sunCore;
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `}
+      />
+    </mesh>
+  );
+}
+
+function GateRidge({
+  position,
+  scale,
+  color,
+  opacity = 1,
+}: {
+  position: [number, number, number];
+  scale: [number, number, number];
+  color: string;
+  opacity?: number;
+}) {
+  const silhouette = useMemo(() => {
+    const shape = new Shape();
+    shape.moveTo(-1.3, 0);
+    shape.lineTo(-1.08, 0.28);
+    shape.lineTo(-0.72, 0.42);
+    shape.lineTo(-0.42, 0.92);
+    shape.lineTo(-0.05, 0.58);
+    shape.lineTo(0.34, 1.12);
+    shape.lineTo(0.7, 0.48);
+    shape.lineTo(1.06, 0.66);
+    shape.lineTo(1.38, 0);
+    shape.closePath();
+    return shape;
+  }, []);
+  return (
+    <mesh
+      position={position}
+      scale={scale}
+      renderOrder={-6}
+      rotation={[0, 0, 0]}
+    >
+      <extrudeGeometry
+        args={[
+          silhouette,
+          {
+            depth: 1.8,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            bevelSize: 0.08,
+            bevelThickness: 0.16,
+            curveSegments: 2,
+          },
+        ]}
+      />
+      <meshBasicMaterial
+        color={color}
+        transparent={opacity < 1}
+        opacity={opacity}
+        side={DoubleSide}
+        fog
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
+function GateDistantValley() {
+  return (
+    <group name="wicket-gate-distant-valley">
+      <GateRidge
+        position={[-4.6, 1.1, -17.5]}
+        scale={[7.5, 4.1, 1]}
+        color="#34485a"
+        opacity={0.82}
+      />
+      <GateRidge
+        position={[4.4, 1.45, -18.5]}
+        scale={[8.8, 3.8, 1]}
+        color="#425565"
+        opacity={0.72}
+      />
+      <GateRidge
+        position={[0, 2.1, -20.5]}
+        scale={[11.5, 4.4, 1]}
+        color="#637080"
+        opacity={0.48}
+      />
+      <StoryCloud
+        position={[-5.8, 6.1, -14.5]}
+        scale={[3.2, 0.78, 1]}
+        opacity={0.16}
+        speed={0.035}
+      />
+      <StoryCloud
+        position={[5.6, 5.5, -16.5]}
+        scale={[2.5, 0.62, 1]}
+        opacity={0.12}
+        speed={0.028}
+      />
+    </group>
+  );
+}
+function GateCover({
+  position,
+  compact = false,
+}: {
+  position: Target;
+  compact?: boolean;
+}) {
+  return (
+    <group position={[position[0], 0, position[1]]} name="gate-cover">
+      {(compact ? [0] : [-0.55, 0, 0.55]).map((x, index) => (
+        <mesh key={x} castShadow receiveShadow position={[x, 0.42 + index * 0.04, 0]}>
+          <dodecahedronGeometry args={[0.58 + (index % 2) * 0.12, 0]} />
+          <meshStandardMaterial color={index === 1 ? "#69675f" : "#565b55"} roughness={1} />
         </mesh>
       ))}
-      <StoneArch position={[0, 0, -6]} gate />
-      <GateInscription position={[0, 3.35, -5.54]} />
-      <pointLight
-        position={[0, 2, -5]}
-        color="#ffc66d"
-        intensity={12}
-        distance={10}
+    </group>
+  );
+}
+
+function Gate({
+  target: _target,
+  controller,
+}: {
+  target: Target;
+  controller: GateController;
+}) {
+  const mobileViewport =
+    typeof window !== "undefined" && window.innerWidth <= 720;
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.gateStep = controller.stepId;
+    root.dataset.gateDoor = controller.doorOpen ? "open" : "closed";
+    root.dataset.gateBolts = controller.boltsReleased ? "released" : "locked";
+    root.dataset.gateGoodwill = controller.goodwillVisible ? "visible" : "hidden";
+    return () => {
+      delete root.dataset.gateStep;
+      delete root.dataset.gateDoor;
+      delete root.dataset.gateBolts;
+      delete root.dataset.gateGoodwill;
+    };
+  }, [controller]);
+  return (
+    <>
+      <GateDuskSky />
+      {mobileViewport ? (
+        <GateRidge
+          position={[0, 1.5, -18]}
+          scale={[11, 4, 1]}
+          color="#536273"
+          opacity={0.54}
+        />
+      ) : (
+        <GateDistantValley />
+      )}
+      <mesh position={[0, 0.031, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[10.6, 64]} />
+        <meshBasicMaterial color="#4f6c52" toneMapped={false} />
+      </mesh>
+      <mesh position={[0, 0.034, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[10.58, 64]} />
+        <shadowMaterial transparent opacity={0.2} />
+      </mesh>
+      <WicketGateLandmark position={WICKET_GATE_ROOT} controller={controller} />
+      {GATE_COVER_CENTERS.map((position) => (
+        <GateCover
+          key={`${position[0]}-${position[1]}`}
+          position={position}
+          compact={mobileViewport}
+        />
+      ))}
+      <GrassMeadow
+        count={mobileViewport ? 48 : 92}
+        radius={9.2}
+        color="#40563b"
       />
-      <FlyingArrows />
+      {!mobileViewport && (
+        <>
+          <GnarledTree position={[-7.2, 0, -5.4]} color="#314534" scale={1.5} />
+          <GnarledTree position={[7.15, 0, -6.2]} color="#354a38" scale={1.28} />
+          <Bush position={[-6.2, 0, -5.3]} color="#4f623e" scale={1.25} />
+          <Bush position={[6.05, 0, -5.5]} color="#52653f" scale={1.15} />
+        </>
+      )}
+      <FlyingArrows controller={controller} />
       <Sparkles
-        count={45}
-        scale={[5, 6, 4]}
-        position={[0, 2, -6]}
+        count={mobileViewport ? 12 : 28}
+        scale={[5, 5, 3]}
+        position={[0, 2.3, -7]}
         color="#ffd78b"
+        size={2.1}
+        speed={0.18}
+        opacity={0.34}
       />
     </>
   );
@@ -1307,16 +1565,284 @@ function DoubtingCastle({ stepIndex }: { stepIndex: number }) {
   );
 }
 
+function DelectableMountains({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <Stars radius={30} depth={18} count={180} factor={1.25} fade />
+      <group position={[0, 0, -10]}>
+        <Mountain position={[-5, 0, 0]} color="#708a83" />
+        <Mountain position={[5, -0.35, -1.5]} color="#58736f" />
+        <Mountain position={[0, -0.8, -3.5]} color="#8aa095" />
+      </group>
+      <GrassMeadow count={84} radius={8.8} color="#658456" flowers />
+      <WaterPool
+        position={[0, 0.035, -3.2]}
+        scale={[2.6, 1, 0.72]}
+        color="#6f9ca0"
+      />
+      {[
+        [-6.2, 0, -3.8],
+        [6.3, 0, -3.1],
+        [-6, 0, 3.8],
+        [6, 0, 4.2],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color={index % 2 ? "#466a4e" : "#54744e"}
+            scale={0.9 + (index % 2) * 0.18}
+          />
+        ))}
+      <group position={[0, 0, -7.2]}>
+        <StoneArch position={[0, 0, 0]} />
+        <mesh position={[0, 2.85, 0]}>
+          <coneGeometry args={[0.6, 1.25, 6]} />
+          <meshStandardMaterial color="#d5c58b" emissive="#8e7a3c" emissiveIntensity={0.35} />
+        </mesh>
+      </group>
+      <Sparkles
+        count={stepIndex >= 5 ? 72 : 42}
+        scale={[14, 6, 14]}
+        color="#f4e2a0"
+        opacity={0.34}
+        size={2.4}
+        speed={0.12}
+      />
+    </>
+  );
+}
+
+function EnchantedGround({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <Stars radius={25} depth={16} count={260} factor={1.15} fade speed={0.04} />
+      <GrassMeadow
+        count={stepIndex >= 4 ? 108 : 82}
+        radius={8.5}
+        color="#4f6b4f"
+        flowers
+      />
+      {[
+        [-5.8, 0, -3.8],
+        [5.8, 0, -3.3],
+        [-5.7, 0, 3.4],
+        [5.7, 0, 3.9],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#3b5746"
+            scale={1 + (index % 2) * 0.16}
+          />
+        ))}
+      <group position={[0, 0, -5.8]}>
+        <mesh position={[0, 1.15, 0]}>
+          <cylinderGeometry args={[0.48, 0.68, 2.3, 10]} />
+          <meshStandardMaterial color="#4b4939" roughness={1} />
+        </mesh>
+        <mesh position={[0, 2.35, 0]} scale={[1.35, 0.7, 0.92]}>
+          <sphereGeometry args={[1.35, 18, 10]} />
+          <meshStandardMaterial color="#5c7950" roughness={0.98} />
+        </mesh>
+        <pointLight
+          position={[0, 1.55, 0.4]}
+          color="#d8c67c"
+          intensity={stepIndex >= 4 ? 6 : 3.5}
+          distance={7}
+        />
+      </group>
+      <Sparkles
+        count={stepIndex >= 4 ? 110 : 70}
+        scale={[13, 5.5, 13]}
+        color="#d7c881"
+        opacity={0.3}
+        size={2.2}
+        speed={0.1}
+      />
+    </>
+  );
+}
+
+function Beulah({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <GrassMeadow count={118} radius={9.4} color="#789d65" flowers />
+      <WaterPool
+        position={[0, 0.04, -6.6]}
+        scale={[5.2, 1, 1.25]}
+        color="#6fabb0"
+      />
+      <group position={[0, 0, -10]}>
+        <mesh position={[-3.2, 2.2, 0]}>
+          <cylinderGeometry args={[1.05, 1.3, 4.4, 8]} />
+          <meshStandardMaterial color="#d8d6bd" roughness={0.86} />
+        </mesh>
+        <mesh position={[3.2, 2.8, -0.8]}>
+          <cylinderGeometry args={[1.2, 1.5, 5.6, 8]} />
+          <meshStandardMaterial color="#c9d3c1" roughness={0.86} />
+        </mesh>
+        <mesh position={[0, 4.9, -0.5]}>
+          <coneGeometry args={[1.7, 2.5, 8]} />
+          <meshStandardMaterial color="#e4d7a3" emissive="#bd9b4f" emissiveIntensity={0.3} />
+        </mesh>
+      </group>
+      {[
+        [-6.1, 0, -3.2],
+        [6.1, 0, -2.6],
+        [-6, 0, 3.8],
+        [6, 0, 4.1],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#6d914f"
+            scale={0.86 + (index % 2) * 0.16}
+          />
+        ))}
+      <Sparkles
+        count={stepIndex >= 4 ? 140 : 96}
+        scale={[15, 7, 15]}
+        color="#fff0af"
+        opacity={0.42}
+        size={2.6}
+        speed={0.14}
+      />
+    </>
+  );
+}
+
+function RiverApproach({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  const mobileViewport =
+    typeof window !== "undefined" && window.innerWidth <= 720;
+  const stones = mobileViewport ? [] : [-4.8, -2.4, 0, 2.4, 4.8];
+  return (
+    <>
+      <Stars radius={32} depth={20} count={mobileViewport ? 80 : 120} factor={1.3} fade />
+      <GrassMeadow count={mobileViewport ? 42 : 62} radius={8.8} color="#5d8067" flowers={false} />
+      <WaterPool
+        position={[0, 0.045, -5.7]}
+        scale={[7.4, 1, 1.65]}
+        color="#4d8493"
+      />
+      {!mobileViewport && <Reeds count={16} radius={7.6} color="#718d68" />}
+      {stones.map((x, index) => (
+        <mesh
+          key={x}
+          castShadow
+          position={[x, 0.2 + (index % 2) * 0.08, -3.8 - (index % 3) * 0.65]}
+          rotation={[0, index * 0.55, 0]}
+        >
+          <dodecahedronGeometry args={[0.48 + (index % 2) * 0.16, 0]} />
+          <meshStandardMaterial color="#78817c" roughness={1} />
+        </mesh>
+      ))}
+      <group position={[0, 0, -9.6]}>
+        <StoneArch position={[0, 0, 0]} gate />
+        <pointLight
+          position={[0, 2.1, 1]}
+          color="#fff2b2"
+          intensity={stepIndex >= 4 ? 8 : 4}
+          distance={10}
+        />
+      </group>
+      <Sparkles
+        count={stepIndex >= 4 ? 86 : 54}
+        scale={[15, 5, 14]}
+        position={[0, 2.1, -5]}
+        color="#f7e7ae"
+        opacity={0.3}
+        size={2.5}
+        speed={0.11}
+      />
+    </>
+  );
+}
+
+function CelestialCity({ stepIndex, target }: { stepIndex: number; target: Target }) {
+  return (
+    <>
+      <Stars radius={35} depth={24} count={240} factor={1.4} fade speed={0.02} />
+      <GrassMeadow count={98} radius={9.5} color="#86a66d" flowers />
+      <group position={[0, 0, -8.5]}>
+        {[-4.8, -2.4, 0, 2.4, 4.8].map((x, index) => (
+          <group key={x} position={[x, 0, (index % 2) * -0.7]}>
+            <mesh castShadow position={[0, 2.3 + (index % 2) * 0.65, 0]}>
+              <cylinderGeometry args={[0.62, 0.85, 4.6 + (index % 2) * 1.3, 8]} />
+              <meshStandardMaterial
+                color={index % 2 ? "#d6d8c1" : "#eee2b2"}
+                roughness={0.78}
+              />
+            </mesh>
+            <mesh position={[0, 4.95 + (index % 2) * 0.65, 0]}>
+              <coneGeometry args={[0.9, 1.55, 8]} />
+              <meshStandardMaterial
+                color="#f1d783"
+                emissive="#c79a4b"
+                emissiveIntensity={0.48}
+                roughness={0.62}
+              />
+            </mesh>
+            <pointLight
+              position={[0, 3.1, 0.62]}
+              color="#fff1b1"
+              intensity={stepIndex >= 2 ? 3.6 : 1.9}
+              distance={5.5}
+            />
+          </group>
+        ))}
+        <StoneArch position={[0, 0, 1.5]} gate />
+      </group>
+      {[
+        [-6.3, 0, -3.4],
+        [6.3, 0, -3.1],
+        [-6, 0, 4],
+        [6, 0, 4.2],
+      ]
+        .filter((position) => clearsTarget(position, target))
+        .map((position, index) => (
+          <GnarledTree
+            key={index}
+            position={position as [number, number, number]}
+            color="#88a36b"
+            scale={0.85 + (index % 2) * 0.14}
+          />
+        ))}
+      <Float speed={0.45} floatIntensity={0.1}>
+        <mesh position={[0, 6.8, -5.5]}>
+          <octahedronGeometry args={[0.35, 0]} />
+          <meshBasicMaterial color="#fff6c9" toneMapped={false} />
+        </mesh>
+      </Float>
+      <Sparkles
+        count={stepIndex >= 4 ? 180 : 120}
+        scale={[16, 8, 16]}
+        color="#fff2b5"
+        opacity={0.5}
+        size={2.8}
+        speed={0.08}
+      />
+    </>
+  );
+}
+
 export function SceneEnvironment({
   id,
   stepIndex,
   target,
+  gateController,
 }: {
   id: string;
   stepIndex: number;
   target: Target;
+  gateController: GateController | null;
 }) {
-  if (id === "dream") return <Dream target={target} />;
+  if (id === "dream") return <Dream stepIndex={stepIndex} />;
   if (id === "city") return <City target={target} />;
   if (id === "field")
     return renderingFeatureFlags().advancedTerrain ? (
@@ -1326,7 +1852,8 @@ export function SceneEnvironment({
     );
   if (id === "slough") return <Slough />;
   if (id === "worldly") return <Worldly target={target} />;
-  if (id === "gate") return <Gate target={target} />;
+  if (id === "gate" && gateController)
+    return <Gate target={target} controller={gateController} />;
   if (id === "interpreter") return <Interpreter stepIndex={stepIndex} />;
   if (id === "cross") return <CrossScene stepIndex={stepIndex} />;
   if (id === "sleepers") return <RoadsideSleepers target={target} />;
@@ -1345,5 +1872,10 @@ export function SceneEnvironment({
   if (id === "byends") return <ByEndsRoad target={target} />;
   if (id === "demas") return <DemasMine target={target} />;
   if (id === "bypath") return <ByPathMeadow stepIndex={stepIndex} target={target} />;
+  if (id === "delectable") return <DelectableMountains stepIndex={stepIndex} target={target} />;
+  if (id === "enchanted") return <EnchantedGround stepIndex={stepIndex} target={target} />;
+  if (id === "beulah") return <Beulah stepIndex={stepIndex} target={target} />;
+  if (id === "river") return <RiverApproach stepIndex={stepIndex} target={target} />;
+  if (id === "celestial") return <CelestialCity stepIndex={stepIndex} target={target} />;
   return <DoubtingCastle stepIndex={stepIndex} />;
 }

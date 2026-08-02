@@ -11,8 +11,25 @@ export type ChapterCameraProfile = {
 };
 
 const INTIMATE = new Set(["gate", "interpreter", "palace", "faithful", "talkative"]);
-const OMINOUS = new Set(["dream", "slough", "shadow", "vanity", "bypath", "doubting"]);
-const MONUMENTAL = new Set(["cross", "hill", "warning", "lions", "humiliation"]);
+const OMINOUS = new Set([
+  "dream",
+  "slough",
+  "shadow",
+  "vanity",
+  "bypath",
+  "doubting",
+  "enchanted",
+]);
+const MONUMENTAL = new Set([
+  "cross",
+  "hill",
+  "warning",
+  "lions",
+  "humiliation",
+  "delectable",
+  "river",
+  "celestial",
+]);
 
 export function cameraMoodFor(sceneId: string): CameraMood {
   if (INTIMATE.has(sceneId)) return "intimate";
@@ -37,9 +54,9 @@ export function chapterCameraProfile(
     mood,
     ...moodValues,
     // Portrait framing is composed independently instead of cropping desktop.
-    playHeight: portrait ? 8.3 : 5.8,
-    playDistance: portrait ? 13.8 : 11.5,
-    fov: portrait ? 53 : 44,
+    playHeight: portrait ? 2.75 : 1.7,
+    playDistance: portrait ? 8.2 : 6.35,
+    fov: portrait ? 50 : 45,
     startHeight: moodValues.startHeight + (portrait ? 1.8 : 0),
     startDistance: moodValues.startDistance - (portrait ? 1.4 : 0),
   };

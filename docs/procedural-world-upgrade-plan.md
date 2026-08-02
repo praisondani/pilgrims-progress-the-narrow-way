@@ -12,7 +12,7 @@ Authored story path and landmarks remain authoritative. Deterministic systems ma
 | --- | --- | --- |
 | Runtime | React 19.2.7, React Three Fiber 9.6.1, Three.js 0.185.1, Rapier 2.2.0 | Healthy modern base; no broad rewrite needed. |
 | Renderer | R3F `Canvas` using `WebGLRenderer`, shadows, DPR `[1, 1.5]` | WebGL 2 is verified path. WebGPU was absent before this phase. |
-| Story | 25 chapters, 191 ordered beats in `story.ts` | Strong authored data model. Must remain source of landmark coordinates. |
+| Story | 30 chapters, 223 ordered beats in `story.ts` | Strong authored data model. Must remain source of landmark coordinates. |
 | World | One bounded scene at a time, React conditional environment family per chapter | Already region-like; formal lifecycle/disposal and preloading are missing. |
 | Geometry | Procedural Three.js primitives; no GLB or texture assets | Tiny art asset footprint, but hero geometry has many separate meshes. |
 | Vegetation | One existing `InstancedMesh` grass system; most trees/props are separate meshes | Reusable proof that instancing fits current architecture. |

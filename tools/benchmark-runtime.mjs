@@ -12,6 +12,11 @@ const page = await browser.newPage({
   hasTouch: mobile,
   isMobile: mobile,
 });
+const runtimeErrors = [];
+page.on("console", (message) => {
+  if (message.type() === "error") runtimeErrors.push(message.text());
+});
+page.on("pageerror", (error) => runtimeErrors.push(error.message));
 
 await page.addInitScript(() => {
   const audit = {
@@ -100,13 +105,34 @@ await page.evaluate((index) => {
         reducedMotion: false,
         cinematicCamera: true,
       },
-      version: 8,
+      version: 9,
     }),
   );
 }, sceneIndex);
 const navigationStarted = performance.now();
 await page.reload({ waitUntil: "domcontentloaded" });
-await page.locator(".scene-loader").waitFor({ state: "hidden", timeout: 15_000 });
+try {
+  await page.locator(".scene-loader").waitFor({ state: "hidden", timeout: 30_000 });
+} catch (error) {
+  const loaderCount = await page.locator(".scene-loader").count();
+  console.error(
+    JSON.stringify(
+      {
+        benchmarkStartupFailure: true,
+        url: page.url(),
+        runtimeErrors,
+        canvasCount: await page.locator("canvas").count(),
+        loaderCount,
+        loaderText: loaderCount
+          ? await page.locator(".scene-loader").textContent({ timeout: 1_000 })
+          : null,
+      },
+      null,
+      2,
+    ),
+  );
+  throw error;
+}
 const sceneReadyMs = Math.round(performance.now() - navigationStarted);
 await page.waitForTimeout(3_000);
 
