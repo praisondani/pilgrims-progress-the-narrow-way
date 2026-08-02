@@ -1,3 +1,5 @@
+import { GATE_ANCHORS } from "./gate/GateController";
+
 export type StepKind =
   | "book"
   | "person"
@@ -62,7 +64,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Find and light the abandoned lantern",
         action: "Light lantern",
         kind: "fire",
-        position: [-5, -4],
+        position: [-4, -4],
         dialogue: [
           "NARRATOR: As I walked through the wilderness of this world, I came upon a certain place where there was a den.",
           "Night gathers around you. One small flame makes the path visible.",
@@ -556,7 +558,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Cross the exposed approach",
         action: "Run to the stone cover",
         kind: "path",
-        position: [-5, -5],
+        position: GATE_ANCHORS.approach,
         dialogue: [
           "Arrows strike the ground from a distant stronghold.",
           "Accusing voices follow each shot: “Too late. Too stained. Turn back.”",
@@ -567,7 +569,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Advance when the arrows pause",
         action: "Cross to the gate wall",
         kind: "path",
-        position: [5, -2],
+        position: GATE_ANCHORS["second-cover"],
         dialogue: [
           "The road narrows until only one traveler can approach at a time.",
           "Warm light shines beneath an old wooden door.",
@@ -578,7 +580,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Read the words above the gate",
         action: "Read inscription",
         kind: "book",
-        position: [-3, 4],
+        position: GATE_ANCHORS.inscription,
         dialogue: [
           "Written above the door: KNOCK, AND IT SHALL BE OPENED UNTO YOU.",
           "Christian raises his hand.",
@@ -589,7 +591,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Knock at the gate",
         action: "Knock once",
         kind: "gate",
-        position: [3, 5],
+        position: GATE_ANCHORS["knock-one"],
         dialogue: [
           "The knock echoes. For a moment, nothing moves.",
           "Another arrow breaks against the stone beside Christian.",
@@ -600,7 +602,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Knock again and call for mercy",
         action: "Knock again",
         kind: "gate",
-        position: [-3, -4],
+        position: GATE_ANCHORS["knock-two"],
         dialogue: [
           "CHRISTIAN: May I enter? I am a burdened sinner from the City of Destruction!",
           "Bolts turn from within.",
@@ -611,7 +613,7 @@ export const storyScenes: StoryScene[] = [
         objective: "Take Goodwill’s hand",
         action: "Enter the gate",
         kind: "person",
-        position: [4, -5],
+        position: GATE_ANCHORS.goodwill,
         dialogue: [
           "Goodwill seizes Christian and pulls him through as arrows strike the door.",
           "GOODWILL: No one who truly knocks is refused entrance.",
@@ -2936,6 +2938,475 @@ export const storyScenes: StoryScene[] = [
         ],
         journal:
           "Escape from Doubting Castle — Prayer, companionship, remembered promise, practical action, and honest warning turn private rescue toward the good of others.",
+      },
+    ],
+  },
+  {
+    id: "delectable",
+    number: "CHAPTER XXV",
+    title: "The Delectable Mountains",
+    subtitle: "The road climbs into clear air, where beauty becomes a responsibility.",
+    meaning:
+      "The Delectable Mountains offer rest, perspective, and warning: a beautiful view is a gift to steward, not a reason to stop walking.",
+    palette: {
+      sky: "#8faeb3",
+      ground: "#718d6f",
+      light: "#f4dfa2",
+      fog: "#8da3a0",
+    },
+    steps: [
+      {
+        id: "mountain-foot",
+        objective: "Begin the climb toward the Delectable Mountains",
+        action: "Take the high road",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "The road rises above the wet meadow. Behind you, the warning stone keeps company with the highway.",
+          "Hopeful: We are not promised an easy road, but we are sometimes given a clearer one.",
+        ],
+      },
+      {
+        id: "watchtower",
+        objective: "Climb to the Shepherds’ watchtower",
+        action: "Climb the tower",
+        kind: "gate",
+        position: [-4, -2],
+        dialogue: [
+          "A watchtower overlooks the road, the detours, and the country beyond the next ridge.",
+          "The Shepherds keep watch without pretending that every traveler will choose wisely.",
+        ],
+      },
+      {
+        id: "crystal-stream",
+        objective: "Rest beside the clear stream without losing the road",
+        action: "Drink from the stream",
+        kind: "water",
+        position: [4, -2],
+        dialogue: [
+          "The stream is cold and clear. Christian kneels, drinks, and lets the silence restore his attention.",
+          "Rest is not retreat when it returns a pilgrim to the work of the road.",
+        ],
+      },
+      {
+        id: "little-faith",
+        objective: "Hear the story of Little-Faith without mocking his weakness",
+        action: "Listen to Little-Faith",
+        kind: "person",
+        position: [5, 2],
+        dialogue: [
+          "LITTLE-FAITH: I was robbed, but not abandoned. My fear is loud; it is not the whole account of my life.",
+          "Christian hears the difference between a wounded faith and a faith that has ceased to look for help.",
+        ],
+      },
+      {
+        id: "ignorance",
+        objective: "Answer Ignorance’s confidence about his own goodness",
+        action: "Question Ignorance",
+        kind: "person",
+        position: [0, 5],
+        dialogue: [],
+        choices: [
+          {
+            label: "Ask what makes confidence trustworthy",
+            response: [
+              "CHRISTIAN: Confidence needs a true foundation, not merely a pleasant feeling about ourselves.",
+              "IGNORANCE: I have always thought well of my own heart. The question unsettles me.",
+            ],
+          },
+          {
+            label: "Invite him to read the promise",
+            response: [
+              "CHRISTIAN: Let the promise examine both our fear and our pride. Neither should be the final judge.",
+              "Ignorance refuses the book, but the refusal is now visible rather than hidden beneath easy speech.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "mountain-view",
+        objective: "Take in the road ahead from the mountain overlook",
+        action: "Look toward the City",
+        kind: "light",
+        position: [-4, 4],
+        dialogue: [
+          "From the overlook Christian sees the road behind, the river ahead, and light beyond the far country.",
+          "A promised destination can strengthen the next step without making the present step unnecessary.",
+        ],
+        journal:
+          "The Delectable Mountains — Rest, perspective, and warning are gifts for the road. Beauty becomes faithful when it sends the traveler onward.",
+      },
+      {
+        id: "descend-mountains",
+        objective: "Leave the overlook and continue toward the evening road",
+        action: "Descend with Hopeful",
+        kind: "companion",
+        position: [0, 1],
+        dialogue: [
+          "They descend before the light fades. Hopeful carries the memory of the view; Christian carries the responsibility to act on it.",
+          "The mountains remain behind them, not as an escape from the journey but as a compass within it.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "enchanted",
+    number: "CHAPTER XXVI",
+    title: "The Enchanted Ground",
+    subtitle: "Sleep approaches softly, asking the pilgrim to surrender attention before surrendering hope.",
+    meaning:
+      "The Enchanted Ground represents spiritual drowsiness: distraction and comfort become dangerous when they make watchfulness feel unnecessary.",
+    palette: {
+      sky: "#374657",
+      ground: "#4e6257",
+      light: "#d3c27d",
+      fog: "#36434c",
+    },
+    steps: [
+      {
+        id: "enchanted-threshold",
+        objective: "Enter the Enchanted Ground while keeping the road in sight",
+        action: "Cross the threshold",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "The air grows warm and still. Flowers lean over the road as if inviting the travelers to lie down among them.",
+          "Hopeful: The ground is pleasant. That is why we must notice what it asks of our attention.",
+        ],
+      },
+      {
+        id: "drowsy-song",
+        objective: "Listen for the song that makes watchfulness feel foolish",
+        action: "Hear the whispering song",
+        kind: "light",
+        position: [-4, -2],
+        dialogue: [
+          "A melody repeats the same promise: there is plenty of time, the next hill can wait, and care is a kind of fear.",
+          "The song is beautiful enough to make its conclusion difficult to hear.",
+        ],
+      },
+      {
+        id: "keep-awake",
+        objective: "Keep Christian and Hopeful awake by speaking the promise aloud",
+        action: "Recall the promise",
+        kind: "book",
+        position: [4, -2],
+        dialogue: [
+          "Christian reads from the roll while Hopeful answers with what he remembers. Their voices are ordinary, but they keep the road present.",
+          "Attention is renewed through practice, not through a single heroic feeling.",
+        ],
+      },
+      {
+        id: "sleepers",
+        objective: "Pass the sleepers without treating their rest as harmless",
+        action: "Walk past the sleepers",
+        kind: "person",
+        position: [5, 2],
+        dialogue: [
+          "Two travelers sleep beneath a tree with their shoes still on. Their packs are ready; their minds have stopped moving.",
+          "Christian lowers his voice. Compassion warns without turning another person’s weakness into entertainment.",
+        ],
+      },
+      {
+        id: "watchfire",
+        objective: "Light a small watchfire before the fog hides the road",
+        action: "Tend the watchfire",
+        kind: "fire",
+        position: [0, 5],
+        dialogue: [
+          "A small fire marks the edge of the path. It does not defeat the night; it gives the next few steps a shape.",
+          "Hopeful: Faithfulness is often a lamp kept alive for the person who will arrive after us.",
+        ],
+      },
+      {
+        id: "morning-road",
+        objective: "Wake with the road still beneath your feet",
+        action: "Rise and continue",
+        kind: "path",
+        position: [-4, 4],
+        dialogue: [
+          "Dawn finds them standing. The flowers have lost their spell because the travelers refused to make comfort their destination.",
+          "They leave the Enchanted Ground with slower steps and clearer eyes.",
+        ],
+      },
+      {
+        id: "beulah-sight",
+        objective: "Follow the first bright signs of the Land of Beulah",
+        action: "Follow the morning light",
+        kind: "light",
+        position: [0, 1],
+        dialogue: [
+          "Beyond the dark trees, the horizon opens into a country washed with dawn. The river is near.",
+          "The road descends toward Beulah, where the pilgrims will hear the City before they see it.",
+        ],
+        journal:
+          "The Enchanted Ground — Watchfulness is a practiced kindness. A small living light can carry a traveler through a long, persuasive sleep.",
+      },
+    ],
+  },
+  {
+    id: "beulah",
+    number: "CHAPTER XXVII",
+    title: "The Land of Beulah",
+    subtitle: "The last meadow opens beside the river, and the promised City begins to sound like home.",
+    meaning:
+      "Beulah is the threshold before the river: joy and longing become clear without pretending that the final crossing has already happened.",
+    palette: {
+      sky: "#b8d9d2",
+      ground: "#91b77d",
+      light: "#fff0b3",
+      fog: "#a8c9c0",
+    },
+    steps: [
+      {
+        id: "beulah-meadow",
+        objective: "Walk into the bright meadow beside the river",
+        action: "Enter Beulah",
+        kind: "path",
+        position: [0, -5],
+        dialogue: [
+          "The meadow is full of flowers, but none ask to be carried away. Their beauty belongs to the place and makes room for the road.",
+          "Christian’s burden has been gone for many miles; now gratitude begins to feel heavier than fear.",
+        ],
+      },
+      {
+        id: "riverbank",
+        objective: "Reach the riverbank and study the crossing",
+        action: "Study the river",
+        kind: "water",
+        position: [-4, -2],
+        dialogue: [
+          "The river runs between the meadow and the City. Its surface reflects the towers, but its depth cannot yet be measured from shore.",
+          "The promise is visible. The crossing remains a real act of trust.",
+        ],
+      },
+      {
+        id: "hear-city",
+        objective: "Listen for the songs coming from the Celestial City",
+        action: "Listen across the water",
+        kind: "light",
+        position: [4, -2],
+        dialogue: [
+          "Songs travel over the river: not a command to hurry, but a welcome that reaches the waiting shore.",
+          "Hopeful: We can listen without pretending we have already arrived.",
+        ],
+      },
+      {
+        id: "last-counsel",
+        objective: "Receive the last counsel before the river crossing",
+        action: "Speak with the messenger",
+        kind: "person",
+        position: [5, 2],
+        dialogue: [],
+        choices: [
+          {
+            label: "Ask for courage to keep walking",
+            response: [
+              "MESSENGER: Courage is not the absence of deep water. It is the refusal to call the river the end of the promise.",
+              "Christian nods, keeping his eyes on the far shore.",
+            ],
+          },
+          {
+            label: "Ask what to carry across",
+            response: [
+              "MESSENGER: Carry truth, gratitude, and the companions entrusted to your care. Leave the old burden where grace removed it.",
+              "The instruction is simple enough to remember when the current grows loud.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "city-gate-light",
+        objective: "Find the light marking the City’s gate",
+        action: "Follow the gate light",
+        kind: "gate",
+        position: [0, 5],
+        dialogue: [
+          "A gate of light stands beyond the river, small at this distance and steady enough to guide the eye.",
+          "The pilgrims prepare to leave the meadow and enter the river together.",
+        ],
+      },
+      {
+        id: "beulah-shore",
+        objective: "Stand at the shore with Hopeful before the crossing",
+        action: "Wait at the shore",
+        kind: "companion",
+        position: [-4, 4],
+        dialogue: [
+          "Christian and Hopeful remove what the water would drag behind them and hold one another’s attention on the far light.",
+          "The Land of Beulah does not erase the river. It teaches them to face it with joy.",
+        ],
+        journal:
+          "Land of Beulah — Joy can be honest about the threshold ahead. The final promise is near, but love still walks through real water.",
+      },
+    ],
+  },
+  {
+    id: "river",
+    number: "CHAPTER XXVIII",
+    title: "The River",
+    subtitle: "The last crossing is personal, but Christian does not cross alone.",
+    meaning:
+      "The River of Death is presented with restraint: uncertainty, remembrance, and companionship give the crossing emotional truth without spectacle.",
+    palette: {
+      sky: "#7895a2",
+      ground: "#6f8f87",
+      light: "#f4e3a2",
+      fog: "#789096",
+    },
+    steps: [
+      {
+        id: "enter-river",
+        objective: "Step into the river while keeping the City in view",
+        action: "Enter the water",
+        kind: "water",
+        position: [0, -5],
+        dialogue: [
+          "The water reaches Christian’s ankles, then his knees. The bottom is uneven, but the far gate remains visible.",
+          "Hopeful: Keep your eyes on the light. We will answer each current as it comes.",
+        ],
+      },
+      {
+        id: "deep-water",
+        objective: "Hold to the remembered promise in the deep water",
+        action: "Hold the promise",
+        kind: "roll",
+        position: [-4, -2],
+        dialogue: [
+          "The river rises to Christian’s shoulders. Words remembered in the meadow become a handhold now.",
+          "Fear speaks in the language of drowning. The promise answers with the language of presence.",
+        ],
+      },
+      {
+        id: "hopeful-helps",
+        objective: "Let Hopeful guide Christian when the current turns him",
+        action: "Take Hopeful’s hand",
+        kind: "companion",
+        position: [4, -2],
+        dialogue: [
+          "Christian loses sight of the stones beneath him. Hopeful reaches across the current and calls him toward the gate light.",
+          "The last mile is not a test of solitary strength. A companion’s voice can keep the destination in view.",
+        ],
+      },
+      {
+        id: "city-reflection",
+        objective: "Follow the City’s reflection through the changing water",
+        action: "Follow the reflection",
+        kind: "light",
+        position: [5, 2],
+        dialogue: [
+          "The reflection breaks and reforms around every step. The City is not lost when its image moves.",
+          "Christian walks by the light ahead rather than demanding that the water become still first.",
+        ],
+      },
+      {
+        id: "far-shore",
+        objective: "Reach the far shore and hear the welcome",
+        action: "Climb the far bank",
+        kind: "gate",
+        position: [0, 5],
+        dialogue: [
+          "The water falls away. Shining Ones wait at the shore, and the first sound Christian hears is his name spoken without accusation.",
+          "Hopeful arrives beside him, breathless and smiling. The river is behind them; the gate stands open.",
+        ],
+      },
+      {
+        id: "river-thanks",
+        objective: "Give thanks for the companions who carried you to the shore",
+        action: "Give thanks",
+        kind: "prayer",
+        position: [-4, 4],
+        dialogue: [
+          "Christian looks back toward the water, the road, and every person who carried a word or a hand to him along the way.",
+          "He does not call the crossing easy. He calls it held.",
+        ],
+        journal:
+          "The River — The final crossing is faced with uncertainty, but not isolation. Promise and companionship remain present in deep water.",
+      },
+    ],
+  },
+  {
+    id: "celestial",
+    number: "CHAPTER XXIX",
+    title: "The Celestial City",
+    subtitle: "The narrow way ends in welcome, and the story becomes praise.",
+    meaning:
+      "The Celestial City completes Part One’s pilgrimage: Christian is welcomed by grace, and the long road is gathered into a living testimony.",
+    palette: {
+      sky: "#d8e4dc",
+      ground: "#b4c98d",
+      light: "#fff4c5",
+      fog: "#c4d7ca",
+    },
+    steps: [
+      {
+        id: "celestial-gate",
+        objective: "Approach the open gate of the Celestial City",
+        action: "Approach the gate",
+        kind: "gate",
+        position: [0, -5],
+        dialogue: [
+          "The gate is not hidden behind a final puzzle. It is open, and the welcome begins before Christian can speak.",
+          "The narrow way was never a purchase of entrance. It was the road by which grace carried him home.",
+        ],
+      },
+      {
+        id: "present-roll",
+        objective: "Present the sealed roll at the City gate",
+        action: "Present the roll",
+        kind: "roll",
+        position: [-4, -2],
+        dialogue: [
+          "Christian presents the roll he carried from the Palace Beautiful. Its seal is opened by hands that already know the story it contains.",
+          "The record is not a résumé of Christian’s strength. It is a witness to mercy received and shared.",
+        ],
+        roll: true,
+      },
+      {
+        id: "shining-welcome",
+        objective: "Receive the welcome of the Shining Ones",
+        action: "Receive the welcome",
+        kind: "person",
+        position: [4, -2],
+        dialogue: [
+          "SHINING ONE: Welcome, pilgrim. The scars of the road are not evidence that you arrived by your own power; they are signs of the help that kept you moving.",
+          "Christian looks for a reason to boast and finds only reasons to give thanks.",
+        ],
+      },
+      {
+        id: "hopeful-arrives",
+        objective: "Wait for Hopeful and enter the City together",
+        action: "Wait for Hopeful",
+        kind: "companion",
+        position: [5, 2],
+        dialogue: [
+          "Hopeful reaches the shore. Christian will not enter ahead of him, and the Shining Ones do not ask him to.",
+          "They cross the final threshold side by side, carrying one another’s names into the welcome.",
+        ],
+      },
+      {
+        id: "city-song",
+        objective: "Hear the song of the City and remember the road",
+        action: "Listen to the song",
+        kind: "light",
+        position: [0, 5],
+        dialogue: [
+          "The City’s song gathers the wilderness, the gate, the cross, the prison, the river, and every small act of faith into one praise.",
+          "Nothing true from the road is wasted. Even the places Christian would rather forget are transformed into testimony.",
+        ],
+      },
+      {
+        id: "part-one-complete",
+        objective: "Enter the Celestial City and complete the pilgrimage",
+        action: "Enter the City",
+        kind: "light",
+        position: [0, 1],
+        dialogue: [
+          "Christian and Hopeful enter the Celestial City. The road has ended; the welcome has not.",
+          "NARRATOR: Then I saw in my dream that they went in at the gate; and lo, as they entered, they were clothed with garments that shone like gold.",
+        ],
+        journal:
+          "The Celestial City — Part One ends in welcome. The pilgrimage is remembered not as self-rescue, but as grace that held Christian and his companions all the way home.",
       },
     ],
   },

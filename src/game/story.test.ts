@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { storyScenes, totalStoryBeats } from "./story";
 import { puzzles } from "./puzzles";
+import { GATE_ANCHORS } from "./gate/GateController";
 
 describe("Part One story journey", () => {
-  it("covers the complete planned journey through Doubting Castle", () => {
+  it("covers the complete planned journey through the Celestial City", () => {
     expect(storyScenes.map((scene) => scene.id)).toEqual([
       "dream",
       "city",
@@ -30,8 +31,13 @@ describe("Part One story journey", () => {
       "demas",
       "bypath",
       "doubting",
+      "delectable",
+      "enchanted",
+      "beulah",
+      "river",
+      "celestial",
     ]);
-    expect(totalStoryBeats).toBeGreaterThanOrEqual(190);
+    expect(totalStoryBeats).toBeGreaterThanOrEqual(220);
   });
 
   it("gates every beat behind a meaningful interaction", () => {
@@ -50,6 +56,12 @@ describe("Part One story journey", () => {
       scene.steps.map((step) => `${scene.id}:${step.id}`),
     );
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("routes every Wicket Gate beat through the authored Gate anchors", () => {
+    const gate = storyScenes.find((scene) => scene.id === "gate")!;
+    expect(Object.fromEntries(gate.steps.map((step) => [step.id, step.position])))
+      .toEqual(GATE_ANCHORS);
   });
 
   it("removes the burden only at the Cross", () => {
@@ -127,5 +139,17 @@ describe("Part One story journey", () => {
       keyOfPromise: true,
     });
     expect(castle.steps.at(-1)?.id).toBe("warning-monument");
+  });
+
+  it("completes Part One with a restrained river crossing and City welcome", () => {
+    const river = storyScenes.find((scene) => scene.id === "river")!;
+    const city = storyScenes.find((scene) => scene.id === "celestial")!;
+    expect(river.steps.at(-1)?.id).toBe("river-thanks");
+    expect(city.steps.at(-1)?.id).toBe("part-one-complete");
+    expect(
+      city.steps
+        .flatMap((step) => [step.objective, ...step.dialogue])
+        .join(" "),
+    ).toContain("Celestial City");
   });
 });

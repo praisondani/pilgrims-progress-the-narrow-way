@@ -414,7 +414,7 @@ export const useGame = create<GameState>()(
     }),
     {
       name: "narrow-way-save-v2",
-      version: 9,
+      version: 11,
       partialize: (state) => ({
         started: state.started,
         sceneIndex: state.sceneIndex,
@@ -430,6 +430,7 @@ export const useGame = create<GameState>()(
         textSize: state.textSize,
         reducedMotion: state.reducedMotion,
         cinematicCamera: state.cinematicCamera,
+        puzzleActive: state.puzzleActive,
         onboarding: state.onboarding,
         replayCheckpoint: state.replayCheckpoint,
       }),
@@ -441,13 +442,19 @@ export const useGame = create<GameState>()(
           version === 4 && priorSceneIndex === 13 && saved.gameComplete;
         const hopefulWasComplete =
           version === 5 && priorSceneIndex === 20 && saved.gameComplete;
+        const doubtingWasComplete =
+          version < 10 && priorSceneIndex === 24 && saved.gameComplete;
         const sceneIndex = hopefulWasComplete
           ? 21
           : palaceWasComplete
             ? 14
-            : priorSceneIndex;
+            : doubtingWasComplete
+              ? 25
+              : priorSceneIndex;
         const stepIndex =
-          palaceWasComplete || hopefulWasComplete ? 0 : priorStepIndex;
+          palaceWasComplete || hopefulWasComplete || doubtingWasComplete
+            ? 0
+            : priorStepIndex;
         const passedFirstObjective = sceneIndex > 0 || stepIndex > 0;
         const onboarding =
           version < 8
@@ -474,13 +481,17 @@ export const useGame = create<GameState>()(
               ? []
               : saved.equipment,
           journal: Array.isArray(saved.journal) ? saved.journal : [],
-          gameComplete: version < 6 ? false : (saved.gameComplete ?? false),
+          gameComplete:
+            version < 6 || doubtingWasComplete
+              ? false
+              : (saved.gameComplete ?? false),
           soundEnabled:
             version < 7 ? false : (saved.soundEnabled ?? false),
           visibility: saved.visibility ?? "bright",
           textSize: saved.textSize ?? "normal",
           reducedMotion: saved.reducedMotion ?? false,
           cinematicCamera: saved.cinematicCamera ?? true,
+          puzzleActive: saved.puzzleActive ?? false,
           onboarding,
           replayCheckpoint:
             version < 9 ? undefined : saved.replayCheckpoint,

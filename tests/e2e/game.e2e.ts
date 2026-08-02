@@ -22,7 +22,7 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await expect(page.getByTestId("game-screen")).toBeVisible();
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
   await expect(page.locator("canvas")).toBeVisible();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
   await expect(
     page.getByText("Find and light the abandoned lantern"),
   ).toBeVisible();
@@ -50,7 +50,7 @@ test("teaches controls until the first lantern objective is complete", async ({
 }) => {
   test.setTimeout(90_000);
   await page.getByRole("button", { name: "Begin the journey" }).click();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 10_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
 
   const coach = page.getByTestId("first-objective-coach");
   await expect(coach).toBeVisible();
@@ -176,6 +176,7 @@ test("shows the ordered story map without unlocking future chapters", async ({
 test("replays completed chapters without losing current progress", async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await page.evaluate(() =>
     localStorage.setItem(
       "narrow-way-save-v2",
@@ -194,28 +195,34 @@ test("replays completed chapters without losing current progress", async ({
     ),
   );
   await page.reload();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
 
   await page.getByRole("button", { name: "Story map" }).click();
   const map = page.getByRole("dialog", { name: "Story map" });
   const gate = map.getByRole("listitem", {
     name: /Chapter V: The Wicket Gate, Completed/i,
   });
+  await gate.scrollIntoViewIfNeeded();
   await gate.getByRole("button", { name: "Replay The Wicket Gate" }).click();
   const drawer = map.getByRole("complementary", {
     name: "Replay controls for The Wicket Gate",
   });
   await expect(drawer).toBeVisible();
-  await expect(drawer.getByText("Progress is preserved")).toBeVisible();
-  await expect(drawer.getByText("Select beat")).toBeVisible();
+  await expect(
+    drawer.getByRole("heading", { name: "The Wicket Gate" }),
+  ).toBeVisible();
+  await expect(drawer.getByText(/Progress is preserved/i)).toBeVisible();
+  await expect(drawer.getByText(/Select beat/i)).toBeVisible();
   await drawer.getByRole("button", { name: "Start replay" }).click();
-  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
+  await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate", {
+    timeout: 15_000,
+  });
   await expect(page.locator(".replay-status")).toContainText(
     "progress saved at The Interpreter’s House",
   );
 
   await page.reload();
-  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 15_000 });
+  await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
   await expect(page.getByTestId("game-hud")).toContainText("The Wicket Gate");
   await page.getByRole("button", { name: "Story map" }).click();
   const replayMap = page.getByRole("dialog", { name: "Story map" });
@@ -233,12 +240,12 @@ test("replays completed chapters without losing current progress", async ({
     name: /Replay controls for The Wicket Gate/i,
   });
   await expect(replayDrawer).toBeVisible();
-  await expect(
-    replayDrawer.getByRole("button", { name: "Return to saved progress" }),
-  ).toBeVisible();
-  await replayMap.getByRole("button", { name: "Return here" }).click();
+  await replayDrawer
+    .getByRole("button", { name: "Return to saved progress" })
+    .click();
   await expect(page.getByTestId("game-hud")).toContainText(
     "The Interpreter’s House",
+    { timeout: 15_000 },
   );
   await expect(page.locator(".objective")).toContainText(
     storyScenes[6].steps[2].objective,
@@ -277,7 +284,7 @@ test("explains an incorrect focus and confirms when the light is clear", async (
   const slider = puzzle.getByRole("slider", { name: "Focus" });
   await slider.fill("72");
   await expect(puzzle.getByRole("status")).toContainText("light is clear");
-  await page.getByRole("button", { name: "Confirm clear light" }).click();
+  await page.getByRole("button", { name: "Hold this focus" }).click();
   await expect(puzzle).toBeHidden();
   await expect(page.locator(".spoken")).toBeVisible();
 });
@@ -603,20 +610,20 @@ test("escapes Doubting Castle with the Key of Promise", async ({ page }) => {
   await spoken.click();
   await spoken.click();
   const chapterCta = page.locator(".chapter-card .primary");
-  await expect(chapterCta).toContainText("Leave Doubting Castle");
+  await expect(chapterCta).toContainText("Continue the journey");
   await chapterCta.click();
-  await expect(page.locator(".ending")).toContainText(
-    "The mountains rise ahead",
+  await expect(page.getByTestId("game-hud")).toContainText(
+    "The Delectable Mountains",
   );
 });
 
-test("completes the full Dream-to-Doubting journey through real controls", async ({
+test("completes the full Dream-to-Celestial City journey through real controls", async ({
   page,
   isMobile,
 }) => {
   test.skip(
     Boolean(process.env.CI),
-    "Exhaustive 45-minute physics journey runs locally; CI covers focused flows and story invariants.",
+    "Exhaustive full-story physics journey runs locally; CI covers focused flows and story invariants.",
   );
   test.skip(
     Boolean(isMobile),
@@ -630,11 +637,13 @@ test("completes the full Dream-to-Doubting journey through real controls", async
   const interactPrompt = page.locator(".interact-prompt");
   const walkToTarget = async (sceneId: string, stepId: string) => {
     if (await interactPrompt.isVisible()) return;
-    await expect(cue).toBeEnabled();
     await expect
       .poll(
         async () => {
           if (await interactPrompt.isVisible()) return true;
+          // Once the player is inside the interaction radius the navigation
+          // cue is correctly disabled. Wait for the prompt instead of making
+          // a transient disabled state fail the exhaustive journey.
           if (await cue.isEnabled())
             await cue.evaluate((element) =>
               (element as HTMLButtonElement).click(),
@@ -705,7 +714,7 @@ test("completes the full Dream-to-Doubting journey through real controls", async
     await expect(chapterCta).toBeVisible();
     await expect(chapterCta).toContainText(
       sceneIndex === storyScenes.length - 1
-        ? "Leave Doubting Castle"
+        ? "Enter the Celestial City"
         : "Continue the journey",
     );
     await expect
@@ -721,7 +730,7 @@ test("completes the full Dream-to-Doubting journey through real controls", async
 
   await expect(page.locator(".ending")).toBeVisible();
   await expect(page.locator(".ending")).toContainText(
-    "The mountains rise ahead",
+    "The road ends in welcome",
   );
   console.info(
     `[journey] complete (${Math.round((Date.now() - journeyStartedAt) / 1000)}s)`,

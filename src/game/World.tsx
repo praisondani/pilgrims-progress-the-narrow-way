@@ -1,5 +1,9 @@
 import { Float, Sparkles } from "@react-three/drei";
-import { CuboidCollider, RigidBody } from "@react-three/rapier";
+import {
+  CapsuleCollider,
+  CuboidCollider,
+  RigidBody,
+} from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { Color, Group } from "three";
@@ -15,6 +19,120 @@ import {
 } from "./Visuals";
 import { SceneEnvironment } from "./Environments";
 import { renderingFeatureFlags } from "./rendering/capabilities";
+import {
+  buildDreamTerrainCollisionDescriptors,
+  DREAM_SCENE_SEED,
+} from "./assets/environment/dream";
+import {
+  WICKET_GATE_ROOT,
+  deriveGateController,
+  type GateController,
+} from "./gate/GateController";
+
+const dreamTerrainCollisionDescriptors =
+  buildDreamTerrainCollisionDescriptors(DREAM_SCENE_SEED, "medium");
+
+function DreamTerrainColliders() {
+  return (
+    <>
+      {dreamTerrainCollisionDescriptors.flatMap((descriptor) => {
+        if (!descriptor.blocksPlayer) return [];
+        if (descriptor.shape === "box")
+          return [
+            <CuboidCollider
+              key={descriptor.id}
+              args={[...descriptor.halfExtents]}
+              position={[...descriptor.position]}
+              rotation={[0, descriptor.rotationY, 0]}
+            />,
+          ];
+        if (descriptor.shape === "capsule") {
+          const radius = descriptor.halfExtents[0];
+          return [
+            <CapsuleCollider
+              key={descriptor.id}
+              args={[
+                Math.max(0.1, descriptor.halfExtents[1] - radius),
+                radius,
+              ]}
+              position={[...descriptor.position]}
+              rotation={[0, descriptor.rotationY, 0]}
+            />,
+          ];
+        }
+        if (descriptor.shape !== "ribbon") return [];
+        return descriptor.centerline.slice(1).flatMap((end, index) => {
+          const start = descriptor.centerline[index];
+          const dx = end[0] - start[0];
+          const dz = end[1] - start[1];
+          const length = Math.hypot(dx, dz);
+          if (length < 0.001) return [];
+          const midpoint: [number, number] = [
+            (start[0] + end[0]) * 0.5,
+            (start[1] + end[1]) * 0.5,
+          ];
+          if (
+            descriptor.gaps?.some(
+              (gap) =>
+                Math.hypot(
+                  midpoint[0] - gap.center[0],
+                  midpoint[1] - gap.center[1],
+                ) < gap.radius,
+            )
+          )
+            return [];
+          const offset =
+            (descriptor.innerOffset + descriptor.outerOffset) * 0.5;
+          const width = Math.abs(
+            descriptor.outerOffset - descriptor.innerOffset,
+          );
+          const normalX = -dz / length;
+          const normalZ = dx / length;
+          const minimumY = descriptor.elevation[0];
+          const maximumY = descriptor.elevation[1];
+          return [
+            <CuboidCollider
+              key={`${descriptor.id}-${index}`}
+              args={[
+                width * 0.5,
+                (maximumY - minimumY) * 0.5,
+                length * 0.5,
+              ]}
+              position={[
+                midpoint[0] + normalX * offset,
+                (minimumY + maximumY) * 0.5,
+                midpoint[1] + normalZ * offset,
+              ]}
+              rotation={[0, Math.atan2(dx, dz), 0]}
+            />,
+          ];
+        });
+      })}
+    </>
+  );
+}
+
+function GateColliders({ controller }: { controller: GateController }) {
+  return (
+    <>
+      <CuboidCollider
+        args={[2.35, 1.8, 0.46]}
+        position={[-4.05, 1.8, WICKET_GATE_ROOT[2]]}
+      />
+      <CuboidCollider
+        args={[2.35, 1.8, 0.46]}
+        position={[4.05, 1.8, WICKET_GATE_ROOT[2]]}
+      />
+      {!controller.doorwayOpen && (
+        <CuboidCollider
+          args={[1.38, 1.68, 0.24]}
+          position={[0, 1.68, WICKET_GATE_ROOT[2] + 0.27]}
+        />
+      )}
+      <CuboidCollider args={[1.85, 0.25, 1.55]} position={[0, -0.25, -9.2]} />
+    </>
+  );
+}
 
 function personFor(id: string, sceneId = ""): CharacterVariant {
   if (id.includes("evangelist")) return "evangelist";
@@ -327,6 +445,9 @@ function ActiveTarget() {
     useGame();
   const scene = storyScenes[sceneIndex];
   const step = scene.steps[stepIndex];
+  const usesAuthoredDreamLandmark =
+    scene.id === "dream" && step.id === "lantern";
+  const usesAuthoredGateLandmark = scene.id === "gate";
   useFrame((_, delta) => {
     if (!group.current) return;
     if (beacon.current) beacon.current.rotation.y += delta * 0.8;
@@ -341,50 +462,75 @@ function ActiveTarget() {
         nearby ? interact() : setMessage("Move closer to interact.")
       }
     >
-      <Float speed={1.25} floatIntensity={0.12}>
-        <TargetShape
-          kind={step.kind}
-          light={scene.palette.light}
-          id={step.id}
-          sceneId={scene.id}
-        />
-      </Float>
-      <Sparkles
-        count={22}
-        scale={[1.8, 2.5, 1.8]}
-        color={scene.palette.light}
-        size={2.2}
-        speed={0.25}
-      />
-      <group ref={beacon} position={[0, 2.65, 0]}>
-        <mesh rotation={[Math.PI / 2, 0, 0]} renderOrder={12}>
-          <torusGeometry args={[0.48, 0.045, 8, 28]} />
-          <meshBasicMaterial color={scene.palette.light} depthTest={false} />
-        </mesh>
-        <mesh
-          position={[0, 0.38, 0]}
-          rotation={[0, 0, Math.PI]}
-          renderOrder={12}
-        >
-          <coneGeometry args={[0.16, 0.34, 8]} />
-          <meshBasicMaterial color={scene.palette.light} depthTest={false} />
-        </mesh>
-      </group>
-      <mesh position={[0, 1.35, 0]} renderOrder={2}>
-        <cylinderGeometry args={[0.42, 0.8, 2.7, 16, 1, true]} />
-        <meshBasicMaterial
-          color={scene.palette.light}
-          transparent
-          opacity={0.08}
-          depthWrite={false}
-        />
-      </mesh>
+      {!usesAuthoredDreamLandmark && (
+        <>
+          {!usesAuthoredGateLandmark && (
+            <Float speed={1.25} floatIntensity={0.12}>
+              <TargetShape
+                kind={step.kind}
+                light={scene.palette.light}
+                id={step.id}
+                sceneId={scene.id}
+              />
+            </Float>
+          )}
+          <Sparkles
+            count={22}
+            scale={[1.8, 2.5, 1.8]}
+            color={scene.palette.light}
+            size={2.2}
+            speed={0.25}
+          />
+          <group ref={beacon} position={[0, 2.65, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]} renderOrder={12}>
+              <torusGeometry args={[0.48, 0.045, 8, 28]} />
+              <meshBasicMaterial color={scene.palette.light} depthTest={false} />
+            </mesh>
+            <mesh
+              position={[0, 0.38, 0]}
+              rotation={[0, 0, Math.PI]}
+              renderOrder={12}
+            >
+              <coneGeometry args={[0.16, 0.34, 8]} />
+              <meshBasicMaterial color={scene.palette.light} depthTest={false} />
+            </mesh>
+          </group>
+          <mesh position={[0, 1.35, 0]} renderOrder={2}>
+            <cylinderGeometry args={[0.42, 0.8, 2.7, 16, 1, true]} />
+            <meshBasicMaterial
+              color={scene.palette.light}
+              transparent
+              opacity={0.08}
+              depthWrite={false}
+            />
+          </mesh>
+        </>
+      )}
     </group>
   );
 }
 export function World() {
-  const { sceneIndex, stepIndex, visibility } = useGame();
+  const {
+    sceneIndex,
+    stepIndex,
+    visibility,
+    dialogue,
+    dialogueIndex,
+    sceneComplete,
+    reducedMotion,
+  } = useGame();
   const scene = storyScenes[sceneIndex];
+  const step = scene.steps[stepIndex];
+  const gateController =
+    scene.id === "gate"
+      ? deriveGateController({
+          stepId: step.id,
+          dialogueActive: Boolean(dialogue),
+          dialogueIndex,
+          sceneComplete,
+          reducedMotion,
+        })
+      : null;
   const bright = visibility !== "standard";
   const ground = new Color(scene.palette.ground).lerp(
     new Color("#7faa61"),
@@ -398,26 +544,35 @@ export function World() {
   const path = ground.clone().lerp(new Color("#e4c887"), 0.28);
   const proceduralField =
     scene.id === "field" && renderingFeatureFlags().advancedTerrain;
+  const authoredDream = scene.id === "dream";
+  const sceneSky = authoredDream ? new Color("#0d1a2a") : sky;
+  const sceneFog = authoredDream
+    ? new Color("#2c4050")
+    : sky.clone().lerp(new Color(scene.palette.fog), 0.45);
   return (
     <>
-      <color attach="background" args={[sky]} />
+      <color attach="background" args={[sceneSky]} />
       <fog
         attach="fog"
-        args={[sky.clone().lerp(new Color(scene.palette.fog), 0.45), bright ? 20 : 17, bright ? 52 : 44]}
+        args={[
+          sceneFog,
+          authoredDream ? 11 : bright ? 20 : 17,
+          authoredDream ? 35 : bright ? 52 : 44,
+        ]}
       />
       <hemisphereLight
-        intensity={bright ? 2.25 : 1.75}
+        intensity={authoredDream ? 1.35 : bright ? 2.25 : 1.75}
         color={scene.palette.light}
         groundColor={ground}
       />
       <directionalLight
         castShadow
         position={[7, 12, 6]}
-        intensity={bright ? 3.6 : 3.1}
+        intensity={authoredDream ? 2.25 : bright ? 3.6 : 3.1}
         color={scene.palette.light}
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0004}
-        shadow-radius={5}
+        shadow-radius={4}
       />
       <pointLight
         position={[
@@ -431,27 +586,45 @@ export function World() {
       />
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider args={[8, 0.25, 8]} position={[0, -0.25, 0]} />
-        <mesh receiveShadow position={[0, -0.34, 0]}>
-          <cylinderGeometry args={[10.7, 11.35, 0.68, 64]} />
-          <meshStandardMaterial color={earth} roughness={1} />
-        </mesh>
+        {authoredDream && <DreamTerrainColliders />}
+        {gateController && <GateColliders controller={gateController} />}
+        {authoredDream ? (
+          <mesh
+            receiveShadow
+            position={[0, -0.03, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <planeGeometry args={[24, 24, 32, 32]} />
+            <meshStandardMaterial color={ground} roughness={0.98} />
+          </mesh>
+        ) : (
+          <mesh receiveShadow position={[0, -0.34, 0]}>
+            <cylinderGeometry args={[10.7, 11.35, 0.68, 64]} />
+            <meshStandardMaterial color={earth} roughness={1} />
+          </mesh>
+        )}
         {!proceduralField && (
           <>
-            <mesh receiveShadow position={[0, 0.005, 0]}>
-              <cylinderGeometry args={[10.7, 10.7, 0.04, 64]} />
-              <meshStandardMaterial color={ground} roughness={0.96} />
-            </mesh>
-            <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-              <ringGeometry args={[9.72, 10.54, 64]} />
-              <meshStandardMaterial color={path} roughness={1} transparent opacity={0.2} />
-            </mesh>
+            {!authoredDream && (
+              <>
+                <mesh receiveShadow position={[0, 0.005, 0]}>
+                  <cylinderGeometry args={[10.7, 10.7, 0.04, 64]} />
+                  <meshStandardMaterial color={ground} roughness={0.96} />
+                </mesh>
+                <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                  <ringGeometry args={[9.72, 10.54, 64]} />
+                  <meshStandardMaterial color={path} roughness={1} transparent opacity={0.2} />
+                </mesh>
+              </>
+            )}
           </>
         )}
       </RigidBody>
       <SceneEnvironment
         id={scene.id}
         stepIndex={stepIndex}
-        target={scene.steps[stepIndex].position}
+        target={step.position}
+        gateController={gateController}
       />
       <ActiveTarget />
     </>
