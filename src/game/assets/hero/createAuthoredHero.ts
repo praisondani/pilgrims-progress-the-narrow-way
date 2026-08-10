@@ -323,22 +323,22 @@ export function createAuthoredPilgrimHero(
       center: [0, 0.72, 0.008],
       // Keep tunic hem just outside the hips. The previous near-constant
       // radius made torso read as one barrel from front and profile.
-      radiusX: 0.22,
-      radiusZ: 0.145,
+      radiusX: 0.21,
+      radiusZ: 0.14,
       color: palette.tunicShadow,
       skin: { bone: boneIndex.pelvis },
     },
     {
       center: [0, 0.86, 0.006],
-      radiusX: 0.235,
-      radiusZ: 0.15,
+      radiusX: 0.225,
+      radiusZ: 0.145,
       color: palette.tunic,
       skin: { bone: boneIndex.pelvis },
     },
     {
       center: [0, 0.99, 0],
-      radiusX: 0.205,
-      radiusZ: 0.132,
+      radiusX: 0.195,
+      radiusZ: 0.13,
       color: palette.tunic,
       skin: { bone: boneIndex.pelvis, nextBone: boneIndex.spine, blend: 0.4 },
     },
@@ -378,15 +378,48 @@ export function createAuthoredPilgrimHero(
       skin: { bone: boneIndex.chest },
     },
   ];
-  bodyBuilder.addLoft(torsoRings, 20, "start");
+  bodyBuilder.addLoft(
+    torsoRings,
+    20,
+    "start",
+    (position, normal) => {
+      // Give the tunic a soft chest plane and a few millimetres of cloth
+      // drape. Relief stays inside the existing silhouette instead of turning
+      // the torso into another rigid shell.
+      const front = Math.max(0, normal.z);
+      const chestLift = Math.max(0, Math.min(1, (position.y - 0.92) / 0.58));
+      const drape =
+        Math.sin(position.y * 15 + position.x * 10) * 0.0045 +
+        Math.cos(position.y * 7 - position.x * 8) * 0.0025;
+      position.z += front * (0.004 + chestLift * 0.004 + drape);
+      position.x += drape * normal.x * 0.4;
+      return position;
+    },
+  );
   const tunicFold = new Color(palette.tunicShadow).lerp(
     new Color(palette.tunic),
     0.3,
   );
+  const tunicHighlight = new Color(palette.tunic).lerp(
+    new Color("#ad5b42"),
+    0.14,
+  );
+  const tunicCrease = new Color(palette.tunicShadow).lerp(
+    new Color("#3f2822"),
+    0.2,
+  );
   bodyBuilder.addTube(
-    ellipseLoop([0, 0.74, 0], [0.22, 0, 0.15], "xz", 20),
+    ellipseLoop([0, 0.74, 0], [0.21, 0, 0.142], "xz", 20),
     0.011,
     palette.tunicShadow,
+    { bone: boneIndex.pelvis },
+    5,
+    true,
+  );
+  bodyBuilder.addTube(
+    ellipseLoop([0, 0.77, 0], [0.211, 0, 0.142], "xz", 20),
+    0.006,
+    tunicHighlight,
     { bone: boneIndex.pelvis },
     5,
     true,
@@ -495,6 +528,29 @@ export function createAuthoredPilgrimHero(
       ],
       12,
       false,
+      (position, normal) => {
+        // Break the sleeve's cylinder with a shallow woven swell and a slight
+        // elbow-side taper. Keep movement sub-pixel at gameplay distance.
+        const fold =
+          Math.sin(position.y * 24 + side * 1.7) * 0.0035 +
+          Math.cos(position.y * 11 - side * 0.8) * 0.002;
+        position.x += side * fold * (0.7 + Math.abs(normal.x) * 0.3);
+        position.z += Math.max(0, normal.z) * (0.003 + fold * 0.35);
+        return position;
+      },
+    );
+    bodyBuilder.addTube(
+      ellipseLoop(
+        [side * 0.335, 1.32, 0.004],
+        [0.077, 0, 0.073],
+        "xz",
+        16,
+      ),
+      0.005,
+      palette.linenShadow,
+      { bone: shoulderBone },
+      5,
+      true,
     );
     // Palm volume is deliberately compact and slightly canted. Four fingers
     // and a thumb overlap it at the wrist so the silhouette reads as a hand,
@@ -1107,6 +1163,32 @@ export function createAuthoredPilgrimHero(
       { bone: boneIndex.chest, nextBone: boneIndex.pelvis, blend: 0.48 },
       5,
     );
+
+  // Short shoulder-to-chest seams turn the tunic into tailored cloth. Their
+  // angled break at the sleeve join avoids the old straight rail read.
+  for (const side of [-1, 1] as const)
+    bodyBuilder.addTube(
+      [
+        [side * 0.225, 1.48, 0.158],
+        [side * 0.18, 1.43, 0.17],
+        [side * 0.12, 1.39, 0.17],
+      ],
+      0.0045,
+      tunicHighlight,
+      { bone: boneIndex.chest },
+      5,
+    );
+  bodyBuilder.addTube(
+    [
+      [-0.055, 1.505, 0.162],
+      [0, 1.48, 0.17],
+      [0.055, 1.505, 0.162],
+    ],
+    0.004,
+    tunicCrease,
+    { bone: boneIndex.chest },
+    5,
+  );
 
   // Leave the tunic front open. Earlier versions baked full-length harness
   // rails into the body mesh, so the chest read as armour even after the

@@ -60,15 +60,13 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v37 img2threejs procedural anatomy/face, compacted adult head,
-  tapered torso, cleaner tunic front, articulated hands with separated fingers,
-  directional toe/sole boots, and compressed burden pass with fresh
-  front/profile/rear/tight-96 px critic evidence; the independent runtime
-  critic scores 7.4/10. Adult readability, hands, boots, burden
-  contact/material, and 96 px load identity now pass the focused layers, while
-  the Kena / Pathless / RiME visual bar still fails on authored torso/garment
-  volume and material nuance. A licensed sculpt/GLB remains the long-term
-  target.
+- Christian v38 img2threejs procedural anatomy/face, compacted adult head,
+  tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
+  hands with separated fingers, directional toe/sole boots, and compressed
+  burden pass with fresh front/profile/rear runtime evidence. The prior
+  independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
+  pass that improves torso/garment construction but is paused before a fresh
+  critic loop. A licensed sculpt/GLB remains the long-term target.
 - City v5 runtime critic review complete: clear lift to 5.1/10, cue/interact
   flow still passes, and follow-up draw budgets are green at 150 desktop / 98
   mobile p95. Visual bar still fails: architecture remains flat-color low-poly,
@@ -87,5 +85,5 @@
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
 5. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
-6. Continue the hero torso/garment volume pass, then build the licensed GLB pipeline; replace characters scene by scene
+6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T04:47:00-05:00",
+  "updatedAt": "2026-08-10T05:02:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v37 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v38 hero builder pass and City v5 remain paused visual-bar work, while City draw-call budgets are green for both desktop and mobile headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -25,10 +25,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-15-critic-failed",
+        "status": "iteration-16-critic-pending-paused",
         "builder": "ultracode hero builder",
-        "critic": "fresh runtime critic — fail, 7.4/10, comparison v37",
-        "largestGap": "v37 materially improves v36 with a narrower wrist/palm transition, separated longer fingers, directional toe caps, sole flattening, and ankle material breakup. Adult readability, hands, boots, burden contact/material, and tight-96 px load identity pass focused layers. The single remaining gap is authored torso/garment volume and material nuance: the tunic remains rectangular and sleeve transitions remain procedural."
+        "critic": "fresh runtime critic — paused before v38 comparison; prior v37 score 7.4/10",
+        "largestGap": "v38 adds modest tunic taper, cloth drape, hem/shoulder/chest seams, and a sleeve cuff/wrinkle pass over v37. The fresh critic loop is intentionally paused; licensed authored character geometry and final material nuance remain release gaps."
       },
       {
         "id": "dream",
