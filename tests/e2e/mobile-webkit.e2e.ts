@@ -92,14 +92,29 @@ test("starts recorded ambience after a mobile user gesture", async ({ page }) =>
   );
 
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute(
-    "data-audio-state",
-    "blocked",
-  );
-  await expect(page.getByRole("button", { name: "Toggle sound" })).toContainText(
-    "Start sound",
-  );
-  await page.getByRole("button", { name: "Pause" }).click();
+  // WebKit can retain the autoplay grant across a reload. In that case the
+  // persisted sound preference starts immediately; on stricter devices it
+  // correctly reports blocked until the next trusted gesture. Both states
+  // are valid, but neither may leave the HUD stuck in loading.
+  await expect
+    .poll(
+      () => page.locator("html").getAttribute("data-audio-state"),
+      { timeout: 10_000 },
+    )
+    .toMatch(/blocked|playing/);
+  const reloadedAudioState = await page
+    .locator("html")
+    .getAttribute("data-audio-state");
+  if (reloadedAudioState === "blocked") {
+    await expect(
+      page.getByRole("button", { name: "Toggle sound" }),
+    ).toContainText("Start sound");
+    await page.getByRole("button", { name: "Pause" }).click();
+  } else {
+    await expect(
+      page.getByRole("button", { name: "Toggle sound" }),
+    ).toContainText("Sound on");
+  }
   await expect(page.locator("html")).toHaveAttribute(
     "data-audio-state",
     "playing",
