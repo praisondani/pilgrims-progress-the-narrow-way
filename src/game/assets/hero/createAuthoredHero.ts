@@ -1,5 +1,6 @@
 import {
   Bone,
+  BufferGeometry,
   Color,
   DoubleSide,
   Group,
@@ -236,13 +237,15 @@ export function createAuthoredPilgrimHero(
     new Color(palette.skinShadow),
     0.28,
   );
-  const burdenCloth = new Color(palette.burden).lerp(
-    new Color("#8a6b52"),
-    0.64,
+  // Keep the load in the reference's charcoal/brown cloth family. The old
+  // tan lerp flattened the sack into a hard leather shield under warm light.
+  const burdenCloth = new Color("#2d2724").lerp(
+    new Color(palette.burden),
+    0.35,
   );
   const burdenFold = new Color(burdenCloth).lerp(
-    new Color(palette.burdenShadow),
-    0.52,
+    new Color("#58483b"),
+    0.18,
   );
   const root = new Group();
   root.name = `hero.root.${spec.id}.authored`;
@@ -275,6 +278,10 @@ export function createAuthoredPilgrimHero(
   const chest = addBone("chest", spine, [0, 0.38, 0]);
   const neck = addBone("neck", chest, [0, 0.22, 0]);
   const head = addBone("head", neck, [0, 0.08, 0]);
+  // The turnaround reads as an adult traveler with a compact, angular head,
+  // not a mascot. Scale the complete head hierarchy (face, beard, hair, and
+  // expression patches) together so every facial socket stays registered.
+  head.scale.set(0.92, 0.94, 0.92);
   addBone("jaw", head, [0, 0.07, 0.045]);
   const leftShoulder = addBone("leftShoulder", chest, [-0.31, 0.12, 0]);
   const leftElbow = addBone("leftElbow", leftShoulder, [0, -0.335, 0]);
@@ -330,8 +337,8 @@ export function createAuthoredPilgrimHero(
     },
     {
       center: [0, 1.5, -0.004],
-      radiusX: 0.325,
-      radiusZ: 0.175,
+      radiusX: 0.295,
+      radiusZ: 0.165,
       color: palette.tunic,
       skin: { bone: boneIndex.chest },
     },
@@ -411,52 +418,54 @@ export function createAuthoredPilgrimHero(
     bodyBuilder.addLoft(
       [
         {
-          // A small deltoid cap, then a deliberate sleeve/forearm taper.
-          center: [side * 0.25, 1.49, -0.002],
-          radiusX: 0.118,
-          radiusZ: 0.112,
+          // A sloped deltoid cap flows into the sleeve instead of starting as
+          // a straight cylinder at the clavicle. The reference has a relaxed
+          // A-pose with the elbows slightly outside the wrists.
+          center: [side * 0.255, 1.49, -0.002],
+          radiusX: 0.108,
+          radiusZ: 0.103,
           color: palette.tunic,
           skin: { bone: shoulderBone },
         },
         {
-          center: [side * 0.305, 1.415, 0],
-          radiusX: 0.105,
-          radiusZ: 0.098,
+          center: [side * 0.31, 1.41, 0],
+          radiusX: 0.096,
+          radiusZ: 0.09,
           color: palette.tunic,
           skin: { bone: shoulderBone },
         },
         {
-          center: [side * 0.325, 1.33, 0.004],
-          radiusX: 0.09,
-          radiusZ: 0.086,
+          center: [side * 0.335, 1.32, 0.004],
+          radiusX: 0.08,
+          radiusZ: 0.077,
           color: palette.linen,
           skin: { bone: shoulderBone },
         },
         {
-          center: [side * 0.332, 1.21, 0.008],
-          radiusX: 0.076,
-          radiusZ: 0.073,
+          center: [side * 0.343, 1.2, 0.008],
+          radiusX: 0.068,
+          radiusZ: 0.065,
           color: palette.linenShadow,
           skin: { bone: shoulderBone, nextBone: elbowBone, blend: 0.7 },
         },
         {
-          center: [side * 0.332, 1.13, 0.01],
-          radiusX: 0.07,
-          radiusZ: 0.066,
+          center: [side * 0.345, 1.115, 0.01],
+          radiusX: 0.061,
+          radiusZ: 0.058,
           color: palette.skinShadow,
           skin: { bone: elbowBone },
         },
         {
-          center: [side * 0.332, 0.94, 0.014],
-          radiusX: 0.058,
-          radiusZ: 0.053,
+          center: [side * 0.34, 0.94, 0.014],
+          radiusX: 0.052,
+          radiusZ: 0.048,
           color: palette.skin,
           skin: { bone: elbowBone, nextBone: wristBone, blend: 0.55 },
         },
         {
-          center: [side * 0.332, 0.84, 0.018],
-          radiusX: 0.049,
-          radiusZ: 0.045,
+          center: [side * 0.335, 0.84, 0.018],
+          radiusX: 0.044,
+          radiusZ: 0.041,
           color: palette.skin,
           skin: { bone: wristBone },
         },
@@ -464,17 +473,55 @@ export function createAuthoredPilgrimHero(
       12,
       false,
     );
+    // Palm volume is deliberately compact and slightly canted. Four fingers
+    // and a thumb overlap it at the wrist so the silhouette reads as a hand,
+    // not an oval mitten, while remaining inside the unified body draw.
     bodyBuilder.addEllipsoid(
-      [side * 0.332, 0.745, 0.032],
-      [0.07, 0.11, 0.052],
+      [side * 0.335, 0.735, 0.032],
+      [0.058, 0.078, 0.048],
       (normal) => (normal.y < -0.45 ? palette.skinShadow : palette.skin),
       { bone: wristBone },
       14,
       9,
       (position, normal) => {
-        position.x += side * Math.max(0, -normal.y) * 0.01;
+        position.x += side * Math.max(0, -normal.y) * 0.008;
+        position.z += Math.max(0, -normal.y) * 0.008;
         return position;
       },
+    );
+    const fingerOffsets = [-0.032, -0.011, 0.011, 0.032];
+    for (const [fingerIndex, offset] of fingerOffsets.entries()) {
+      const length = 0.064 - fingerIndex * 0.004;
+      bodyBuilder.addTube(
+        [
+          [side * (0.335 + offset), 0.708, 0.045],
+          [side * (0.337 + offset * 0.92), 0.675 - length * 0.3, 0.054],
+          [side * (0.34 + offset * 0.78), 0.646 - length * 0.2, 0.047],
+        ],
+        0.011,
+        palette.skin,
+        { bone: wristBone },
+        5,
+      );
+      bodyBuilder.addEllipsoid(
+        [side * (0.34 + offset * 0.78), 0.64 - length * 0.2, 0.047],
+        [0.012, 0.015, 0.012],
+        palette.skinShadow,
+        { bone: wristBone },
+        7,
+        5,
+      );
+    }
+    bodyBuilder.addTube(
+      [
+        [side * 0.378, 0.754, 0.056],
+        [side * 0.405, 0.728, 0.069],
+        [side * 0.406, 0.686, 0.057],
+      ],
+      0.014,
+      palette.skin,
+      { bone: wristBone },
+      6,
     );
   };
   addArm(
@@ -496,6 +543,9 @@ export function createAuthoredPilgrimHero(
     kneeBone: number,
     ankleBone: number,
   ) => {
+    // Keep the upper leg close to the pelvis, then let the knee/calf drift a
+    // few millimetres outward. This small lateral arc breaks the mannequin
+    // cylinder and leaves a readable negative space between the legs.
     const x = side * 0.15;
     bodyBuilder.addLoft(
       [
@@ -507,30 +557,30 @@ export function createAuthoredPilgrimHero(
           skin: { bone: hipBone },
         },
         {
-          center: [x, 0.67, 0],
-          radiusX: 0.11,
-          radiusZ: 0.108,
+          center: [x + side * 0.006, 0.67, 0],
+          radiusX: 0.112,
+          radiusZ: 0.11,
           color: palette.trousers,
           skin: { bone: hipBone },
         },
         {
-          center: [x, 0.55, 0.01],
-          radiusX: 0.094,
-          radiusZ: 0.096,
+          center: [x + side * 0.012, 0.55, 0.01],
+          radiusX: 0.09,
+          radiusZ: 0.094,
           color: palette.trousers,
           skin: { bone: hipBone, nextBone: kneeBone, blend: 0.75 },
         },
         {
-          center: [x, 0.47, 0.015],
-          radiusX: 0.103,
-          radiusZ: 0.101,
+          center: [x + side * 0.014, 0.47, 0.015],
+          radiusX: 0.107,
+          radiusZ: 0.103,
           color: palette.trousers,
           skin: { bone: kneeBone },
         },
         {
-          center: [x, 0.29, 0.008],
-          radiusX: 0.076,
-          radiusZ: 0.074,
+          center: [x + side * 0.008, 0.29, 0.008],
+          radiusX: 0.074,
+          radiusZ: 0.072,
           color: palette.trousers,
           skin: { bone: kneeBone, nextBone: ankleBone, blend: 0.45 },
         },
@@ -580,6 +630,23 @@ export function createAuthoredPilgrimHero(
       5,
       true,
     );
+    // Sparse, broad cloth ridges give the trousers a knee fold and a tapered
+    // calf without splitting the four-material hero budget.
+    for (const [offset, depth] of [
+      [-0.045, 0.085],
+      [0.028, 0.092],
+    ] as const)
+      bodyBuilder.addTube(
+        [
+          [x + offset, 0.72, depth],
+          [x + offset * 0.7 + side * 0.012, 0.55, depth + 0.012],
+          [x + offset * 0.5, 0.41, depth + 0.008],
+        ],
+        0.006,
+        palette.trousers,
+        { bone: hipBone, nextBone: kneeBone, blend: 0.6 },
+        5,
+      );
   };
   addLeg(-1, boneIndex.leftHip, boneIndex.leftKnee, boneIndex.leftAnkle);
   addLeg(1, boneIndex.rightHip, boneIndex.rightKnee, boneIndex.rightAnkle);
@@ -587,7 +654,7 @@ export function createAuthoredPilgrimHero(
   const headCenter = new Vector3(0, 1.81, 0.008);
   bodyBuilder.addEllipsoid(
     [headCenter.x, headCenter.y, headCenter.z],
-    [0.145, 0.17, 0.145],
+    [0.137, 0.179, 0.138],
     (normal) => {
       if (
         normal.y > 0.5 ||
@@ -597,7 +664,7 @@ export function createAuthoredPilgrimHero(
         return palette.hair;
       if (
         normal.y <
-          -0.48 + Math.min(0.16, Math.abs(normal.x) * 0.2) &&
+          -0.6 + Math.min(0.12, Math.abs(normal.x) * 0.16) &&
         normal.z > -0.18
       )
         return beardColor;
@@ -607,16 +674,17 @@ export function createAuthoredPilgrimHero(
     24,
     26,
     (position, normal) => {
-      const localY = (position.y - headCenter.y) / 0.165;
-      if (localY < -0.18) {
-        const jawTaper = 1 - (-localY - 0.18) * 0.2;
+      const localY = (position.y - headCenter.y) / 0.175;
+      if (localY < -0.12) {
+        const jawTaper = Math.max(0.76, 1 - (-localY - 0.12) * 0.42);
         position.x *= jawTaper;
+        position.z -= Math.max(0, -localY - 0.12) * 0.008;
       }
       if (normal.z > 0.45) {
-        const x = position.x / 0.14;
+        const x = position.x / 0.132;
         const noseY = (position.y - (headCenter.y + 0.008)) / 0.058;
         position.z +=
-          Math.exp(-(x * x * 11 + noseY * noseY * 2.8)) * 0.04;
+          Math.exp(-(x * x * 11 + noseY * noseY * 2.8)) * 0.029;
         const cheekY = (position.y - (headCenter.y - 0.02)) / 0.074;
         position.z +=
           Math.exp(-((Math.abs(x) - 0.48) ** 2 * 12 + cheekY * cheekY * 2)) *
@@ -630,8 +698,8 @@ export function createAuthoredPilgrimHero(
   // cheek planes, brow ridge, and chin give eyes/expressions a continuous
   // surface instead of a stack of flat cards at gameplay distance.
   bodyBuilder.addEllipsoid(
-    [0, 1.81, 0.142],
-    [0.034, 0.048, 0.056],
+    [0, 1.81, 0.137],
+    [0.03, 0.044, 0.05],
     (normal) => (normal.y < -0.45 ? palette.skinShadow : palette.skin),
     { bone: boneIndex.head },
     12,
@@ -641,16 +709,16 @@ export function createAuthoredPilgrimHero(
     // Recessed socket lip catches a shadow under brow/upper lid while rounded
     // eye volume remains in front. Both are one body draw/material.
     bodyBuilder.addEllipsoid(
-      [side * 0.052, 1.825, 0.126],
-      [0.05, 0.034, 0.019],
+      [side * 0.052, 1.824, 0.123],
+      [0.044, 0.029, 0.017],
       (normal) => (normal.y > 0.35 ? palette.skinShadow : palette.skin),
       { bone: boneIndex.head },
       14,
       8,
     );
     bodyBuilder.addEllipsoid(
-      [side * 0.076, 1.785, 0.108],
-      [0.066, 0.062, 0.036],
+      [side * 0.072, 1.784, 0.102],
+      [0.058, 0.055, 0.031],
       (normal) => (normal.y < -0.35 ? palette.skinShadow : palette.skin),
       { bone: boneIndex.head },
       14,
@@ -658,11 +726,11 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addTube(
       [
-        [side * 0.082, 1.858, 0.139],
-        [side * 0.052, 1.866, 0.15],
-        [side * 0.018, 1.862, 0.15],
+        [side * 0.078, 1.858, 0.136],
+        [side * 0.05, 1.866, 0.145],
+        [side * 0.018, 1.862, 0.145],
       ],
-      0.008,
+      0.006,
       palette.skinShadow,
       { bone: boneIndex.head },
       6,
@@ -671,16 +739,16 @@ export function createAuthoredPilgrimHero(
   // Continuous nose bridge, alae, and tip keep face readable in profile
   // without a flat facial card. All forms remain skinned body islands.
   bodyBuilder.addEllipsoid(
-    [0, 1.816, 0.148],
-    [0.026, 0.056, 0.043],
+    [0, 1.816, 0.145],
+    [0.023, 0.054, 0.038],
     (normal) => (normal.z > 0.35 ? palette.skin : palette.skinShadow),
     { bone: boneIndex.head },
     12,
     8,
   );
   bodyBuilder.addEllipsoid(
-    [0, 1.792, 0.178],
-    [0.019, 0.019, 0.016],
+    [0, 1.792, 0.173],
+    [0.017, 0.017, 0.014],
     palette.skinShadow,
     { bone: boneIndex.head },
     10,
@@ -688,16 +756,16 @@ export function createAuthoredPilgrimHero(
   );
   for (const side of [-1, 1] as const)
     bodyBuilder.addEllipsoid(
-      [side * 0.018, 1.793, 0.174],
-      [0.018, 0.014, 0.018],
+      [side * 0.017, 1.793, 0.17],
+      [0.016, 0.012, 0.016],
       palette.skinShadow,
       { bone: boneIndex.head },
       10,
       6,
     );
   bodyBuilder.addEllipsoid(
-    [0, 1.718, 0.11],
-    [0.08, 0.064, 0.044],
+    [0, 1.718, 0.105],
+    [0.064, 0.052, 0.035],
     palette.skinShadow,
     { bone: boneIndex.head },
     14,
@@ -705,25 +773,33 @@ export function createAuthoredPilgrimHero(
   );
   for (const side of [-1, 1] as const)
     bodyBuilder.addEllipsoid(
-      [side * 0.14, 1.81, 0.002],
-      [0.028, 0.06, 0.047],
-      palette.skin,
+      [side * 0.13, 1.81, -0.002],
+      [0.018, 0.044, 0.03],
+      palette.skinShadow,
       { bone: boneIndex.head },
       12,
       8,
     );
   bodyBuilder.addEllipsoid(
-    [0, 1.748, 0.118],
-    [0.09, 0.066, 0.043],
+    [0, 1.735, 0.11],
+    [0.064, 0.048, 0.032],
     beardColor,
     { bone: boneIndex.head },
     16,
     10,
     (position, normal) => {
-      position.y -= Math.max(0, -normal.y) * 0.018;
-      position.z += Math.max(0, -normal.y) * 0.008;
+      position.y -= Math.max(0, -normal.y) * 0.022;
+      position.z += Math.max(0, -normal.y) * 0.007;
       return position;
     },
+  );
+  bodyBuilder.addEllipsoid(
+    [0, 1.696, 0.105],
+    [0.046, 0.049, 0.028],
+    beardColor,
+    { bone: boneIndex.head },
+    12,
+    8,
   );
   // Trimmed moustache and lip/chin volume keep mouth line visible through the
   // beard instead of producing one dark planar mask.
@@ -758,30 +834,63 @@ export function createAuthoredPilgrimHero(
   bodyBuilder.addLoft(
     [
       {
-        center: [0, 1.89, 0.006],
-        radiusX: 0.145,
-        radiusZ: 0.145,
+        center: [0, 1.89, 0.004],
+        radiusX: 0.137,
+        radiusZ: 0.136,
         color: palette.hair,
         skin: { bone: boneIndex.head },
       },
       {
-        center: [0, 1.942, 0.005],
-        radiusX: 0.118,
-        radiusZ: 0.12,
+        center: [0.008, 1.944, 0.003],
+        radiusX: 0.116,
+        radiusZ: 0.116,
         color: palette.hair,
         skin: { bone: boneIndex.head },
       },
       {
-        center: [0, 1.985, 0.002],
-        radiusX: 0.045,
-        radiusZ: 0.05,
+        center: [-0.012, 1.99, 0.0],
+        radiusX: 0.052,
+        radiusZ: 0.045,
         color: palette.hair,
         skin: { bone: boneIndex.head },
       },
     ],
-    18,
+    20,
     "end",
+    (position, normal, ringIndex) => {
+      // Slightly broken rings keep the crown from becoming a helmet. The
+      // offset is deterministic and low amplitude so facial sockets remain
+      // stable under animation.
+      position.x += Math.sin(ringIndex * 2.1 + normal.z * 3.4) * 0.009;
+      position.z +=
+        Math.sin(ringIndex * 1.7 + normal.x * 2.8) * 0.007 +
+        Math.max(0, normal.z) * 0.004;
+      return position;
+    },
   );
+  // Small overlapping crown/temple clumps break the procedural cap into an
+  // asymmetrical, swept hairline that survives the three-quarter camera.
+  for (const [x, y, z, rx, ry, rz, phase] of [
+    [-0.082, 1.954, 0.048, 0.052, 0.043, 0.04, 0.4],
+    [0.028, 1.997, 0.026, 0.066, 0.032, 0.045, 1.2],
+    [0.086, 1.962, 0.025, 0.044, 0.048, 0.037, 2.1],
+    [-0.115, 1.902, 0.064, 0.037, 0.067, 0.033, 2.8],
+    [0.118, 1.904, 0.055, 0.034, 0.06, 0.03, 3.5],
+  ] as const)
+    bodyBuilder.addEllipsoid(
+      [x, y, z],
+      [rx, ry, rz],
+      palette.hair,
+      { bone: boneIndex.head },
+      10,
+      7,
+      (position, normal) => {
+        position.x += Math.sin(position.y * 34 + phase) * 0.006;
+        position.z += Math.sin(position.x * 31 + phase) * 0.005;
+        if (normal.y < -0.25) position.y -= 0.004;
+        return position;
+      },
+    );
   for (const side of [-1, 1] as const)
     bodyBuilder.addTube(
       [
@@ -789,7 +898,7 @@ export function createAuthoredPilgrimHero(
         [side * 0.14, 1.83, 0.102],
         [side * 0.13, 1.775, 0.086],
       ],
-      0.018,
+      0.015,
       palette.hair,
       { bone: boneIndex.head },
       6,
@@ -809,7 +918,7 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const)
     bodyBuilder.addEllipsoid(
       [side * 0.052, 1.825, 0.156],
-      [0.019, 0.015, 0.012],
+      [0.016, 0.012, 0.01],
       palette.iris,
       { bone: boneIndex.head },
       10,
@@ -818,7 +927,7 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const) {
     bodyBuilder.addEllipsoid(
       [side * 0.052, 1.825, 0.169],
-      [0.0075, 0.0085, 0.005],
+      [0.006, 0.007, 0.004],
       palette.pupil,
       { bone: boneIndex.head },
       8,
@@ -838,10 +947,10 @@ export function createAuthoredPilgrimHero(
     const x = side * 0.052;
     bodyBuilder.addPatch(
       [
-        [x - 0.019, 1.833, 0.153],
-        [x + 0.019, 1.833, 0.153],
-        [x + 0.016, 1.818, 0.156],
-        [x - 0.016, 1.818, 0.156],
+        [x - 0.016, 1.831, 0.151],
+        [x + 0.016, 1.831, 0.151],
+        [x + 0.014, 1.82, 0.154],
+        [x - 0.014, 1.82, 0.154],
       ],
       palette.eyeWhite,
       { bone: boneIndex.head },
@@ -849,10 +958,10 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addPatch(
       [
-        [x - 0.0065, 1.832, 0.157],
-        [x + 0.0065, 1.832, 0.157],
-        [x + 0.0065, 1.819, 0.159],
-        [x - 0.0065, 1.819, 0.159],
+        [x - 0.0055, 1.83, 0.156],
+        [x + 0.0055, 1.83, 0.156],
+        [x + 0.0055, 1.82, 0.158],
+        [x - 0.0055, 1.82, 0.158],
       ],
       palette.iris,
       { bone: boneIndex.head },
@@ -942,26 +1051,28 @@ export function createAuthoredPilgrimHero(
     );
 
   // Continuous harness contact keeps burden visibly carried, not floating.
+  // Keep the front leather narrow and close to the tunic: broad bars read as
+  // chest armour and obscure the waist/torso planes in the v20 front render.
   for (const side of [-1, 1] as const)
     bodyBuilder.addTube(
       [
-        [side * 0.215, 1.53, 0.14],
-        [side * 0.195, 1.34, 0.18],
-        [side * 0.17, 1.12, 0.18],
-        [side * 0.15, 0.93, 0.15],
+        [side * 0.215, 1.53, 0.145],
+        [side * 0.205, 1.36, 0.177],
+        [side * 0.19, 1.13, 0.178],
+        [side * 0.17, 0.96, 0.155],
       ],
-      0.026,
+      0.014,
       palette.leather,
       { bone: boneIndex.chest, nextBone: boneIndex.pelvis, blend: 0.42 },
       7,
     );
   bodyBuilder.addTube(
     [
-      [-0.27, 1.28, 0.175],
-      [0, 1.25, 0.19],
-      [0.27, 1.28, 0.175],
+      [-0.245, 1.36, 0.178],
+      [0, 1.335, 0.188],
+      [0.245, 1.36, 0.178],
     ],
-    0.022,
+    0.012,
     palette.leather,
     { bone: boneIndex.chest },
     7,
@@ -989,7 +1100,7 @@ export function createAuthoredPilgrimHero(
       { center: [0, 0.98, 0], radiusX: 0.2, radiusZ: 0.135, color: palette.tunic, skin: { bone: 0 } },
       { center: [0, 1.28, 0], radiusX: 0.25, radiusZ: 0.16, color: palette.tunic, skin: { bone: 0 } },
       { center: [0, 1.52, 0], radiusX: 0.29, radiusZ: 0.18, color: palette.tunic, skin: { bone: 0 } },
-      { center: [0, 1.68, 0], radiusX: 0.18, radiusZ: 0.145, color: palette.skin, skin: { bone: 0 } },
+      { center: [0, 1.68, 0], radiusX: 0.12, radiusZ: 0.105, color: palette.skin, skin: { bone: 0 } },
     ],
     8,
   );
@@ -1003,6 +1114,33 @@ export function createAuthoredPilgrimHero(
       6,
     );
   }
+  // Preserve head/neck/shoulder cues when the far LOD is selected. These
+  // small masses keep a rear thumbnail from collapsing into load plus legs.
+  bodyFarBuilder.addLoft(
+    [
+      { center: [0, 1.57, 0], radiusX: 0.095, radiusZ: 0.09, color: palette.skinShadow, skin: { bone: 0 } },
+      { center: [0, 1.72, 0], radiusX: 0.085, radiusZ: 0.08, color: palette.skin, skin: { bone: 0 } },
+    ],
+    6,
+  );
+  bodyFarBuilder.addEllipsoid(
+    [0, 1.84, 0],
+    [0.125, 0.145, 0.12],
+    palette.skin,
+    { bone: 0 },
+    10,
+    7,
+  );
+  for (const side of [-1, 1] as const)
+    bodyFarBuilder.addLoft(
+      [
+        { center: [side * 0.28, 1.44, 0], radiusX: 0.08, radiusZ: 0.075, color: palette.linen, skin: { bone: 0 } },
+        { center: [side * 0.31, 1.18, 0.01], radiusX: 0.058, radiusZ: 0.055, color: palette.linenShadow, skin: { bone: 0 } },
+        { center: [side * 0.315, 0.96, 0.02], radiusX: 0.046, radiusZ: 0.044, color: palette.skin, skin: { bone: 0 } },
+      ],
+      5,
+      false,
+    );
   const bodyFarMesh = new Mesh(
     bodyFarBuilder.toGeometry("hero.authored.body.far.geometry"),
     bodyMaterial,
@@ -1046,11 +1184,20 @@ export function createAuthoredPilgrimHero(
   socket("rightFootGround", rightAnkle, [0, -0.14, 0.08]);
 
   const burdenBuilder = new AuthoredGeometryBuilder();
+  const moveLoadTowardScapula = (geometry: BufferGeometry, offset: number) => {
+    const positions = geometry.getAttribute("position");
+    for (let index = 0; index < positions.count; index += 1)
+      positions.setZ(index, positions.getZ(index) + offset);
+    positions.needsUpdate = true;
+    geometry.computeVertexNormals();
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+  };
   burdenBuilder.addLoft(
     [
       {
-        center: [-0.07, -0.52, -0.012],
-        radiusX: 0.14,
+        center: [-0.08, -0.56, -0.05],
+        radiusX: 0.12,
         // Flatten depth against the lumbar curve. Width stays generous in X
         // so the front silhouette reads as a load, while profile no longer
         // reads as a rigid shell strapped several inches off Christian's
@@ -1060,35 +1207,35 @@ export function createAuthoredPilgrimHero(
         skin: { bone: 0 },
       },
       {
-        center: [-0.045, -0.4, -0.028],
-        radiusX: 0.23,
-        radiusZ: 0.14,
-        color: burdenCloth,
-        skin: { bone: 0 },
-      },
-      {
-        center: [-0.02, -0.12, -0.038],
-        radiusX: 0.27,
-        radiusZ: 0.16,
-        color: new Color(burdenCloth).lerp(new Color("#5a4637"), 0.18),
-        skin: { bone: 0 },
-      },
-      {
-        center: [0.035, 0.13, -0.025],
-        radiusX: 0.255,
-        radiusZ: 0.15,
-        color: new Color(burdenCloth).lerp(new Color("#b19779"), 0.14),
-        skin: { bone: 0 },
-      },
-      {
-        center: [0.085, 0.36, -0.012],
-        radiusX: 0.175,
+        center: [-0.055, -0.42, -0.062],
+        radiusX: 0.18,
         radiusZ: 0.12,
         color: burdenCloth,
         skin: { bone: 0 },
       },
       {
-        center: [0.12, 0.43, -0.006],
+        center: [-0.02, -0.12, -0.072],
+        radiusX: 0.205,
+        radiusZ: 0.13,
+        color: new Color(burdenCloth).lerp(new Color("#5a4637"), 0.18),
+        skin: { bone: 0 },
+      },
+      {
+        center: [0.045, 0.15, -0.062],
+        radiusX: 0.195,
+        radiusZ: 0.125,
+        color: new Color(burdenCloth).lerp(new Color("#8b725b"), 0.06),
+        skin: { bone: 0 },
+      },
+      {
+        center: [0.08, 0.31, -0.046],
+        radiusX: 0.16,
+        radiusZ: 0.11,
+        color: burdenCloth,
+        skin: { bone: 0 },
+      },
+      {
+        center: [0.12, 0.36, -0.035],
         radiusX: 0.07,
         radiusZ: 0.07,
         color: palette.burdenShadow,
@@ -1109,6 +1256,28 @@ export function createAuthoredPilgrimHero(
       position.z +=
         sag * (0.25 + Math.abs(normal.z) * 0.75) +
         Math.sin(position.y * 15 + normal.x * 3.1) * 0.014;
+      // A shallow rear-facing center seam separates the stuffed lobes. It is
+      // enough to catch grazing light without cutting a visible front gap.
+      if (normal.z < -0.3) {
+        const lobeGap = Math.max(0, 1 - Math.abs(position.x) / 0.21);
+        position.z -= lobeGap * 0.034;
+      }
+      return position;
+    },
+  );
+  // A dark padded saddle overlaps the upper back instead of leaving the
+  // profile's beige air wedge between tunic and load. It is part of the same
+  // burden primitive and follows the burden socket with every pose.
+  burdenBuilder.addEllipsoid(
+    [0, 0.27, 0.02],
+    [0.26, 0.075, 0.07],
+    palette.burdenShadow,
+    { bone: 0 },
+    16,
+    8,
+    (position, normal) => {
+      if (normal.z > 0.05) position.z += 0.012;
+      position.x += Math.sin(position.y * 24 + position.z * 13) * 0.006;
       return position;
     },
   );
@@ -1116,13 +1285,14 @@ export function createAuthoredPilgrimHero(
   // They share the burden geometry/material budget while giving the cloth a
   // tied, asymmetrical shoulder silhouette from front, profile, and rear.
   for (const [x, y, rx, ry, rz, phase] of [
-    // Uneven lobes keep the sack hand-tied. Their Z radii stay compressed so
-    // profile sees cloth settling onto the scapulae instead of a shield.
-    [-0.16, 0.18, 0.2, 0.22, 0.115, 0.4],
-    [0.15, 0.1, 0.19, 0.24, 0.125, 1.9],
+    // Two broad vertical lobes (upper shoulder pack + weighted lower pack)
+    // leave a visible concave gutter down the center without becoming four
+    // disconnected balloon primitives in the rear silhouette.
+    [-0.045, 0.08, 0.29, 0.22, 0.12, 0.4],
+    [0.05, -0.19, 0.285, 0.3, 0.125, 2.3],
   ] as const)
     burdenBuilder.addEllipsoid(
-      [x, y, -0.04],
+      [x, y, -0.078],
       [rx, ry, rz],
       (normal, position) => {
         position.x += Math.sin(position.y * 23 + phase) * 0.012;
@@ -1136,9 +1306,9 @@ export function createAuthoredPilgrimHero(
       14,
     );
   for (const [y, radiusX, radiusZ] of [
-    [-0.25, 0.21, 0.13],
-    [0.0, 0.25, 0.15],
-    [0.2, 0.21, 0.13],
+    [-0.27, 0.24, 0.12],
+    [0.0, 0.29, 0.135],
+    [0.2, 0.25, 0.12],
   ] as const)
     burdenBuilder.addTube(
       ellipseLoop([0, y, 0], [radiusX, 0, radiusZ], "xz", 30),
@@ -1148,9 +1318,9 @@ export function createAuthoredPilgrimHero(
       5,
       true,
     );
-  for (const x of [-0.095, 0.095])
+  for (const x of [-0.115, 0.11])
     burdenBuilder.addTube(
-      ellipseLoop([x, -0.01, 0], [0, 0.27, 0.14], "yz", 30),
+      ellipseLoop([x, -0.01, -0.045], [0, 0.29, 0.145], "yz", 30),
       0.011,
       palette.rope,
       { bone: 0 },
@@ -1160,12 +1330,12 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const)
     burdenBuilder.addTube(
       [
-        [side * 0.1, 0.27, 0.01],
-        [side * 0.14, 0.21, 0.072],
-        [side * 0.16, 0.1, 0.112],
-        [side * 0.14, -0.08, 0.1],
-        [side * 0.17, -0.2, 0.075],
-        [side * 0.14, -0.28, 0.024],
+        [side * 0.12, 0.3, -0.01],
+        [side * 0.16, 0.22, 0.06],
+        [side * 0.19, 0.1, 0.1],
+        [side * 0.18, -0.08, 0.085],
+        [side * 0.2, -0.22, 0.055],
+        [side * 0.17, -0.3, 0.0],
       ],
       0.014,
       palette.leather,
@@ -1175,15 +1345,15 @@ export function createAuthoredPilgrimHero(
   // Irregular cloth folds replace the old flat rear panel. The sack should
   // compress under the rope, not read as a shield bolted to Christian's back.
   for (const [x, top, bottom] of [
-    [-0.12, 0.24, -0.26],
-    [0.06, 0.28, -0.34],
-    [0.15, 0.17, -0.21],
+    [-0.15, 0.27, -0.3],
+    [0.04, 0.3, -0.38],
+    [0.18, 0.2, -0.24],
   ] as const)
     burdenBuilder.addTube(
       [
-        [x, top, -0.15],
-        [x + (x < 0 ? -0.022 : 0.016), (top + bottom) * 0.45, -0.175],
-        [x + (x < 0 ? 0.012 : -0.014), bottom, -0.145],
+        [x, top, -0.17],
+        [x + (x < 0 ? -0.028 : 0.02), (top + bottom) * 0.45, -0.198],
+        [x + (x < 0 ? 0.016 : -0.018), bottom, -0.16],
       ],
       0.014,
       burdenFold,
@@ -1192,10 +1362,10 @@ export function createAuthoredPilgrimHero(
     );
   burdenBuilder.addTube(
     [
-      [0, 0.29, -0.18],
-      [0.012, 0.08, -0.195],
-      [-0.018, -0.18, -0.18],
-      [0, -0.4, -0.15],
+      [0, 0.31, -0.2],
+      [0.012, 0.08, -0.218],
+      [-0.018, -0.2, -0.204],
+      [0, -0.44, -0.17],
     ],
     0.012,
     palette.rope,
@@ -1277,21 +1447,39 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const)
     burdenBuilder.addTube(
       [
-        [side * 0.19, 0.34, -0.12],
-        [side * 0.23, 0.14, -0.16],
-        [side * 0.24, -0.14, -0.16],
-        [side * 0.2, -0.38, -0.12],
+        // Crown -> shoulder contact -> under-arm -> lower load. The positive
+        // Z shoulder segment intentionally overlaps the padded saddle and
+        // the body-side front strap, eliminating a floating termination in
+        // profile while remaining outside the chest centerline.
+        [side * 0.18, 0.4, 0.01],
+        [side * 0.27, 0.23, 0.085],
+        [side * 0.29, -0.02, 0.095],
+        [side * 0.27, -0.25, 0.075],
+        [side * 0.21, -0.44, 0.015],
       ],
-      0.018,
+      0.016,
       palette.leather,
       { bone: 0 },
       6,
     );
+  // Lower load belt transfers the weight into the waist instead of stopping
+  // in mid-cloth. It is intentionally below the rear rope band.
   burdenBuilder.addTube(
     [
-      [-0.27, 0.12, -0.16],
-      [0, 0.08, -0.18],
-      [0.27, 0.12, -0.16],
+      [-0.29, -0.34, 0.015],
+      [0, -0.37, 0.055],
+      [0.29, -0.34, 0.015],
+    ],
+    0.016,
+    palette.leather,
+    { bone: 0 },
+    6,
+  );
+  burdenBuilder.addTube(
+    [
+      [-0.27, 0.12, -0.11],
+      [0, 0.08, -0.14],
+      [0.27, 0.12, -0.11],
     ],
     0.018,
     palette.rope,
@@ -1301,6 +1489,10 @@ export function createAuthoredPilgrimHero(
   const burdenGeometry = burdenBuilder.toGeometry(
     "hero.authored.burden.geometry",
   );
+  // The burden socket stays stable for gameplay attachments, while its local
+  // cloth/strap assembly seats forward into the scapulae. This keeps the
+  // whole primitive behind the torso but removes the visible profile gap.
+  moveLoadTowardScapula(burdenGeometry, 0.055);
   const burdenMaterial = createVertexMaterial(
     "hero.authored.burden.material",
     0.94,
@@ -1311,17 +1503,30 @@ export function createAuthoredPilgrimHero(
   const burdenFarBuilder = new AuthoredGeometryBuilder();
   burdenFarBuilder.addLoft(
     [
-      { center: [-0.035, -0.48, -0.01], radiusX: 0.14, radiusZ: 0.1, color: palette.burdenShadow, skin: { bone: 0 } },
-      { center: [0, -0.18, -0.02], radiusX: 0.25, radiusZ: 0.16, color: burdenCloth, skin: { bone: 0 } },
-      { center: [0.025, 0.16, -0.015], radiusX: 0.24, radiusZ: 0.15, color: burdenCloth, skin: { bone: 0 } },
-      { center: [0.05, 0.38, -0.01], radiusX: 0.16, radiusZ: 0.1, color: palette.burdenShadow, skin: { bone: 0 } },
+      { center: [-0.035, -0.48, -0.04], radiusX: 0.11, radiusZ: 0.09, color: palette.burdenShadow, skin: { bone: 0 } },
+      { center: [0, -0.18, -0.055], radiusX: 0.17, radiusZ: 0.12, color: burdenCloth, skin: { bone: 0 } },
+      { center: [0.025, 0.16, -0.05], radiusX: 0.18, radiusZ: 0.12, color: burdenCloth, skin: { bone: 0 } },
+      { center: [0.05, 0.31, -0.035], radiusX: 0.12, radiusZ: 0.085, color: palette.burdenShadow, skin: { bone: 0 } },
     ],
     8,
   );
+  for (const [x, y, rx, ry, rz] of [
+    [-0.03, 0.08, 0.24, 0.19, 0.1],
+    [0.04, -0.2, 0.235, 0.25, 0.105],
+  ] as const)
+    burdenFarBuilder.addEllipsoid(
+      [x, y, -0.07],
+      [rx, ry, rz],
+      burdenCloth,
+      { bone: 0 },
+      10,
+      7,
+    );
   const burdenFarMesh = new Mesh(
     burdenFarBuilder.toGeometry("hero.authored.burden.far.geometry"),
     burdenMaterial,
   );
+  moveLoadTowardScapula(burdenFarMesh.geometry, 0.055);
   burdenFarMesh.name = "hero.mesh.authored-burden-far";
   burdenFarMesh.castShadow = true;
   const burdenLod = new LOD();
@@ -1333,6 +1538,11 @@ export function createAuthoredPilgrimHero(
   // Keep sack front plane behind Christian's scapulae. Earlier versions let
   // depth wrap around torso, making burden read like chest armor.
   burdenVisual.position.set(0, -0.1, -0.08);
+  // A real tied pack is broad at the shoulders but compresses toward the
+  // spine in profile. Scale the authored cloth as a single unit so the ropes,
+  // knot, and lower belt keep their relative contact while the load stops
+  // reading like a rigid shield behind the head.
+  burdenVisual.scale.set(0.88, 1.04, 0.76);
   burdenVisual.add(burdenLod);
   backBurden.add(burdenVisual);
   const burdenHarness = burdenVisual;

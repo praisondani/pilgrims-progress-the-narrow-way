@@ -60,9 +60,13 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v20 img2threejs procedural anatomy/face and compressed burden pass
-  with fresh front/profile/rear/96 px critic evidence; 3.4/10 visual critic
-  fail, external sculpt/GLB remains the target
+- Christian v22 img2threejs procedural anatomy/face, compacted adult head, and
+  compressed burden pass with fresh front/profile/rear/96 px critic evidence;
+  the independent runtime critic scores 5.3/10 (materially above v20, but
+  still below the Kena/Pathless/RiME bar). The single remaining hero gap is
+  the chibi adultness mismatch: body proportions and facial character still
+  read toy-like versus the adult Christian reference. A licensed sculpt/GLB
+  remains the long-term target.
 - City v5 runtime critic review complete: clear lift to 5.1/10, cue/interact
   flow still passes, and follow-up draw budgets are green at 150 desktop / 98
   mobile p95. Visual bar still fails: architecture remains flat-color low-poly,
@@ -81,5 +85,5 @@
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
 5. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
-6. Build licensed GLB hero pipeline; replace characters scene by scene
+6. Continue the hero adult-proportion/face pass, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

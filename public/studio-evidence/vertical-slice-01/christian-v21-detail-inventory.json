@@ -1,0 +1,26 @@
+{
+  "asset": "christian-hero-v21",
+  "scanMethod": "component-zones",
+  "targetMinDetails": 16,
+  "source": "/studio-evidence/hero-reference/christian-turnaround-v1.png",
+  "details": [
+    {"id":"face-jaw","kind":"contour","region":"front head","scale":"meso","affects":"geometry","mapsTo":"head.localFeatures.jaw-taper","confidence":0.9},
+    {"id":"brow-ridge","kind":"ridge","region":"front head","scale":"micro","affects":"geometry","mapsTo":"head.localFeatures.brow-plane","confidence":0.84},
+    {"id":"eye-catchlights","kind":"gloss","region":"front head","scale":"micro","affects":"material","mapsTo":"skin.localOverrides.eye-catchlight","confidence":0.76},
+    {"id":"nose-bridge","kind":"ridge","region":"front head","scale":"meso","affects":"geometry","mapsTo":"head.localFeatures.nose-bridge","confidence":0.87},
+    {"id":"beard-moustache","kind":"contour","region":"front head","scale":"meso","affects":"geometry","mapsTo":"head.localFeatures.beard-and-moustache","confidence":0.91},
+    {"id":"swept-hairline","kind":"contour","region":"front/profile head","scale":"meso","affects":"geometry","mapsTo":"hair.localFeatures.swept-clumps","confidence":0.88},
+    {"id":"linen-collar","kind":"seam","region":"upper chest","scale":"meso","affects":"geometry","mapsTo":"torso.localFeatures.linen-collar","confidence":0.9},
+    {"id":"tunic-folds","kind":"ridge","region":"front tunic","scale":"meso","affects":"geometry","mapsTo":"torso.localFeatures.vertical-folds","confidence":0.87},
+    {"id":"tunic-hem","kind":"stain","region":"lower tunic","scale":"micro","affects":"material","mapsTo":"tunic.localOverrides.worn-hem","confidence":0.8},
+    {"id":"front-harness","kind":"seam","region":"chest/waist","scale":"meso","affects":"geometry","mapsTo":"harness.localFeatures.front-straps","confidence":0.94},
+    {"id":"hand-fingers","kind":"contour","region":"both hands","scale":"meso","affects":"geometry","mapsTo":"hands.localFeatures.finger-and-thumb-silhouette","confidence":0.83},
+    {"id":"knee-folds","kind":"ridge","region":"trousers","scale":"micro","affects":"geometry","mapsTo":"trousers.localFeatures.knee-folds","confidence":0.79},
+    {"id":"ankle-wraps","kind":"seam","region":"lower legs","scale":"meso","affects":"geometry","mapsTo":"leg-wrap.localFeatures.wrap-bands","confidence":0.9},
+    {"id":"boot-sole","kind":"bevel","region":"both boots","scale":"meso","affects":"geometry","mapsTo":"boots.localFeatures.raised-sole","confidence":0.88},
+    {"id":"burden-two-lobes","kind":"contour","region":"profile/back","scale":"macro","affects":"geometry","mapsTo":"burden.localFeatures.asymmetric-stuffed-lobes","confidence":0.95},
+    {"id":"burden-cinch","kind":"seam","region":"profile/back","scale":"meso","affects":"geometry","mapsTo":"burden.localFeatures.rope-cinch-and-center-seam","confidence":0.94},
+    {"id":"burden-cloth-wear","kind":"stain","region":"back load","scale":"micro","affects":"material","mapsTo":"burden.localOverrides.charcoal-wool-wear","confidence":0.81},
+    {"id":"shoulder-straps","kind":"seam","region":"profile/back","scale":"meso","affects":"geometry","mapsTo":"burden-harness.localFeatures.shoulder-to-waist-straps","confidence":0.93}
+  ]
+}

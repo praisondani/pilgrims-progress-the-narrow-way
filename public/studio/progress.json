@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T02:28:00-05:00",
+  "updatedAt": "2026-08-10T03:24:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v20 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v22 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -25,10 +25,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-11-required",
+        "status": "iteration-12-critic-failed",
         "builder": "ultracode hero builder",
-        "critic": "fresh runtime critic — fail, 3.4/10, comparison v20",
-        "largestGap": "v20 adds a cinched mouth, offset knot, loose tie ends, stronger cloth relief, and compressed scapula depth, but the fresh critic still sees a toy/procedural adult face, cylindrical anatomy, mitten hands, and a rigid brown shield in profile/rear. At 96 px the Christian silhouette collapses to load plus legs; 13,732 triangles remain below the 19–24k authored target and a licensed GLB is still required."
+        "critic": "fresh runtime critic — fail, 5.3/10, comparison v22",
+        "largestGap": "v22 materially improves v20 with a compacted head hierarchy, narrowed chest, darker compressed burden, continuous straps, clearer rear silhouette, and stronger 96 px readability. The single remaining gap is the chibi adultness mismatch: body proportions and facial character still read toy-like versus the adult Christian reference. Materials remain flat and a licensed GLB is still the long-term target."
       },
       {
         "id": "dream",
@@ -293,6 +293,22 @@
         "label": "Christian v20 — rear 96 px silhouette crop",
         "path": "/studio-evidence/vertical-slice-01/christian-v20-back-96.png"
       },
+      {
+        "label": "Christian v22 — adult-proportion front critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v22-front.png"
+      },
+      {
+        "label": "Christian v22 — compact burden profile critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v22-profile.png"
+      },
+      {
+        "label": "Christian v22 — rear burden contact critic capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v22-back.png"
+      },
+      {
+        "label": "Christian v22 — reference comparison sheet",
+        "path": "/studio-evidence/vertical-slice-01/christian-v22-comparison.png"
+      },
     {
       "label": "Dream loop 5 — moonlit S-curve",
       "path": "/studio-evidence/vertical-slice-01/dream-loop5-runtime-water-v2.jpg"
@@ -403,7 +419,7 @@
     "fullJourney": "Exhaustive Dream → Celestial City real-controls journey 1/1 pass (25.3m) across all 30 scenes; it now includes the low-FPS guided-route and cross-scene spawn-reset hardening.",
     "bundleBudget": "4.37 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
-    "img2threejs": "Christian v20 procedural reconstruction with near/far LOD proxies, narrowed/tapered anatomy, embedded facial volume, compressed burden depth, asymmetric lobes, cinched mouth, rope contact, and animated load settling; fresh runtime critic scores 3.4/10 and fails the studio bar; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates pass and City draw budgets pass, but v20 hero and City v5 critics fail the visual bar; City still needs authored materials, skyline life, and atmosphere"
+    "img2threejs": "Christian v22 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, narrowed chest, embedded facial volume, compressed charcoal burden, asymmetric stuffed lobes, continuous rope/leather contact, and animated load settling; fresh runtime critic scores 5.3/10 and fails the studio bar on chibi adultness; no production GLB is accepted yet",
+    "deployment": "not authorized for studio release: gameplay/regression gates pass and City draw budgets pass, but v22 hero and City v5 critics fail the visual bar; City still needs authored materials, skyline life, and atmosphere"
   }
 }

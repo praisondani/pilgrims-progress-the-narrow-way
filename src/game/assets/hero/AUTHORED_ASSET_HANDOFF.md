@@ -1,6 +1,6 @@
 # Christian production asset handoff
 
-The current v20 procedural reconstruction is a reviewed runtime prototype, not
+The current v22 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It now keeps Christian's burden behind his scapulae,
 uses two asymmetric cloth lobes with compression folds, rope contact, and
 deterministic cloth relief, embeds facial volume in the skinned body draw, and
@@ -10,6 +10,10 @@ adds embedded orbital, cheek, brow, nose, beard, moustache, lip, and chin
 volumes. The v20 burden pass compresses profile depth, gathers the crown with a
 cinch, and adds an offset knot with loose tie ends. The comparison remains
 below the acceptance bar:
+
+V22 additionally compacts the full head hierarchy, reduces the chest barrel,
+darkens the burden toward the charcoal reference, and scales the pack depth
+against the scapula while preserving the runtime sockets and LOD contract.
 
 - reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
 - v18 front render: `public/studio-evidence/vertical-slice-01/christian-v18-front.png`
@@ -24,13 +28,17 @@ below the acceptance bar:
 - v20 loaded gameplay render: `public/studio-evidence/vertical-slice-01/christian-v20-gameplay-loaded.png`
 - v20 loaded 96 px crop: `public/studio-evidence/vertical-slice-01/christian-v20-gameplay-loaded-96.png`
 - v20 96 px montage: `public/studio-evidence/vertical-slice-01/christian-v20-96-montage.png`
+- v22 front critic render: `public/studio-evidence/vertical-slice-01/christian-v22-front.png`
+- v22 profile critic render: `public/studio-evidence/vertical-slice-01/christian-v22-profile.png`
+- v22 rear critic render: `public/studio-evidence/vertical-slice-01/christian-v22-back.png`
+- v22 reference comparison: `public/studio-evidence/vertical-slice-01/christian-v22-comparison.png`
 - staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
 
-The fresh v20 runtime critic scores 3.4/10 and fails the Loop 5 acceptance bar.
-The adult face/anatomy remain toy-like, profile/rear still read as a rigid brown
-shield, and the 96 px silhouette collapses to load plus legs. v20 geometry is
-13,732 triangles (body 8,450; burden 3,966; roll 364; equipment 952), with four
-draws and four materials; body and roll remain below their authored targets.
+The fresh v22 runtime critic scores 5.3/10 and fails the Loop 5 acceptance bar.
+The largest remaining gap is the chibi adultness mismatch: body proportions and
+facial character still read toy-like against the adult Christian reference.
+V22 geometry remains a four-draw procedural fallback; the licensed sculpt/GLB
+target is still required for final visual sign-off.
 The procedural fallback remains useful for API/rig and gameplay while an
 external DCC-authored character/GLB is produced.
 The procedural BufferGeometry remains useful as the API/rig and gameplay

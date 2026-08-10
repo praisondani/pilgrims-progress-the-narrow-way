@@ -1,0 +1,16 @@
+{
+  "asset": "christian-hero-v21",
+  "reference": "/studio-evidence/hero-reference/christian-turnaround-v1.png",
+  "pipeline": "img2threejs",
+  "source": "reference-pixel-extraction",
+  "multiViewReference": true,
+  "confidence": 0.93,
+  "targetThreshold": 0.7,
+  "verdict": "pass-with-single-image-limitation",
+  "palette": ["#382B25", "#633E2F", "#191310", "#C1A58A", "#876952"],
+  "mapChannels": ["albedo", "roughness", "height", "normal", "ao"],
+  "roughnessBase": 0.707,
+  "roughnessVariation": 0.121,
+  "normalStrength": 0.226,
+  "limitation": "Reference-derived estimates are not inverse rendering or a licensed production texture set; browser review remains authoritative."
+}
