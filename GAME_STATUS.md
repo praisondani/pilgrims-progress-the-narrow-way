@@ -50,10 +50,11 @@
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending
-- City of Destruction v4 environment kit integrated with preserved story
+- City of Destruction v5 environment kit integrated with preserved story
   targets: varied steep/broad facades and roofs, framed window recesses,
-  awnings, door surrounds, layered threshold masonry, cobbles, market dressing,
-  skyline depth, street lamps/signs/debris, and threshold lantern
+  restrained facade/road wear, target-safe planters, instanced market citizens,
+  banners/crest, layered threshold masonry, cobbles, market dressing, skyline
+  depth, street lamps/signs/debris, and threshold lantern
 
 ## In progress
 
@@ -62,9 +63,10 @@
 - Christian v20 img2threejs procedural anatomy/face and compressed burden pass
   with fresh front/profile/rear/96 px critic evidence; 3.4/10 visual critic
   fail, external sculpt/GLB remains the target
-- City v4 runtime critic review complete: cohesive chapter and clear v3 gain,
-  but 4.6/10 visual-bar fail; authored material breakup, foliage, people,
-  atmospheric depth, and stronger threshold storytelling remain
+- City v5 runtime critic review complete: clear lift to 5.1/10, cue/interact
+  flow still passes, and follow-up draw budgets are green at 150 desktop / 98
+  mobile p95. Visual bar still fails: architecture remains flat-color low-poly,
+  with weak material breakup, skyline life, and authored atmosphere
 
 ## Blocked
 
@@ -74,7 +76,7 @@
 
 ## Next
 
-1. Give City v4 a material/foliage/atmosphere pass, then re-run blind runtime critique
+1. Give City v5 a true material/skyline/atmosphere pass, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test

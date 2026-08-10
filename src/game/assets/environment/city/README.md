@@ -6,6 +6,11 @@ timber framing, windows, chimneys, paving, market stalls, and skyline masses.
 Facade and roof batches use steep and broad authored profiles; framed window
 recesses, awnings, door surrounds, and a layered central wall keep the threshold
 readable at market and leave-city approaches.
+The v5 pass adds restrained facade/road wear, target-safe planters, quality-scaled
+market citizens, hanging threshold banners, and a gold gate crest. Citizens and
+planters use instanced parts so the added life stays inside the desktop/mobile
+draw-call budgets; low quality keeps one citizen, one planter, and one debris
+cluster.
 
 The threshold keeps Dream continuity through the same warm lantern language and
 stone landmark silhouette. `CityEnvironmentKit` filters only visual building

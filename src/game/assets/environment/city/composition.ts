@@ -101,6 +101,25 @@ export const CITY_DEBRIS_POSITIONS: readonly CityPoint2[] = [
   [2.4, 3.2],
 ] as const;
 
+export const CITY_ROAD_WEAR_POSITIONS: readonly CityPoint2[] = [
+  [-0.68, 2.8],
+  [0.72, 1.8],
+  [-0.66, -2.35],
+  [0.58, -3.35],
+] as const;
+
+export const CITY_PLANTER_POSITIONS: readonly CityPoint2[] = [
+  [-3.05, -2.8],
+  [2.82, 2.55],
+  [-2.58, 3.4],
+] as const;
+
+export const CITY_MARKET_CITIZEN_POSITIONS: readonly CityPoint2[] = [
+  [1.95, 2.4],
+  [-2.5, 3.65],
+  [2.78, -3.2],
+] as const;
+
 /** Low-profile street stones avoid blocking any interaction target. */
 export const CITY_STREET_STONES: readonly CityPoint2[] = [
   [-0.68, 6.1],

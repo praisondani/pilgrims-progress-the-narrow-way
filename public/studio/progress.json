@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T01:48:00-05:00",
+  "updatedAt": "2026-08-10T02:28:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v20 hero and City v4 remain visual-bar fails, with City now ready for a material/foliage depth pass.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v20 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-4-critic-failed",
+        "status": "iteration-5-critic-failed-performance-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critic — fail, 4.6/10, v4 comparison",
-        "largestGap": "v4 adds steep/broad facade and roof profiles, framed window recesses, awnings, door surrounds, layered threshold masonry, market props, lamps, signs, and target-safe debris. Runtime interaction and mobile/desktop framing pass, and v4 clearly beats v3, but surfaces still read as flat-color low-poly boxes: no material breakup or wear, sparse foliage/people/skyline life, weak atmospheric depth, and limited threshold storytelling. Desktop production preview measured 5.67s ready, 2.0 FPS headless, 127 draw calls p95, 24,744 triangles p95; mobile 4.99s, 3.7 FPS, 90 draws p95, 23,208 triangles p95."
+        "critic": "fresh runtime critic — fail, 5.1/10, v5 comparison; perf follow-up within budget",
+        "largestGap": "v5 adds restrained facade/road wear, target-safe planters, instanced market citizens, stronger banners/crest, and richer street life while preserving cue/interact flow. The harsh critic still sees flat-color low-poly architecture with weak material breakup, sparse skyline life, and insufficient authored atmosphere versus Kena/Pathless/RiME. Performance follow-up measures 7.08s desktop / 4.84s mobile headless ready, 150 desktop / 98 mobile draw calls p95, and 28,308 / 24,772 triangles p95; these are SwiftShader evidence, not hardware FPS."
       },
       {
         "id": "wicket-gate",
@@ -368,6 +368,30 @@
     {
       "label": "City v4 critic — mobile verdict",
       "path": "/studio-evidence/vertical-slice-01/city-v4-critic-mobile.png"
+    },
+    {
+      "label": "City v5 runtime — authored life and threshold dressing",
+      "path": "/studio-evidence/vertical-slice-01/city-v5-desktop.png"
+    },
+    {
+      "label": "City v5 runtime — mobile low-tier dressing",
+      "path": "/studio-evidence/vertical-slice-01/city-v5-mobile.png"
+    },
+    {
+      "label": "City v5 critic — visual verdict",
+      "path": "/studio-evidence/vertical-slice-01/city-v5-critic.png"
+    },
+    {
+      "label": "City v5 critic — mobile visual verdict",
+      "path": "/studio-evidence/vertical-slice-01/city-v5-critic-mobile.png"
+    },
+    {
+      "label": "City v5 optimized runtime — desktop",
+      "path": "/studio-evidence/vertical-slice-01/city-v5-optimized-critic.png"
+    },
+    {
+      "label": "City v5 optimized runtime — mobile",
+      "path": "/studio-evidence/vertical-slice-01/city-v5-optimized-critic-mobile.png"
     }
   ],
   "gates": {
@@ -380,6 +404,6 @@
     "bundleBudget": "4.37 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v20 procedural reconstruction with near/far LOD proxies, narrowed/tapered anatomy, embedded facial volume, compressed burden depth, asymmetric lobes, cinched mouth, rope contact, and animated load settling; fresh runtime critic scores 3.4/10 and fails the studio bar; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates pass, but v20 hero and City v4 critics fail the visual bar; City needs authored materials, foliage, life, and atmosphere before release"
+    "deployment": "not authorized for studio release: gameplay/regression gates pass and City draw budgets pass, but v20 hero and City v5 critics fail the visual bar; City still needs authored materials, skyline life, and atmosphere"
   }
 }

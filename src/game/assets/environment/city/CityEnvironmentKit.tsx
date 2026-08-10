@@ -3,8 +3,11 @@ import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import {
   BoxGeometry,
+  CapsuleGeometry,
   Color,
+  ConeGeometry,
   CylinderGeometry,
+  DodecahedronGeometry,
   ExtrudeGeometry,
   Group,
   InstancedMesh,
@@ -18,8 +21,11 @@ import {
   CITY_BUILDING_SITES,
   CITY_DEBRIS_POSITIONS,
   CITY_LANDMARK_ANCHORS,
+  CITY_MARKET_CITIZEN_POSITIONS,
   CITY_MARKET_STALL_POSITIONS,
+  CITY_PLANTER_POSITIONS,
   CITY_QUALITY_COUNTS,
+  CITY_ROAD_WEAR_POSITIONS,
   CITY_SIGN_POSITIONS,
   CITY_STREET_LAMP_POSITIONS,
   CITY_STREET_STONES,
@@ -130,6 +136,41 @@ const CITY_COBBLE_MATERIAL = new MeshStandardMaterial({
   color: "#5b555d",
   roughness: 1,
 });
+const CITY_FACADE_WEAR_MATERIAL = new MeshStandardMaterial({
+  color: "#ffffff",
+  roughness: 1,
+  vertexColors: true,
+});
+const CITY_ROAD_WEAR_MATERIAL = new MeshStandardMaterial({
+  color: "#58444a",
+  roughness: 1,
+  vertexColors: true,
+});
+const CITY_PLANTER_MATERIAL = new MeshStandardMaterial({
+  color: "#9b5c43",
+  roughness: 0.94,
+});
+const CITY_FOLIAGE_MATERIAL = new MeshStandardMaterial({
+  color: "#6d8b54",
+  roughness: 0.98,
+});
+const CITY_BANNER_MATERIAL = new MeshStandardMaterial({
+  color: "#c77755",
+  roughness: 0.92,
+  side: 2,
+});
+const CITY_BANNER_DARK_MATERIAL = new MeshStandardMaterial({
+  color: "#5b3d4b",
+  roughness: 0.94,
+  side: 2,
+});
+const CITY_CREST_MATERIAL = new MeshStandardMaterial({
+  color: "#d2a45f",
+  emissive: "#7f482c",
+  emissiveIntensity: 0.55,
+  roughness: 0.56,
+  metalness: 0.24,
+});
 
 type CityBuildingProfile = "steep" | "broad";
 
@@ -237,8 +278,10 @@ function placeLocal(
 
 function CityBuildingBatches({
   sites,
+  mobile,
 }: {
   sites: readonly CityBuildingSite[];
+  mobile: boolean;
 }) {
   const facade = useRef<InstancedMesh>(null);
   const facadeAlt = useRef<InstancedMesh>(null);
@@ -248,6 +291,7 @@ function CityBuildingBatches({
   const windows = useRef<InstancedMesh>(null);
   const windowTrim = useRef<InstancedMesh>(null);
   const awnings = useRef<InstancedMesh>(null);
+  const facadeWear = useRef<InstancedMesh>(null);
   const doors = useRef<InstancedMesh>(null);
   const doorFrames = useRef<InstancedMesh>(null);
   const chimneys = useRef<InstancedMesh>(null);
@@ -262,6 +306,7 @@ function CityBuildingBatches({
       window: new BoxGeometry(1, 1, 1),
       windowTrim: new BoxGeometry(1, 1, 1),
       awning: new BoxGeometry(1, 1, 1),
+      wear: new BoxGeometry(1, 1, 1),
       door: new BoxGeometry(1, 1, 1),
       doorFrame: new BoxGeometry(1, 1, 1),
       chimney: new BoxGeometry(1, 1, 1),
@@ -274,6 +319,7 @@ function CityBuildingBatches({
     const windowTransforms: LocalTransform[] = [];
     const windowTrimTransforms: LocalTransform[] = [];
     const awningTransforms: LocalTransform[] = [];
+    const wearTransforms: LocalTransform[] = [];
     const doorTransforms: LocalTransform[] = [];
     const doorFrameTransforms: LocalTransform[] = [];
     const chimneyTransforms: LocalTransform[] = [];
@@ -298,6 +344,10 @@ function CityBuildingBatches({
         { local: [-0.48, 1.13, 0.9], scale: [0.52, 0.07, 0.16], rotation: -0.08 },
         { local: [0.48, 1.13, 0.9], scale: [0.52, 0.07, 0.16], rotation: 0.08 },
       );
+      wearTransforms.push(
+        { local: [-0.72, 0.57, 0.9], scale: [0.32, 0.11, 0.03], rotation: -0.12 },
+        { local: [0.7, 1.46, 0.9], scale: [0.18, 0.28, 0.026], rotation: 0.08 },
+      );
 
       doorTransforms.push({ local: [0, 0.37, 0.88], scale: [0.42, 0.72, 0.08] });
       doorFrameTransforms.push({ local: [0, 0.38, 0.84], scale: [0.56, 0.86, 0.05] });
@@ -308,6 +358,7 @@ function CityBuildingBatches({
       windowTransforms,
       windowTrimTransforms,
       awningTransforms,
+      wearTransforms,
       doorTransforms,
       doorFrameTransforms,
       chimneyTransforms,
@@ -366,6 +417,10 @@ function CityBuildingBatches({
     setBatch(beams.current, detailTransforms.beamTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
     setBatch(windowTrim.current, detailTransforms.windowTrimTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
     setBatch(awnings.current, detailTransforms.awningTransforms, (index) => index % 2 ? "#a45e55" : "#845053");
+    setBatch(facadeWear.current, detailTransforms.wearTransforms, (index, site) => {
+      if (site.style === "slate") return index % 2 ? "#b1bcb6" : "#596974";
+      return index % 2 ? "#e0b789" : "#67434b";
+    });
     setBatch(windows.current, detailTransforms.windowTransforms, (index, site) => {
       const siteIndex = Math.floor(index / 2);
       return siteIndex === 2 || siteIndex === 4 ? "#d98a4d" : CITY_STYLE_COLORS[site.style].window;
@@ -419,6 +474,11 @@ function CityBuildingBatches({
         castShadow
       />
       <instancedMesh
+        ref={facadeWear}
+        args={[geometries.wear, CITY_FACADE_WEAR_MATERIAL, detailTransforms.wearTransforms.length]}
+        visible={!mobile}
+      />
+      <instancedMesh
         ref={doors}
         args={[geometries.door, CITY_DOOR_MATERIAL, detailTransforms.doorTransforms.length]}
       />
@@ -468,6 +528,12 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
   const stones = useMemo(() => CITY_STREET_STONES.slice(0, count), [count]);
   const stoneMesh = useRef<InstancedMesh>(null);
   const stoneGeometry = useMemo(() => new CylinderGeometry(0.2, 0.27, 0.08, 6), []);
+  const roadWear = useMemo(
+    () => CITY_ROAD_WEAR_POSITIONS.slice(0, quality === "low" ? 0 : 4),
+    [quality],
+  );
+  const roadWearMesh = useRef<InstancedMesh>(null);
+  const roadWearGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
   useLayoutEffect(() => {
     if (!stoneMesh.current) return;
     const dummy = new Object3D();
@@ -483,6 +549,21 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
     stoneMesh.current.instanceMatrix.needsUpdate = true;
     if (stoneMesh.current.instanceColor) stoneMesh.current.instanceColor.needsUpdate = true;
   }, [stones]);
+  useLayoutEffect(() => {
+    if (!roadWearMesh.current) return;
+    const dummy = new Object3D();
+    roadWearMesh.current.instanceMatrix.setUsage(StaticDrawUsage);
+    roadWear.forEach(([x, z], index) => {
+      dummy.position.set(x, 0.073, z);
+      dummy.rotation.set(0, index * 0.65, 0);
+      dummy.scale.set(0.38 + (index % 2) * 0.16, 0.018, 0.14 + (index % 3) * 0.05);
+      dummy.updateMatrix();
+      roadWearMesh.current?.setMatrixAt(index, dummy.matrix);
+      roadWearMesh.current?.setColorAt(index, new Color(index % 2 ? "#6c4a4a" : "#3f3942"));
+    });
+    roadWearMesh.current.instanceMatrix.needsUpdate = true;
+    if (roadWearMesh.current.instanceColor) roadWearMesh.current.instanceColor.needsUpdate = true;
+  }, [roadWear]);
   return (
     <group name="city-street-and-cobble">
       <mesh position={[0, 0.025, 0]} receiveShadow>
@@ -506,6 +587,12 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
           ref={stoneMesh}
           args={[stoneGeometry, CITY_COBBLE_MATERIAL, stones.length]}
           castShadow
+        />
+      )}
+      {roadWear.length > 0 && (
+        <instancedMesh
+          ref={roadWearMesh}
+          args={[roadWearGeometry, CITY_ROAD_WEAR_MATERIAL, roadWear.length]}
         />
       )}
     </group>
@@ -609,12 +696,158 @@ function CityDebris({ position, index }: { position: CityPoint2; index: number }
 function CityStreetLife({ quality, mobile }: { quality: CityQualityPreset; mobile: boolean }) {
   const signs = CITY_SIGN_POSITIONS.slice(0, quality === "low" ? 1 : quality === "medium" ? 2 : 3);
   const lamps = CITY_STREET_LAMP_POSITIONS.slice(0, quality === "low" ? 1 : 2);
-  const debris = CITY_DEBRIS_POSITIONS.slice(0, quality === "low" ? 2 : quality === "medium" ? 3 : 4);
+  const debris = CITY_DEBRIS_POSITIONS.slice(0, quality === "low" ? 1 : quality === "medium" ? 3 : 4);
   return (
     <group name="city-street-life">
       {signs.map((position, index) => <CitySign key={`sign-${index}`} position={position} index={index} />)}
       {lamps.map((position, index) => <CityStreetLamp key={`lamp-${index}`} position={position} lit={!mobile || index === 0} />)}
       {debris.map((position, index) => <CityDebris key={`debris-${index}`} position={position} index={index} />)}
+    </group>
+  );
+}
+
+const CITY_CITIZEN_BODY_MATERIAL = new MeshStandardMaterial({
+  color: "#6d7961",
+  roughness: 0.9,
+});
+const CITY_CITIZEN_HEAD_MATERIAL = new MeshStandardMaterial({
+  color: "#b8785d",
+  roughness: 0.82,
+});
+const CITY_CITIZEN_HAT_MATERIAL = new MeshStandardMaterial({
+  color: "#c18c5f",
+  roughness: 0.86,
+});
+
+function CityPlanters({ quality }: { quality: CityQualityPreset }) {
+  const count = quality === "low" ? 1 : quality === "medium" ? 2 : 3;
+  const positions = CITY_PLANTER_POSITIONS.slice(0, count);
+  const pot = useRef<InstancedMesh>(null);
+  const soil = useRef<InstancedMesh>(null);
+  const foliage = useRef<InstancedMesh>(null);
+  const geometries = useMemo(
+    () => ({
+      pot: new CylinderGeometry(0.28, 0.34, 0.5, 8),
+      soil: new CylinderGeometry(0.22, 0.22, 0.045, 10),
+      foliage: new DodecahedronGeometry(0.29, 0),
+    }),
+    [],
+  );
+  useLayoutEffect(() => {
+    const dummy = new Object3D();
+    [pot.current, soil.current, foliage.current].forEach((mesh) =>
+      mesh?.instanceMatrix.setUsage(StaticDrawUsage),
+    );
+    positions.forEach(([x, z], index) => {
+      dummy.position.set(x, 0.27, z);
+      dummy.rotation.set(0, index * 0.7, 0);
+      dummy.scale.setScalar(1);
+      dummy.updateMatrix();
+      pot.current?.setMatrixAt(index, dummy.matrix);
+      dummy.position.y = 0.54;
+      dummy.updateMatrix();
+      soil.current?.setMatrixAt(index, dummy.matrix);
+      dummy.position.y = 0.82;
+      dummy.scale.set(1.15 + (index % 2) * 0.14, 1.2, 1.08);
+      dummy.updateMatrix();
+      foliage.current?.setMatrixAt(index, dummy.matrix);
+    });
+    [pot.current, soil.current, foliage.current].forEach((mesh) => {
+      if (mesh) mesh.instanceMatrix.needsUpdate = true;
+    });
+  }, [positions]);
+  return (
+    <group name="city-authored-planters">
+      <instancedMesh ref={pot} args={[geometries.pot, CITY_PLANTER_MATERIAL, positions.length]} castShadow />
+      <instancedMesh
+        ref={soil}
+        args={[geometries.soil, CITY_PLANTER_MATERIAL, positions.length]}
+      />
+      <instancedMesh
+        ref={foliage}
+        args={[geometries.foliage, CITY_FOLIAGE_MATERIAL, positions.length]}
+        castShadow
+      />
+    </group>
+  );
+}
+
+function CityMarketCitizens({
+  quality,
+  reducedMotion,
+}: {
+  quality: CityQualityPreset;
+  reducedMotion: boolean;
+}) {
+  const count = quality === "low" ? 1 : quality === "medium" ? 2 : 3;
+  const positions = CITY_MARKET_CITIZEN_POSITIONS.slice(0, count);
+  const root = useRef<Group>(null);
+  const body = useRef<InstancedMesh>(null);
+  const head = useRef<InstancedMesh>(null);
+  const hat = useRef<InstancedMesh>(null);
+  const arm = useRef<InstancedMesh>(null);
+  const geometries = useMemo(
+    () => ({
+      body: new CapsuleGeometry(0.22, 0.38, 6, 10),
+      head: new DodecahedronGeometry(0.19, 1),
+      hat: new ConeGeometry(0.26, 0.2, 6),
+      arm: new CapsuleGeometry(0.06, 0.28, 5, 7),
+    }),
+    [],
+  );
+  useFrame(({ clock }) => {
+    if (!root.current || reducedMotion) return;
+    root.current.position.y = Math.sin(clock.elapsedTime * 1.4) * 0.018;
+    root.current.rotation.y = Math.sin(clock.elapsedTime * 0.45) * 0.035;
+  });
+  useLayoutEffect(() => {
+    const dummy = new Object3D();
+    [body.current, head.current, hat.current, arm.current].forEach((mesh) =>
+      mesh?.instanceMatrix.setUsage(StaticDrawUsage),
+    );
+    positions.forEach(([x, z], index) => {
+      const scale = 0.72 + (index % 2) * 0.05;
+      const yaw = index % 2 ? -0.35 : 0.35;
+      const cloth = new Color(index % 2 ? "#5d6e62" : "#8a4f4e");
+      const accent = new Color(index % 2 ? "#c5a06a" : "#d19a62");
+      dummy.position.set(x, 0.84, z);
+      dummy.rotation.set(0, yaw, 0);
+      dummy.scale.setScalar(scale);
+      dummy.updateMatrix();
+      body.current?.setMatrixAt(index, dummy.matrix);
+      body.current?.setColorAt(index, cloth);
+      dummy.position.y = 1.3;
+      dummy.scale.setScalar(scale);
+      dummy.updateMatrix();
+      head.current?.setMatrixAt(index, dummy.matrix);
+      dummy.position.y = 1.48;
+      dummy.scale.setScalar(scale);
+      dummy.updateMatrix();
+      hat.current?.setMatrixAt(index, dummy.matrix);
+      hat.current?.setColorAt(index, accent);
+      for (const side of [-1, 1]) {
+        const armIndex = index * 2 + (side === 1 ? 1 : 0);
+        dummy.position.set(x + side * 0.31 * scale, 0.78, z);
+        dummy.rotation.set(0, yaw, side * -0.28);
+        dummy.scale.setScalar(scale);
+        dummy.updateMatrix();
+        arm.current?.setMatrixAt(armIndex, dummy.matrix);
+        arm.current?.setColorAt(armIndex, cloth);
+      }
+    });
+    [body.current, head.current, hat.current, arm.current].forEach((mesh) => {
+      if (mesh) {
+        mesh.instanceMatrix.needsUpdate = true;
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      }
+    });
+  }, [positions]);
+  return (
+    <group ref={root} name="city-market-citizens">
+      <instancedMesh ref={body} args={[geometries.body, CITY_CITIZEN_BODY_MATERIAL, positions.length]} castShadow />
+      <instancedMesh ref={head} args={[geometries.head, CITY_CITIZEN_HEAD_MATERIAL, positions.length]} castShadow />
+      <instancedMesh ref={hat} args={[geometries.hat, CITY_CITIZEN_HAT_MATERIAL, positions.length]} castShadow />
+      <instancedMesh ref={arm} args={[geometries.arm, CITY_CITIZEN_BODY_MATERIAL, positions.length * 2]} castShadow />
     </group>
   );
 }
@@ -702,7 +935,13 @@ function CityLantern({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
-function CityThresholdLandmark({ reducedMotion }: { reducedMotion: boolean }) {
+function CityThresholdLandmark({
+  reducedMotion,
+  mobile,
+}: {
+  reducedMotion: boolean;
+  mobile: boolean;
+}) {
   const thresholdGeometry = useMemo(() => makeThresholdGeometry(), []);
   return (
     <group
@@ -732,6 +971,30 @@ function CityThresholdLandmark({ reducedMotion }: { reducedMotion: boolean }) {
           <meshStandardMaterial color={side < 0 ? "#4d5b4c" : "#59664f"} roughness={1} />
         </mesh>
       ))}
+      {!mobile && (
+        <>
+          {[-1, 1].map((side, index) => (
+            <group key={`threshold-banner-${side}`} position={[side * 1.34, 2.1, 0.48]} rotation={[0, 0, side * 0.06]}>
+              <mesh position={[0, 0.02, 0]}>
+                <cylinderGeometry args={[0.025, 0.03, 1.28, 6]} />
+                <meshStandardMaterial color="#5b4036" roughness={0.9} />
+              </mesh>
+              <mesh position={[0, -0.18, 0.025]}>
+                <planeGeometry args={[0.54, 0.82]} />
+                <primitive object={index === 0 ? CITY_BANNER_MATERIAL : CITY_BANNER_DARK_MATERIAL} attach="material" />
+              </mesh>
+              <mesh position={[0, 0.05, 0.055]}>
+                <boxGeometry args={[0.12, 0.22, 0.018]} />
+                <primitive object={CITY_CREST_MATERIAL} attach="material" />
+              </mesh>
+            </group>
+          ))}
+          <mesh position={[0, 2.96, 0.48]} castShadow>
+            <dodecahedronGeometry args={[0.3, 0]} />
+            <primitive object={CITY_CREST_MATERIAL} attach="material" />
+          </mesh>
+        </>
+      )}
       <CityLantern reducedMotion={reducedMotion} />
     </group>
   );
@@ -820,7 +1083,7 @@ export function CityEnvironmentKit({
       <CityLightRig mobile={mobile} />
       <CityStreet quality={effectiveQuality} />
       <CityBackdrop quality={effectiveQuality} />
-      <CityBuildingBatches sites={visibleSites} />
+      <CityBuildingBatches sites={visibleSites} mobile={mobile} />
       {!mobile && visibleSites.some((site) => site.id === "west-north") && (
         <pointLight
           position={[-5.5, 0.95, 4.85]}
@@ -831,7 +1094,9 @@ export function CityEnvironmentKit({
       )}
       <CityMarket quality={effectiveQuality} />
       <CityStreetLife quality={effectiveQuality} mobile={mobile} />
-      <CityThresholdLandmark reducedMotion={reducedMotion} />
+      <CityPlanters quality={effectiveQuality} />
+      <CityMarketCitizens quality={effectiveQuality} reducedMotion={reducedMotion} />
+      <CityThresholdLandmark reducedMotion={reducedMotion} mobile={mobile} />
       <Sparkles
         count={mobile ? 16 : 34}
         scale={[14, 6, 14]}

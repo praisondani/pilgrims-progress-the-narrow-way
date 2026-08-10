@@ -6,6 +6,9 @@ import {
   CITY_SIGN_POSITIONS,
   CITY_STREET_LAMP_POSITIONS,
   CITY_DEBRIS_POSITIONS,
+  CITY_ROAD_WEAR_POSITIONS,
+  CITY_PLANTER_POSITIONS,
+  CITY_MARKET_CITIZEN_POSITIONS,
   CITY_STORY_TARGETS,
   CITY_STREET_STONES,
   cityDistanceToTarget,
@@ -32,6 +35,9 @@ describe("City authored composition", () => {
         ...CITY_SIGN_POSITIONS,
         ...CITY_STREET_LAMP_POSITIONS,
         ...CITY_DEBRIS_POSITIONS,
+        ...CITY_ROAD_WEAR_POSITIONS,
+        ...CITY_PLANTER_POSITIONS,
+        ...CITY_MARKET_CITIZEN_POSITIONS,
       ])
         expect(cityDistanceToTarget(prop, target), `prop near ${target.join(",")}`).toBeGreaterThan(2.35);
     }
