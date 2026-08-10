@@ -103,6 +103,29 @@ function merged(parts: BufferGeometry[]) {
   return geometry;
 }
 
+/**
+ * Keep the authored low-poly silhouettes, but give broad faces a restrained
+ * value drift so moonlight can describe them instead of flattening each kit
+ * into one color. Vertex colors ride the existing instanced draw calls.
+ */
+function addDreamMaterialBreakup(geometry: BufferGeometry, strength: number) {
+  const position = geometry.getAttribute("position");
+  const colors = new Float32Array(position.count * 3);
+  for (let index = 0; index < position.count; index += 1) {
+    const x = position.getX(index);
+    const y = position.getY(index);
+    const z = position.getZ(index);
+    const variation =
+      Math.sin(x * 3.9 + y * 2.1 + z * 1.7) * 0.55 +
+      Math.sin(x * 8.3 - z * 4.2) * 0.22;
+    const shade = 1 + variation * strength;
+    colors[index * 3] = shade;
+    colors[index * 3 + 1] = shade * 0.98;
+    colors[index * 3 + 2] = shade * 0.94;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+}
+
 function createNearTreeGeometry() {
   const trunk = new CylinderGeometry(0.16, 0.46, 4.75, 6, 1);
   trunk.translate(0, 2.375, 0);
@@ -358,13 +381,13 @@ function createMoteGeometry(quality: DreamQualityPreset) {
 }
 
 function createLanternFrameGeometry() {
-  const post = new CylinderGeometry(0.07, 0.1, 1.55, 6, 1);
+  const post = new CylinderGeometry(0.08, 0.12, 1.62, 6, 1);
   post.translate(0, 0.775, 0);
-  const hood = new ConeGeometry(0.35, 0.28, 5, 1);
-  hood.translate(0, 1.78, 0);
-  const hook = new TorusGeometry(0.31, 0.035, 5, 12, Math.PI * 1.15);
+  const hood = new ConeGeometry(0.42, 0.32, 5, 1);
+  hood.translate(0, 1.83, 0);
+  const hook = new TorusGeometry(0.34, 0.04, 5, 12, Math.PI * 1.15);
   hook.rotateZ(-0.18);
-  hook.translate(0.18, 1.96, 0);
+  hook.translate(0.2, 2.03, 0);
   return merged([post, hood, hook]);
 }
 
@@ -435,6 +458,84 @@ function createBankStripGeometry(
   return geometry;
 }
 
+/**
+ * A low, irregular rear ridge keeps the reverse orbit from ending in a single
+ * faceted boulder. It is a shallow authored silhouette rather than a wall, so
+ * fog can layer it into the moonlit horizon without adding a draw call.
+ */
+function createHorizonRidgeGeometry() {
+  const points: readonly [number, number][] = [
+    [-12, 1.1],
+    [-9, 2.6],
+    [-6, 1.7],
+    [-3, 3.4],
+    [0, 2.25],
+    [3, 3.05],
+    [6, 1.6],
+    [9, 2.55],
+    [12, 1.2],
+  ];
+  const positions: number[] = [];
+  const indices: number[] = [];
+  const frontZ = 13.1;
+  const backZ = 14.55;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const [leftX, leftY] = points[index];
+    const [rightX, rightY] = points[index + 1];
+    const offset = positions.length / 3;
+    positions.push(
+      leftX,
+      0.05,
+      frontZ,
+      rightX,
+      0.05,
+      frontZ,
+      rightX,
+      rightY,
+      frontZ,
+      leftX,
+      leftY,
+      frontZ,
+      leftX,
+      0.05,
+      backZ,
+      rightX,
+      0.05,
+      backZ,
+      rightX,
+      rightY,
+      backZ,
+      leftX,
+      leftY,
+      backZ,
+    );
+    indices.push(
+      offset,
+      offset + 1,
+      offset + 2,
+      offset,
+      offset + 2,
+      offset + 3,
+      offset + 4,
+      offset + 6,
+      offset + 5,
+      offset + 4,
+      offset + 7,
+      offset + 6,
+    );
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new Float32BufferAttribute(positions, 3),
+  );
+  geometry.setIndex(new Uint32BufferAttribute(indices, 1));
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
 function createDepthMassesGeometry(quality: DreamQualityPreset) {
   const segments = quality === "low" ? 6 : quality === "medium" ? 8 : 10;
   const curve = new CatmullRomCurve3(
@@ -460,14 +561,30 @@ function createDepthMassesGeometry(quality: DreamQualityPreset) {
         ),
       );
 
-  [-8, -4.2, 0, 4.2, 8].forEach((x, index) => {
+  // Five authored horizon masses are deliberately staggered around the
+  // rear and side edges. Reusing the existing ridge geometry keeps the
+  // medium/low triangle and draw budgets unchanged while avoiding a single
+  // flat wall when the camera orbits away from the approach.
+  [
+    [-8.8, 3.25, -12.6],
+    [0, 4.05, -13.2],
+    [8.8, 3.45, -12.45],
+    [13.4, 3.35, -1.8],
+    [0, 3.9, 13.5],
+  ].forEach(([x, y, z], index) => {
+    if (index === 4) {
+      const ridge = createHorizonRidgeGeometry();
+      ridge.translate(0, 0, z - 13.5);
+      parts.push(ridge);
+      return;
+    }
     const ridge = new DodecahedronGeometry(1, 0);
     ridge.scale(
       2.25 + (index % 2) * 0.45,
       5.1 + (index % 3) * 0.7,
       1.05 + (index % 2) * 0.18,
     );
-    ridge.translate(x, 3.2 + (index % 3) * 0.45, -11.8 - (index % 2) * 0.55);
+    ridge.translate(x, y, z);
     parts.push(ridge);
   });
 
@@ -495,12 +612,12 @@ export function createDreamEnvironmentResources(
   rock.scale(1.2, 0.68, 0.9);
   rock.translate(0, 0.26, 0);
   const ridge = createRidgeGeometry();
-  const lanternBaseRock = new DodecahedronGeometry(0.22, 0);
-  lanternBaseRock.scale(1.35, 0.68, 1);
+  const lanternBaseRock = new DodecahedronGeometry(0.28, 0);
+  lanternBaseRock.scale(1.4, 0.68, 1.05);
   lanternBaseRock.translate(0, 0.13, 0);
-  const lanternGlass = new BoxGeometry(0.32, 0.42, 0.32);
+  const lanternGlass = new BoxGeometry(0.4, 0.5, 0.4);
   lanternGlass.translate(0, 1.5, 0);
-  const lanternFlame = new OctahedronGeometry(0.105, 0);
+  const lanternFlame = new OctahedronGeometry(0.125, 0);
   lanternFlame.scale(0.72, 1.35, 0.72);
   lanternFlame.translate(0, 1.49, 0);
 
@@ -525,6 +642,21 @@ export function createDreamEnvironmentResources(
     lanternGlass,
     lanternFlame,
   };
+
+  addDreamMaterialBreakup(geometries.treeNear, 0.075);
+  addDreamMaterialBreakup(geometries.treeFar, 0.06);
+  addDreamMaterialBreakup(geometries.shrub, 0.07);
+  addDreamMaterialBreakup(geometries.shrubFar, 0.06);
+  addDreamMaterialBreakup(geometries.grass, 0.05);
+  addDreamMaterialBreakup(geometries.rock, 0.08);
+  addDreamMaterialBreakup(geometries.reed, 0.05);
+  addDreamMaterialBreakup(geometries.ridge, 0.07);
+  addDreamMaterialBreakup(geometries.path, 0.045);
+  addDreamMaterialBreakup(geometries.streamBed, 0.06);
+  addDreamMaterialBreakup(geometries.depthMasses, 0.065);
+  addDreamMaterialBreakup(geometries.lanternBaseRock, 0.08);
+  addDreamMaterialBreakup(geometries.lanternFrame, 0.06);
+  addDreamMaterialBreakup(geometries.lanternGlass, 0.035);
 
   const streamMaterial =
     water === "dry"
@@ -589,13 +721,54 @@ export function createDreamEnvironmentResources(
       "dream-moonlit-specular-edge-v1";
   }
 
+  const depthMassesMaterial = new MeshPhysicalMaterial({
+    // The arch and layered horizon share one draw call. A restrained vertical
+    // value drift gives the stone a painterly light falloff instead of one
+    // uniform blue polygon when the camera turns away from the shrine.
+    color: palette.stone,
+    roughness: 0.72,
+    metalness: 0,
+    clearcoat: 0.24,
+    clearcoatRoughness: 0.52,
+    emissive: palette.silhouette,
+    emissiveIntensity: 0.12,
+    vertexColors: true,
+    flatShading: true,
+  });
+  depthMassesMaterial.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec3 vDreamDepthPosition;",
+      )
+      .replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\nvDreamDepthPosition = transformed;",
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nvarying vec3 vDreamDepthPosition;",
+      )
+      .replace(
+        "#include <color_fragment>",
+        `#include <color_fragment>
+        float stoneBand = smoothstep(0.2, 8.2, vDreamDepthPosition.y);
+        diffuseColor.rgb *= mix(0.78, 1.08, stoneBand);`,
+      );
+  };
+  depthMassesMaterial.customProgramCacheKey = () =>
+    "dream-depth-atmosphere-v1";
   const materials: DreamEnvironmentMaterials = {
     treeNear: new MeshPhysicalMaterial({
       color: palette.silhouette,
-      roughness: 0.9,
+      roughness: 0.86,
       metalness: 0,
-      clearcoat: 0.04,
-      clearcoatRoughness: 0.78,
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.7,
+      emissive: palette.moss,
+      emissiveIntensity: 0.08,
+      vertexColors: true,
       flatShading: true,
     }),
     treeFar: new MeshPhysicalMaterial({
@@ -603,29 +776,40 @@ export function createDreamEnvironmentResources(
       roughness: 0.92,
       metalness: 0,
       clearcoat: 0.02,
+      emissive: palette.moss,
+      emissiveIntensity: 0.045,
+      vertexColors: true,
       flatShading: true,
     }),
     shrub: new MeshStandardMaterial({
       color: palette.silhouetteLift,
-      roughness: 1,
+      roughness: 0.9,
+      emissive: palette.moss,
+      emissiveIntensity: 0.06,
+      vertexColors: true,
       flatShading: true,
     }),
     grass: new MeshStandardMaterial({
       color: palette.silhouetteLift,
-      roughness: 1,
+      roughness: 0.94,
+      emissive: palette.moss,
+      emissiveIntensity: 0.045,
+      vertexColors: true,
       flatShading: true,
     }),
     rock: new MeshPhysicalMaterial({
       color: palette.stone,
-      roughness: 0.72,
+      roughness: 0.62,
       metalness: 0.02,
-      clearcoat: 0.24,
-      clearcoatRoughness: 0.58,
+      clearcoat: 0.34,
+      clearcoatRoughness: 0.48,
+      vertexColors: true,
       flatShading: true,
     }),
     reed: new MeshStandardMaterial({
       color: palette.reed,
-      roughness: 1,
+      roughness: 0.9,
+      vertexColors: true,
       flatShading: true,
     }),
     groundPatch: new MeshStandardMaterial({
@@ -637,38 +821,30 @@ export function createDreamEnvironmentResources(
     }),
     ridge: new MeshStandardMaterial({
       color: palette.groundDark,
-      roughness: 1,
+      roughness: 0.94,
+      vertexColors: true,
       flatShading: true,
     }),
     path: new MeshPhysicalMaterial({
       color: palette.path,
-      roughness: 0.96,
+      roughness: 0.84,
       metalness: 0,
-      clearcoat: 0.02,
+      clearcoat: 0.16,
+      clearcoatRoughness: 0.72,
+      vertexColors: true,
       flatShading: true,
     }),
     streamBed: new MeshPhysicalMaterial({
       color: palette.streamInk,
-      roughness: 0.68,
+      roughness: 0.56,
       metalness: 0.02,
-      clearcoat: 0.34,
-      clearcoatRoughness: 0.5,
+      clearcoat: 0.48,
+      clearcoatRoughness: 0.38,
+      vertexColors: true,
       flatShading: true,
     }),
     stream: streamMaterial,
-    depthMasses: new MeshPhysicalMaterial({
-      // The arch is part of this depth-mass batch. A cool stone response keeps
-      // its silhouette legible before the lantern is lit while the surrounding
-      // forest remains moss-green and one value step darker.
-      color: palette.stone,
-      roughness: 0.84,
-      metalness: 0,
-      clearcoat: 0.12,
-      clearcoatRoughness: 0.62,
-      emissive: palette.silhouette,
-      emissiveIntensity: 0.16,
-      flatShading: true,
-    }),
+    depthMasses: depthMassesMaterial,
     moon: new MeshBasicMaterial({
       color: palette.keyLight,
       transparent: true,
@@ -676,21 +852,23 @@ export function createDreamEnvironmentResources(
     }),
     motes: new PointsMaterial({
       color: palette.mote,
-      size: quality === "low" ? 0.032 : 0.038,
+      size: quality === "low" ? 0.036 : 0.045,
       transparent: true,
-      opacity: 0.36,
+      opacity: 0.48,
       depthWrite: false,
       sizeAttenuation: true,
     }),
     lanternBaseRock: new MeshStandardMaterial({
       color: palette.stoneLift,
-      roughness: 1,
+      roughness: 0.78,
+      vertexColors: true,
       flatShading: true,
     }),
     lanternFrame: new MeshStandardMaterial({
       color: palette.lanternMetal,
-      roughness: 0.82,
-      metalness: 0.24,
+      roughness: 0.68,
+      metalness: 0.3,
+      vertexColors: true,
       flatShading: true,
     }),
     lanternGlass: new MeshStandardMaterial({
@@ -698,10 +876,11 @@ export function createDreamEnvironmentResources(
       emissive: palette.lanternFlame,
       // Keep the glass cool and readable while unlit; the warm response is
       // reserved for the flame and point light after interaction.
-      emissiveIntensity: 0.12,
+      emissiveIntensity: 0.24,
       transparent: true,
-      opacity: 0.34,
+      opacity: 0.48,
       roughness: 0.34,
+      vertexColors: true,
       depthWrite: false,
     }),
     lanternFlame: new MeshBasicMaterial({

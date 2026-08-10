@@ -38,10 +38,10 @@ import type {
 } from "./types";
 
 const instanceTints = [
-  new Color("#ffffff"),
-  new Color("#f0f7ed"),
-  new Color("#dfe9dc"),
-  new Color("#d0ddce"),
+  new Color("#fff6df"),
+  new Color("#e1f3df"),
+  new Color("#c1dfcf"),
+  new Color("#e0c99c"),
 ] as const;
 
 function applyInstanceTransform(
@@ -307,11 +307,11 @@ function DreamLanternLandmark({
   useLayoutEffect(() => {
     if (!base.current) return;
     const placements = [
-      [-0.28, -0.23, 1.08, 0.1],
-      [0.25, -0.24, 0.92, 0.8],
-      [-0.31, 0.22, 0.86, 1.5],
-      [0.3, 0.2, 1.02, 2.1],
-      [0.02, 0.34, 0.78, 2.7],
+      [-0.62, -0.44, 1.12, 0.1],
+      [0.58, -0.46, 0.98, 0.8],
+      [-0.72, 0.43, 0.92, 1.5],
+      [0.7, 0.4, 1.08, 2.1],
+      [0.02, 0.28, 1.32, 2.7],
     ] as const;
     const dummy = new Object3D();
     base.current.instanceMatrix.setUsage(StaticDrawUsage);
@@ -327,12 +327,14 @@ function DreamLanternLandmark({
   }, []);
 
   useFrame(({ clock }) => {
+    if (light.current) {
+      const pulse =
+        lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.38 : 0;
+      light.current.intensity = (lit ? 5.2 : 0.72) + pulse;
+    }
     if (!lit || reducedMotion) return;
-    const pulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.07;
-    if (flame.current) flame.current.scale.set(1, pulse, 1);
-    if (light.current)
-      light.current.intensity =
-        4.6 + Math.sin(clock.elapsedTime * 2.1) * 0.34;
+    const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.07;
+    if (flame.current) flame.current.scale.set(1, flamePulse, 1);
   });
 
   return (
@@ -341,9 +343,9 @@ function DreamLanternLandmark({
       position={[
         DREAM_KEYFRAME_ANCHORS.lanternShrine[0],
         0.14,
-        DREAM_KEYFRAME_ANCHORS.lanternShrine[1],
-      ]}
-      scale={1.38}
+      DREAM_KEYFRAME_ANCHORS.lanternShrine[1],
+    ]}
+      scale={1.52}
     >
       <instancedMesh
         ref={base}
@@ -366,23 +368,21 @@ function DreamLanternLandmark({
         renderOrder={2}
       />
       {lit && (
-        <>
-          <mesh
-            ref={flame}
-            geometry={resources.geometries.lanternFlame}
-            material={resources.materials.lanternFlame}
-            renderOrder={3}
-          />
-          <pointLight
-            ref={light}
-            position={[0, 1.5, 0]}
-            color="#ffd58a"
-            intensity={4.6}
-            distance={7.5}
-            decay={2}
-          />
-        </>
+        <mesh
+          ref={flame}
+          geometry={resources.geometries.lanternFlame}
+          material={resources.materials.lanternFlame}
+          renderOrder={3}
+        />
       )}
+      <pointLight
+        ref={light}
+        position={[0, 1.5, 0]}
+        color="#ffd58a"
+        intensity={lit ? 5.2 : 0.72}
+        distance={lit ? 7.5 : 4.8}
+        decay={2}
+      />
     </group>
   );
 }
@@ -507,7 +507,7 @@ export function DreamEnvironmentKit({
         )}
         <mesh
           name="dream-moon"
-          position={[-4.5, 9.5, -14]}
+          position={[-5.2, 7.6, -13.6]}
           geometry={resources.geometries.moon}
           material={resources.materials.moon}
         />

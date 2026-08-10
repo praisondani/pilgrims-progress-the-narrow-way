@@ -129,7 +129,10 @@ export function estimateDreamPerformance(
     instanceCount,
     visibleDrawCalls,
     triangles: Math.ceil(triangles),
-    pointLights: lanternLit ? 1 : 0,
+    // The unlit lantern keeps a small warm guide light so the first objective
+    // remains legible from every orbit; the same single light is reused when
+    // the flame is kindled.
+    pointLights: 1,
     textures: 0,
   };
 }

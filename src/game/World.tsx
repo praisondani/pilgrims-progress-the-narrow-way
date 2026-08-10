@@ -5,8 +5,8 @@ import {
   RigidBody,
 } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import { Color, Group } from "three";
+import { useEffect, useRef } from "react";
+import { Color, Group, MeshStandardMaterial } from "three";
 import { useGame } from "./state";
 import { StepKind, storyScenes } from "./story";
 import { playerPosition } from "./Player";
@@ -31,6 +31,55 @@ import {
 
 const dreamTerrainCollisionDescriptors =
   buildDreamTerrainCollisionDescriptors(DREAM_SCENE_SEED, "medium");
+
+function DreamGround({ color }: { color: Color }) {
+  const material = useRef<MeshStandardMaterial>(null);
+  useEffect(() => {
+    if (!material.current) return;
+    material.current.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          "#include <common>",
+          "#include <common>\nvarying vec3 vDreamGroundPosition;",
+        )
+        .replace(
+          "#include <begin_vertex>",
+          "#include <begin_vertex>\nvDreamGroundPosition = transformed;",
+        );
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          "#include <common>",
+          "#include <common>\nvarying vec3 vDreamGroundPosition;",
+        )
+        .replace(
+          "#include <color_fragment>",
+          `#include <color_fragment>
+          float meadowGrain =
+            sin(vDreamGroundPosition.x * 0.18 + vDreamGroundPosition.y * 0.11) * 0.5 +
+            sin(vDreamGroundPosition.x * 0.47 - vDreamGroundPosition.y * 0.23) * 0.24;
+          float meadowBand = smoothstep(-0.62, 0.62, meadowGrain);
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb * 0.84,
+            diffuseColor.rgb * 1.08,
+            meadowBand
+          );`,
+        );
+    };
+    material.current.customProgramCacheKey = () => "dream-ground-breakup-v1";
+    material.current.needsUpdate = true;
+  }, []);
+  return (
+    <mesh receiveShadow position={[0, -0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[44, 44, 32, 32]} />
+      <meshStandardMaterial
+        ref={material}
+        color={color}
+        roughness={0.94}
+        metalness={0}
+      />
+    </mesh>
+  );
+}
 
 function DreamTerrainColliders() {
   return (
@@ -589,14 +638,7 @@ export function World() {
         {authoredDream && <DreamTerrainColliders />}
         {gateController && <GateColliders controller={gateController} />}
         {authoredDream ? (
-          <mesh
-            receiveShadow
-            position={[0, -0.03, 0]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <planeGeometry args={[24, 24, 32, 32]} />
-            <meshStandardMaterial color={ground} roughness={0.98} />
-          </mesh>
+          <DreamGround color={ground} />
         ) : (
           <mesh receiveShadow position={[0, -0.34, 0]}>
             <cylinderGeometry args={[10.7, 11.35, 0.68, 64]} />

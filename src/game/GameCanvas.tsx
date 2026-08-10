@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
-import { PerspectiveCamera as PerspectiveCameraType, Vector3 } from "three";
+import { PerspectiveCamera as PerspectiveCameraType, Raycaster, Vector3 } from "three";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 import { HopefulCompanion, Player, playerPosition } from "./Player";
 import { World } from "./World";
@@ -22,6 +22,7 @@ function CameraRig() {
   const desired = useRef(new Vector3());
   const priorFocus = useRef(new Vector3(0, 2, 5));
   const offset = useRef(new Vector3());
+  const cameraRay = useRef(new Raycaster());
   const dragging = useRef(false);
   const lastLook = useRef(0);
   const chapterFlight = useRef({
@@ -33,7 +34,7 @@ function CameraRig() {
   const flightStart = useRef(new Vector3());
   const flightEnd = useRef(new Vector3());
   const flightTarget = useRef(new Vector3());
-  const { gl, size } = useThree();
+  const { gl, scene, size } = useThree();
   const {
     dialogue,
     choosing,
@@ -161,6 +162,36 @@ function CameraRig() {
     }
     cameraControl.yaw = yaw;
     gl.domElement.dataset.cameraYaw = yaw.toFixed(3);
+    // Keep a full orbit playable when the camera swings behind a tree, arch,
+    // or other authored landmark. OrbitControls otherwise allows the camera
+    // to pass through scenery, turning a 360-degree view into a black wall.
+    // The world is isolated in a named group below, so the ray never treats
+    // Christian or the companion as an occluder. A short dynamic max distance
+    // lets OrbitControls slide the camera toward the player until the view is
+    // clear, then restores the normal follow distance as soon as it is safe.
+    const world = scene.getObjectByName("game-world");
+    let safeMaxDistance = 12.5;
+    if (world) {
+      const focus = orbit.target;
+      const cameraOffset = offset.current.copy(rig.current.position).sub(focus);
+      const cameraDistance = cameraOffset.length();
+      if (cameraDistance > 0.001) {
+        cameraRay.current.set(focus, cameraOffset.normalize());
+        const hit = cameraRay.current
+          .intersectObjects(world.children, true)
+          .find(
+            (intersection) =>
+              intersection.object.visible && intersection.distance > 0.85,
+          );
+        if (hit)
+          safeMaxDistance = Math.max(
+            4.6,
+            Math.min(12.5, hit.distance - 0.55),
+          );
+      }
+    }
+    orbit.maxDistance = safeMaxDistance;
+    orbit.minDistance = Math.min(5.2, safeMaxDistance);
     orbit.update();
   });
   return (
@@ -249,7 +280,9 @@ export function GameCanvas() {
       >
         <Exposure />
         <Physics gravity={[0, -12, 0]}>
-          <World />
+          <group name="game-world">
+            <World />
+          </group>
           <Player key={sceneKey} />
           <HopefulCompanion />
         </Physics>

@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T05:44:00-05:00",
+  "updatedAt": "2026-08-10T06:41:04-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v38 hero builder pass and City v7 remain visual-bar work, while City draw-call budgets are green for both desktop and mobile headless profiles.",
+    "resumeNote": "Dream v9 camera-safe horizon pass is gameplay-verified but fails the fresh visual critics at 5.8/10 and 6.4/10; v38 hero and City v7 remain visual-bar work, while Dream/City draw-call budgets and core gates are green for headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -33,10 +33,10 @@
       {
         "id": "dream",
         "name": "The Dreamer environment",
-        "status": "gameplay-verified-visual-iteration-required",
+        "status": "iteration-9-critic-failed-performance-pass",
         "builder": "ultracode environment builder",
-        "critic": "fresh gameplay critic — fail, 4.5/10 loop 5",
-        "largestGap": "Dream guided travel now uses monotonic authored bends, every clearing is reachable, and the medium collision runtime is mounted. The remaining gap is visual: the shrine, vegetation, and water still need a stronger focal hierarchy and authored asset fidelity."
+        "critic": "fresh runtime critics — fail, 5.8/10 and 6.4/10 on v9",
+        "largestGap": "v9 closes the rear terrain edge with a shallow ridge, expands the Dream ground, adds dynamic orbit obstruction avoidance, material breakup, and a lantern guide light. The remaining gap is authored 360-degree material/lighting depth: the rear orbit is still an empty green plane against a faceted wall and the shrine does not read as luminous."
       },
       {
         "id": "city",
@@ -428,6 +428,22 @@
     {
       "label": "City v7 runtime — mobile low-tier ring comparison",
       "path": "/studio-evidence/vertical-slice-01/city-v7-runtime-mobile.png"
+    },
+    {
+      "label": "Dream v9 runtime — authored forward composition",
+      "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-desktop.png"
+    },
+    {
+      "label": "Dream v9 runtime — lit shrine focal check",
+      "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-lit-shrine.png"
+    },
+    {
+      "label": "Dream v9 runtime — rear orbit horizon safety",
+      "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-rear-orbit.png"
+    },
+    {
+      "label": "Dream v9 runtime — mobile route composition",
+      "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-mobile.png"
     }
   ],
   "gates": {
@@ -440,6 +456,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates pass and City draw budgets pass, but v38 hero and City v7 critics fail the visual bar; City still needs mobile depth parity and a production Christian GLB"
+    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v9 runtime safety pass, but Dream v9, v38 hero, and City v7 critics fail the visual bar; Dream still needs authored 360-degree terrain/material depth and a luminous shrine, City still needs mobile depth parity, and a production Christian GLB remains outstanding"
   }
 }
