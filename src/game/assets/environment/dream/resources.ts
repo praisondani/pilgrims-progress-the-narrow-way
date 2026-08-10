@@ -131,13 +131,20 @@ function tintDreamHorizonBands(geometry: BufferGeometry) {
   const color = geometry.getAttribute("color");
   if (!color) return;
   for (let index = 0; index < position.count; index += 1) {
-    if (position.getZ(index) < 10) continue;
-    const band = position.getY(index) < 1.2 ? 0.78 : position.getY(index) < 2.5 ? 0.88 : 0.98;
+    const depth = Math.min(1, Math.max(0, (position.getZ(index) - 10) / 8));
+    if (depth <= 0) continue;
+    const band =
+      position.getY(index) < 1.2
+        ? 0.78
+        : position.getY(index) < 2.5
+          ? 0.88
+          : 0.98;
+    const haze = depth * 0.28;
     color.setXYZ(
       index,
-      color.getX(index) * band * 0.88,
-      color.getY(index) * band * 0.96,
-      color.getZ(index) * Math.min(1.08, band + 0.16),
+      color.getX(index) * band * (0.88 - haze * 0.2) + haze * 0.1,
+      color.getY(index) * band * (0.96 - haze * 0.14) + haze * 0.2,
+      color.getZ(index) * Math.min(1.08, band + 0.16) + haze * 0.26,
     );
   }
   color.needsUpdate = true;
@@ -793,7 +800,7 @@ export function createDreamEnvironmentResources(
         diffuseColor.rgb = mix(
           diffuseColor.rgb,
           mix(diffuseColor.rgb * 0.76, dreamHazeColor * 0.9, 0.45),
-          rearHaze * 0.38
+          rearHaze * 0.58
         );`,
       );
   };
@@ -921,9 +928,9 @@ export function createDreamEnvironmentResources(
       // The glass carries a low warm source even before interaction so the
       // shrine reads as a destination; the flame still owns the lit-state
       // peak together with its point light.
-      emissiveIntensity: 0.42,
+      emissiveIntensity: 0.62,
       transparent: true,
-      opacity: 0.58,
+      opacity: 0.66,
       roughness: 0.34,
       vertexColors: true,
       depthWrite: false,

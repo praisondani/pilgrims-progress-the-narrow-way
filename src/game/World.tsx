@@ -67,7 +67,7 @@ function DreamGround({ color }: { color: Color }) {
           diffuseColor.rgb = mix(
             diffuseColor.rgb,
             diffuseColor.rgb * 0.78 + vec3(0.018, 0.045, 0.052),
-            distanceBand * 0.2
+            distanceBand * 0.34
           );`,
         );
     };

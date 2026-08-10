@@ -70,6 +70,9 @@
 - Dream v13 lighting pass: warm target/lantern falloff, rear haze tint, and
   distance-based ground value separation, with zero runtime console/page errors
   and unchanged Dream draw/triangle budgets
+- Dream v14 depth tint pass: stronger rear-band vertex haze, ground distance
+  falloff, and brighter warm lantern glass, with Dream tests/build and fresh
+  desktop/lit/rear/mobile runtime captures still within the existing budgets
 
 ## In progress
 
@@ -88,6 +91,10 @@
   7.1/10: the warmer lantern/arch is a real focal lift, but rear haze and ground
   shading are subtle at gameplay scale and the lantern still lacks convincing
   emission across the 360-degree low-poly world
+- Dream v14 remains below the visual bar after fresh critics scored 6.0/10 and
+  7.1/10: horizon tint and ground falloff are visible, but they dress a flat
+  low-poly plane; the rear still lacks a landmark/depth story and the lantern
+  has no convincing bloom
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -116,6 +123,6 @@
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
 5. Continue Dream with a visibly emitting lantern asset and authored rear
-   terrain/material layers now that lighting and mobile UX baselines are stable
+   landmark/terrain layers now that lighting and mobile UX baselines are stable
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA
