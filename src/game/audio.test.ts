@@ -5,6 +5,7 @@ import {
   ambienceSourceGain,
   ambienceSourceGainDb,
   audioMix,
+  calibratedSourceGainDb,
   audioSceneIds,
   clampSourceGainDb,
   dbToGain,
@@ -35,27 +36,29 @@ describe("safe local audio assets", () => {
     expect(audioMix.masterGain).toBeLessThan(1);
   });
 
-  it("bounds legacy ambience calibration before it reaches the graph", () => {
-    expect(ambienceSourceGainDb("arbor")).toBe(
-      audioMix.maxAmbienceSourceGainDb,
+  it("keeps fallback scene trims bounded before they reach the graph", () => {
+    expect(ambienceSourceGainDb("arbor")).toBeLessThanOrEqual(
+      4,
     );
-    expect(ambienceSourceGainDb("dream")).toBe(
-      audioMix.maxAmbienceSourceGainDb,
+    expect(ambienceSourceGainDb("dream")).toBeLessThanOrEqual(
+      4,
     );
     expect(ambienceSourceGain("arbor")).toBeLessThanOrEqual(
       dbToGain(audioMix.maxAmbienceSourceGainDb),
     );
-    expect(ambienceSourceGainDb("unknown-scene")).toBe(
-      audioMix.maxAmbienceSourceGainDb,
-    );
+    expect(ambienceSourceGainDb("unknown-scene")).toBe(0);
   });
 
   it("keeps every transient below a conservative speaker-safe ceiling", () => {
-    expect(sfxSourceGainDb("error")).toBe(audioMix.maxSfxSourceGainDb);
-    expect(sfxSourceGainDb("dialogue")).toBe(audioMix.maxSfxSourceGainDb);
+    expect(sfxSourceGainDb("error")).toBeLessThanOrEqual(
+      4,
+    );
+    expect(sfxSourceGainDb("dialogue")).toBeLessThanOrEqual(
+      4,
+    );
     expect(sfxSourceGainDb("missing-sfx")).toBe(audioMix.minSourceGainDb);
     expect(sfxSourceGain("error")).toBeLessThanOrEqual(
-      dbToGain(audioMix.maxSfxSourceGainDb),
+      dbToGain(4),
     );
   });
 
@@ -64,5 +67,35 @@ describe("safe local audio assets", () => {
     expect(clampSourceGainDb(Number.POSITIVE_INFINITY, 0)).toBe(
       audioMix.minSourceGainDb,
     );
+  });
+
+  it("raises quiet beds while honoring the decoded peak ceiling", () => {
+    expect(
+      calibratedSourceGainDb({
+        rms: 0.003,
+        peak: 0.02,
+        targetRmsDb: -22,
+        peakCeiling: 1.2,
+        maximum: audioMix.maxAmbienceSourceGainDb,
+      }),
+    ).toBeGreaterThan(25);
+    expect(
+      calibratedSourceGainDb({
+        rms: 0.5,
+        peak: 1,
+        targetRmsDb: -18,
+        peakCeiling: 1.2,
+        maximum: audioMix.maxSfxSourceGainDb,
+      }),
+    ).toBeCloseTo(-12, 1);
+    expect(
+      calibratedSourceGainDb({
+        rms: 0,
+        peak: 0,
+        targetRmsDb: -22,
+        peakCeiling: 1.2,
+        maximum: audioMix.maxAmbienceSourceGainDb,
+      }),
+    ).toBe(audioMix.minSourceGainDb);
   });
 });

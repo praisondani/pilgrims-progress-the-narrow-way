@@ -41,6 +41,14 @@ test("starts a new journey and initializes WebGL gameplay", async ({
     "data-audio-scene",
     "dream",
   );
+  await expect
+    .poll(async () => {
+      const value = await page.locator("html").getAttribute(
+        "data-audio-ambience-gain-db",
+      );
+      return value == null ? Number.NaN : Number(value);
+    })
+    .toBeGreaterThan(20);
   await page.keyboard.press("ArrowLeft");
   await page.keyboard.press("ArrowUp");
 });

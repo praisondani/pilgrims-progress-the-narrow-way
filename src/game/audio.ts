@@ -60,8 +60,15 @@ export const sfxUrl = (name: string) => `/audio/sfx/${name}.mp3`;
 export const dbToGain = (decibels: number) => 10 ** (decibels / 20);
 export const audioSceneIds = Object.keys(sceneGainDb);
 export const audioMix = {
-  measuredAmbienceRmsDb: -32,
-  ambienceNormalizationLiftDb: 10,
+  // The generated MP3s are intentionally compact and arrive at very
+  // different loudnesses (the quietest bed is roughly -70 dBFS RMS).  Keep
+  // the target in the musical background range, then calibrate each decoded
+  // buffer against its actual RMS/peak before it reaches the shared limiter.
+  measuredAmbienceRmsDb: -22,
+  ambienceNormalizationLiftDb: 0,
+  ambiencePeakCeiling: 1.2,
+  sfxTargetRmsDb: -18,
+  sfxPeakCeiling: 1.2,
   ambienceBusGain: 0.6,
   sfxBusGain: 0.45,
   masterGain: 0.8,
@@ -69,8 +76,8 @@ export const audioMix = {
   // the shared limiter. A few legacy scenes were calibrated with very large
   // positive offsets; those can become speaker spikes when voices overlap.
   minSourceGainDb: -48,
-  maxAmbienceSourceGainDb: 3,
-  maxSfxSourceGainDb: -6,
+  maxAmbienceSourceGainDb: 48,
+  maxSfxSourceGainDb: 36,
   maxConcurrentSfx: 4,
 } as const;
 
@@ -87,16 +94,41 @@ export const clampSourceGainDb = (
   );
 };
 
+/**
+ * Return a bounded gain that brings a decoded asset toward a target RMS
+ * without allowing its peak to grow past the soft ceiling. The final graph
+ * still has a compressor/limiter, but keeping this calibration conservative
+ * prevents the old “silent bed / sudden speaker spike” pairing.
+ */
+export const calibratedSourceGainDb = ({
+  rms,
+  peak,
+  targetRmsDb,
+  peakCeiling,
+  maximum,
+}: {
+  rms: number;
+  peak: number;
+  targetRmsDb: number;
+  peakCeiling: number;
+  maximum: number;
+}) => {
+  if (!(rms > 0) || !(peak > 0)) return audioMix.minSourceGainDb;
+  const desired = targetRmsDb - 20 * Math.log10(rms);
+  const peakLimit = 20 * Math.log10(peakCeiling / peak);
+  return clampSourceGainDb(Math.min(desired, peakLimit), maximum);
+};
+
 export const ambienceSourceGainDb = (sceneId: string) =>
   clampSourceGainDb(
     (sceneGainDb[sceneId] ?? 0) + audioMix.ambienceNormalizationLiftDb,
-    audioMix.maxAmbienceSourceGainDb,
+    Math.min(4, audioMix.maxAmbienceSourceGainDb),
   );
 
 export const sfxSourceGainDb = (name: string) =>
   clampSourceGainDb(
     sfxGainDb[name] ?? audioMix.minSourceGainDb,
-    audioMix.maxSfxSourceGainDb,
+    Math.min(4, audioMix.maxSfxSourceGainDb),
   );
 
 export const ambienceSourceGain = (sceneId: string) =>
@@ -115,6 +147,27 @@ type PlayingAmbience = {
   source: AudioBufferSourceNode;
   gain: GainNode;
 };
+
+type AudioBufferStats = { rms: number; peak: number };
+
+function measureBuffer(buffer: AudioBuffer): AudioBufferStats {
+  let sum = 0;
+  let peak = 0;
+  let sampleCount = 0;
+  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+    const data = buffer.getChannelData(channel);
+    sampleCount += data.length;
+    for (const sample of data) {
+      const absolute = Math.abs(sample);
+      sum += sample * sample;
+      peak = Math.max(peak, absolute);
+    }
+  }
+  return {
+    rms: sampleCount > 0 ? Math.sqrt(sum / sampleCount) : 0,
+    peak,
+  };
+}
 
 export type AudioPlaybackState =
   | "muted"
@@ -140,6 +193,7 @@ export class GameAudio {
   private listeners = new Set<() => void>();
   private resumeRequest?: Promise<boolean>;
   private activeSfx: AudioBufferSourceNode[] = [];
+  private calibratedGains = new Map<string, number>();
 
   getSnapshot = () => this.playbackState;
 
@@ -358,13 +412,29 @@ export class GameAudio {
       return;
     }
 
+    const gainKey = `ambience:${id}:${ambienceUrl(id)}`;
+    const gainDb = this.calibratedGains.get(gainKey) ?? (() => {
+      const stats = measureBuffer(buffer);
+      const trim = Math.min(4, Math.max(-4, sceneGainDb[id] ?? 0));
+      const calibrated = calibratedSourceGainDb({
+        rms: stats.rms,
+        peak: stats.peak,
+        targetRmsDb: audioMix.measuredAmbienceRmsDb + trim,
+        peakCeiling: audioMix.ambiencePeakCeiling,
+        maximum: audioMix.maxAmbienceSourceGainDb,
+      });
+      this.calibratedGains.set(gainKey, calibrated);
+      return calibrated;
+    })();
+    if (typeof document !== "undefined")
+      document.documentElement.dataset.audioAmbienceGainDb = gainDb.toFixed(1);
     const now = this.ctx.currentTime;
     const source = this.ctx.createBufferSource();
     const gain = this.ctx.createGain();
     source.buffer = buffer;
     source.loop = true;
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(ambienceSourceGain(id), now + 1.4);
+    gain.gain.exponentialRampToValueAtTime(dbToGain(gainDb), now + 1.4);
     source.connect(gain).connect(this.ambienceBus);
     source.start();
     this.markState("playing", id);
@@ -388,10 +458,26 @@ export class GameAudio {
     if (!this.ctx || !this.sfxBus) return;
     const buffer = await this.load(sfxUrl(name));
     if (!buffer || !this.enabled) return;
+    const gainKey = `sfx:${name}`;
+    const gainDb = this.calibratedGains.get(gainKey) ?? (() => {
+      const stats = measureBuffer(buffer);
+      const trim = Math.min(4, Math.max(-4, sfxGainDb[name] ?? 0));
+      const calibrated = calibratedSourceGainDb({
+        rms: stats.rms,
+        peak: stats.peak,
+        targetRmsDb: audioMix.sfxTargetRmsDb + trim,
+        peakCeiling: audioMix.sfxPeakCeiling,
+        maximum: audioMix.maxSfxSourceGainDb,
+      });
+      this.calibratedGains.set(gainKey, calibrated);
+      return calibrated;
+    })();
+    if (typeof document !== "undefined")
+      document.documentElement.dataset.audioSfxGainDb = gainDb.toFixed(1);
     const source = this.ctx.createBufferSource();
     const gain = this.ctx.createGain();
     source.buffer = buffer;
-    gain.gain.value = sfxSourceGain(name);
+    gain.gain.value = dbToGain(gainDb);
     source.connect(gain).connect(this.sfxBus);
 
     // Do not let repeated focus/impact callbacks stack indefinitely. Keeping
