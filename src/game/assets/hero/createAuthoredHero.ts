@@ -237,8 +237,8 @@ export function createAuthoredPilgrimHero(
     0.28,
   );
   const burdenCloth = new Color(palette.burden).lerp(
-    new Color("#765c46"),
-    0.58,
+    new Color("#8a6b52"),
+    0.64,
   );
   const burdenFold = new Color(burdenCloth).lerp(
     new Color(palette.burdenShadow),
@@ -1050,43 +1050,47 @@ export function createAuthoredPilgrimHero(
     [
       {
         center: [-0.07, -0.52, -0.012],
-        radiusX: 0.16,
-        radiusZ: 0.13,
+        radiusX: 0.14,
+        // Flatten depth against the lumbar curve. Width stays generous in X
+        // so the front silhouette reads as a load, while profile no longer
+        // reads as a rigid shell strapped several inches off Christian's
+        // back.
+        radiusZ: 0.1,
         color: palette.burdenShadow,
         skin: { bone: 0 },
       },
       {
         center: [-0.045, -0.4, -0.028],
-        radiusX: 0.25,
-        radiusZ: 0.18,
+        radiusX: 0.23,
+        radiusZ: 0.14,
         color: burdenCloth,
         skin: { bone: 0 },
       },
       {
         center: [-0.02, -0.12, -0.038],
-        radiusX: 0.31,
-        radiusZ: 0.21,
+        radiusX: 0.27,
+        radiusZ: 0.16,
         color: new Color(burdenCloth).lerp(new Color("#5a4637"), 0.18),
         skin: { bone: 0 },
       },
       {
-        center: [0.02, 0.13, -0.025],
-        radiusX: 0.3,
-        radiusZ: 0.2,
+        center: [0.035, 0.13, -0.025],
+        radiusX: 0.255,
+        radiusZ: 0.15,
         color: new Color(burdenCloth).lerp(new Color("#b19779"), 0.14),
         skin: { bone: 0 },
       },
       {
-        center: [0.065, 0.36, -0.012],
-        radiusX: 0.21,
-        radiusZ: 0.16,
+        center: [0.085, 0.36, -0.012],
+        radiusX: 0.175,
+        radiusZ: 0.12,
         color: burdenCloth,
         skin: { bone: 0 },
       },
       {
-        center: [0.09, 0.43, -0.006],
-        radiusX: 0.095,
-        radiusZ: 0.095,
+        center: [0.12, 0.43, -0.006],
+        radiusX: 0.07,
+        radiusZ: 0.07,
         color: palette.burdenShadow,
         skin: { bone: 0 },
       },
@@ -1098,13 +1102,13 @@ export function createAuthoredPilgrimHero(
       // silhouette instead of a flat shield. Keep the deformation deterministic
       // and restrained so the attachment remains stable in gameplay.
       const fold =
-        Math.sin(position.y * 18 + position.x * 13 + normal.z * 2.4) * 0.014 +
-        Math.cos(position.y * 7 - normal.x * 3.2) * 0.005;
-      const sag = Math.sin(((ringIndex + 0.35) / 5) * Math.PI) * 0.016;
+        Math.sin(position.y * 18 + position.x * 13 + normal.z * 2.4) * 0.021 +
+        Math.cos(position.y * 7 - normal.x * 3.2) * 0.009;
+      const sag = Math.sin(((ringIndex + 0.35) / 5) * Math.PI) * 0.024;
       position.x += fold * (0.45 + Math.abs(normal.x) * 0.55);
       position.z +=
         sag * (0.25 + Math.abs(normal.z) * 0.75) +
-        Math.sin(position.y * 15 + normal.x * 3.1) * 0.01;
+        Math.sin(position.y * 15 + normal.x * 3.1) * 0.014;
       return position;
     },
   );
@@ -1112,8 +1116,10 @@ export function createAuthoredPilgrimHero(
   // They share the burden geometry/material budget while giving the cloth a
   // tied, asymmetrical shoulder silhouette from front, profile, and rear.
   for (const [x, y, rx, ry, rz, phase] of [
-    [-0.115, 0.18, 0.17, 0.22, 0.155, 0.4],
-    [0.12, 0.1, 0.16, 0.24, 0.165, 1.9],
+    // Uneven lobes keep the sack hand-tied. Their Z radii stay compressed so
+    // profile sees cloth settling onto the scapulae instead of a shield.
+    [-0.16, 0.18, 0.2, 0.22, 0.115, 0.4],
+    [0.15, 0.1, 0.19, 0.24, 0.125, 1.9],
   ] as const)
     burdenBuilder.addEllipsoid(
       [x, y, -0.04],
@@ -1130,9 +1136,9 @@ export function createAuthoredPilgrimHero(
       14,
     );
   for (const [y, radiusX, radiusZ] of [
-    [-0.25, 0.21, 0.19],
-    [0.0, 0.25, 0.22],
-    [0.2, 0.21, 0.19],
+    [-0.25, 0.21, 0.13],
+    [0.0, 0.25, 0.15],
+    [0.2, 0.21, 0.13],
   ] as const)
     burdenBuilder.addTube(
       ellipseLoop([0, y, 0], [radiusX, 0, radiusZ], "xz", 30),
@@ -1144,7 +1150,7 @@ export function createAuthoredPilgrimHero(
     );
   for (const x of [-0.095, 0.095])
     burdenBuilder.addTube(
-      ellipseLoop([x, -0.01, 0], [0, 0.27, 0.19], "yz", 30),
+      ellipseLoop([x, -0.01, 0], [0, 0.27, 0.14], "yz", 30),
       0.011,
       palette.rope,
       { bone: 0 },
@@ -1155,11 +1161,11 @@ export function createAuthoredPilgrimHero(
     burdenBuilder.addTube(
       [
         [side * 0.1, 0.27, 0.01],
-        [side * 0.14, 0.21, 0.1],
-        [side * 0.16, 0.1, 0.15],
-        [side * 0.14, -0.08, 0.13],
-        [side * 0.17, -0.2, 0.1],
-        [side * 0.14, -0.28, 0.03],
+        [side * 0.14, 0.21, 0.072],
+        [side * 0.16, 0.1, 0.112],
+        [side * 0.14, -0.08, 0.1],
+        [side * 0.17, -0.2, 0.075],
+        [side * 0.14, -0.28, 0.024],
       ],
       0.014,
       palette.leather,
@@ -1175,9 +1181,9 @@ export function createAuthoredPilgrimHero(
   ] as const)
     burdenBuilder.addTube(
       [
-        [x, top, -0.21],
-        [x + (x < 0 ? -0.022 : 0.016), (top + bottom) * 0.45, -0.235],
-        [x + (x < 0 ? 0.012 : -0.014), bottom, -0.205],
+        [x, top, -0.15],
+        [x + (x < 0 ? -0.022 : 0.016), (top + bottom) * 0.45, -0.175],
+        [x + (x < 0 ? 0.012 : -0.014), bottom, -0.145],
       ],
       0.014,
       burdenFold,
@@ -1186,10 +1192,10 @@ export function createAuthoredPilgrimHero(
     );
   burdenBuilder.addTube(
     [
-      [0, 0.29, -0.25],
-      [0.012, 0.08, -0.265],
-      [-0.018, -0.18, -0.25],
-      [0, -0.4, -0.215],
+      [0, 0.29, -0.18],
+      [0.012, 0.08, -0.195],
+      [-0.018, -0.18, -0.18],
+      [0, -0.4, -0.15],
     ],
     0.012,
     palette.rope,
@@ -1201,22 +1207,80 @@ export function createAuthoredPilgrimHero(
     [0.095, -0.02],
   ] as const)
     burdenBuilder.addEllipsoid(
-      [x, y, -0.25],
-      [0.038, 0.03, 0.025],
+      [x, y, -0.18],
+      [0.038, 0.03, 0.022],
       palette.rope,
       { bone: 0 },
       8,
       6,
+    );
+  // Cinched mouth and loose tie make top of load read as hand-packed cloth,
+  // not a smooth capsule. Offset knot gives silhouette an authored asymmetry.
+  burdenBuilder.addTube(
+    ellipseLoop([0.035, 0.31, -0.01], [0.125, 0, 0.095], "xz", 24),
+    0.013,
+    palette.rope,
+    { bone: 0 },
+    6,
+    true,
+  );
+  burdenBuilder.addEllipsoid(
+    [0.105, 0.335, -0.145],
+    [0.045, 0.035, 0.026],
+    palette.rope,
+    { bone: 0 },
+    10,
+    7,
+  );
+  burdenBuilder.addTube(
+    [
+      [0.105, 0.335, -0.145],
+      [0.16, 0.41, -0.112],
+      [0.13, 0.49, -0.085],
+    ],
+    0.011,
+    palette.rope,
+    { bone: 0 },
+    6,
+  );
+  burdenBuilder.addTube(
+    [
+      [0.08, 0.33, -0.14],
+      [0.035, 0.4, -0.112],
+      [0.07, 0.445, -0.09],
+    ],
+    0.008,
+    palette.rope,
+    { bone: 0 },
+    6,
+  );
+  // Short radiating folds show fabric gathered into cinch before it falls
+  // into the two uneven lobes.
+  for (const [x, bend] of [
+    [-0.08, -0.018],
+    [0.0, 0.012],
+    [0.085, -0.014],
+  ] as const)
+    burdenBuilder.addTube(
+      [
+        [x, 0.3, -0.13],
+        [x + bend, 0.23, -0.157],
+        [x - bend * 0.4, 0.16, -0.16],
+      ],
+      0.011,
+      burdenFold,
+      { bone: 0 },
+      5,
     );
   // Rear harness stays proud of cloth surface so burden contact reads from
   // gameplay camera and turnaround back view.
   for (const side of [-1, 1] as const)
     burdenBuilder.addTube(
       [
-        [side * 0.19, 0.34, -0.18],
-        [side * 0.23, 0.14, -0.22],
-        [side * 0.24, -0.14, -0.22],
-        [side * 0.2, -0.38, -0.18],
+        [side * 0.19, 0.34, -0.12],
+        [side * 0.23, 0.14, -0.16],
+        [side * 0.24, -0.14, -0.16],
+        [side * 0.2, -0.38, -0.12],
       ],
       0.018,
       palette.leather,
@@ -1225,9 +1289,9 @@ export function createAuthoredPilgrimHero(
     );
   burdenBuilder.addTube(
     [
-      [-0.27, 0.12, -0.22],
-      [0, 0.08, -0.24],
-      [0.27, 0.12, -0.22],
+      [-0.27, 0.12, -0.16],
+      [0, 0.08, -0.18],
+      [0.27, 0.12, -0.16],
     ],
     0.018,
     palette.rope,

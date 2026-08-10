@@ -1,13 +1,15 @@
 # Christian production asset handoff
 
-The current v19 procedural reconstruction is a reviewed runtime prototype, not
+The current v20 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It now keeps Christian's burden behind his scapulae,
 uses two asymmetric cloth lobes with compression folds, rope contact, and
 deterministic cloth relief, embeds facial volume in the skinned body draw, and
 adds restrained loaded-cloth secondary motion. The v19 anatomy pass narrows the
 waist, tapers the limbs, and
 adds embedded orbital, cheek, brow, nose, beard, moustache, lip, and chin
-volumes. The comparison remains below the acceptance bar:
+volumes. The v20 burden pass compresses profile depth, gathers the crown with a
+cinch, and adds an offset knot with loose tie ends. The comparison remains
+below the acceptance bar:
 
 - reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
 - v18 front render: `public/studio-evidence/vertical-slice-01/christian-v18-front.png`
@@ -15,14 +17,22 @@ volumes. The comparison remains below the acceptance bar:
 - v18 rear render: `public/studio-evidence/vertical-slice-01/christian-v18-back.png`
 - v18 gameplay burden render: `public/studio-evidence/vertical-slice-01/christian-v18-gameplay-burden.png`
 - v19 narrowed burden gameplay render: `public/studio-evidence/vertical-slice-01/christian-v19-gameplay-burden.png`
+- v20 front critic render: `public/studio-evidence/vertical-slice-01/christian-v20-front.png`
+- v20 profile critic render: `public/studio-evidence/vertical-slice-01/christian-v20-profile.png`
+- v20 rear critic render: `public/studio-evidence/vertical-slice-01/christian-v20-back.png`
+- v20 three-quarter critic render: `public/studio-evidence/vertical-slice-01/christian-v20-threequarter.png`
+- v20 loaded gameplay render: `public/studio-evidence/vertical-slice-01/christian-v20-gameplay-loaded.png`
+- v20 loaded 96 px crop: `public/studio-evidence/vertical-slice-01/christian-v20-gameplay-loaded-96.png`
+- v20 96 px montage: `public/studio-evidence/vertical-slice-01/christian-v20-96-montage.png`
 - staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
 
-The v19 isolated front/profile/rear runtime critic is still queued. The latest
-reviewed v18 comparison failed the Loop 5 acceptance bar: the pack was too wide
-and planar, the face and anatomy remained toy-like at 96 px, and the
-body/burden geometry was 12,636 triangles versus the 19–24k target. v19 narrows
-and reshapes the load in live gameplay, but does not replace that pending
-isolated review. An external DCC-authored character/GLB remains required.
+The fresh v20 runtime critic scores 3.4/10 and fails the Loop 5 acceptance bar.
+The adult face/anatomy remain toy-like, profile/rear still read as a rigid brown
+shield, and the 96 px silhouette collapses to load plus legs. v20 geometry is
+13,732 triangles (body 8,450; burden 3,966; roll 364; equipment 952), with four
+draws and four materials; body and roll remain below their authored targets.
+The procedural fallback remains useful for API/rig and gameplay while an
+external DCC-authored character/GLB is produced.
 The procedural BufferGeometry remains useful as the API/rig and gameplay
 fallback while that source sculpt is produced.
 

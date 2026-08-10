@@ -158,6 +158,25 @@ describe("authored Christian hero", () => {
     runtime.dispose();
   });
 
+  it("keeps v20 burden depth compressed and cinched behind the scapulae", () => {
+    const runtime = createPilgrimHero({ burden: 1 });
+    const burden = runtime.root.getObjectByName(
+      "hero.mesh.authored-burden",
+    ) as Mesh;
+    burden.geometry.computeBoundingBox();
+    const bounds = burden.geometry.boundingBox;
+    expect(bounds).toBeTruthy();
+    const size = bounds!.getSize(new Vector3());
+
+    // Profile depth is intentionally smaller than the shoulder-spanning X
+    // width. The top tie extends beyond the loft crown and proves the load is
+    // gathered cloth, not a smooth capsule.
+    expect(size.z).toBeLessThan(0.4);
+    expect(size.x).toBeGreaterThan(size.z * 1.45);
+    expect(bounds!.max.y).toBeGreaterThan(0.47);
+    runtime.dispose();
+  });
+
   it("splits a planted loaded posture across root, pelvis, and spine", () => {
     const runtime = createPilgrimHero({ burden: 1 });
     for (let index = 0; index < 30; index += 1)
