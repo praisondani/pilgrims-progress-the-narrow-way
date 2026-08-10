@@ -1,6 +1,6 @@
 # Christian production asset handoff
 
-The current v36 procedural reconstruction is a reviewed runtime prototype, not
+The current v37 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It keeps Christian's burden behind his scapulae, uses
 two asymmetric cloth lobes with compression folds, low-profile tension relief,
 rear webbing, waist transfer, rope contact, and a far-LOD harness identity,
@@ -18,8 +18,10 @@ V26 adds the focused adult-proportion pass: a tapered waist, longer/slimmer
 arms and lower body, articulated finger lengths, smaller boots, and darker
 adult eye materials. V33 removes the front cage rails, V35 adds integrated
 cloth relief/facets, and V36 carries clear shoulder/waist webbing into the far
-LOD. The current critic passes adult readability, burden contact/material, and
-96 px load identity; hands and boots remain the weakest layers.
+LOD. V37 narrows the palm/wrist transition, separates and lengthens the fingers,
+and adds a directional toe cap, sole, and ankle seam. The current critic passes
+adult readability, hands, boots, burden contact/material, and 96 px load
+identity; torso/garment volume remains the weakest authored layer.
 
 - reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
 - v18 front render: `public/studio-evidence/vertical-slice-01/christian-v18-front.png`
@@ -46,14 +48,18 @@ LOD. The current critic passes adult readability, burden contact/material, and
 - v36 profile critic render: `public/studio-evidence/vertical-slice-01/christian-v36-profile.png`
 - v36 rear critic render: `public/studio-evidence/vertical-slice-01/christian-v36-back.png`
 - v36 tight rear 96 px crop: `public/studio-evidence/vertical-slice-01/christian-v36-back-character-96.png`
+- v37 front critic render: `public/studio-evidence/vertical-slice-01/christian-v37-front.png`
+- v37 profile critic render: `public/studio-evidence/vertical-slice-01/christian-v37-profile.png`
+- v37 rear critic render: `public/studio-evidence/vertical-slice-01/christian-v37-back.png`
+- v37 tight front 96 px crop: `public/studio-evidence/vertical-slice-01/christian-v37-front-character-96.png`
 - staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
 
-The fresh v36 runtime critic scores 7.3/10 and fails the Loop 5 acceptance bar
-only on low-poly extremity detail: the rear harness and waist transfer remain
-clear at full resolution and in a tight 96 px crop, while hands and boots still
-read as bulbous procedural primitives. V36 geometry remains a four-draw
-procedural fallback; the licensed sculpt/GLB target is still required for final
-visual sign-off.
+The fresh v37 runtime critic scores 7.4/10 and fails the Loop 5 acceptance bar
+on authored torso/garment volume and material nuance: the rear harness and
+waist transfer remain clear at full resolution and in a tight 96 px crop, while
+hands and boots now read as separated, directional forms. V37 geometry remains
+a four-draw procedural fallback; the licensed sculpt/GLB target is still
+required for final visual sign-off.
 The procedural fallback remains useful for API/rig and gameplay while an
 external DCC-authored character/GLB is produced.
 The procedural BufferGeometry remains useful as the API/rig and gameplay

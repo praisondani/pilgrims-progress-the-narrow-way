@@ -237,6 +237,14 @@ export function createAuthoredPilgrimHero(
     new Color(palette.skinShadow),
     0.28,
   );
+  const bootToe = new Color(palette.leatherDark).lerp(
+    new Color(palette.leather),
+    0.26,
+  );
+  const bootSole = new Color(palette.leatherDark).lerp(
+    new Color("#171411"),
+    0.34,
+  );
   // Keep the load in the reference's charcoal/brown cloth family, but lift
   // the base enough for packed folds to separate from the shadow side. A
   // nearly-black vertex base made the sack read as one rigid shell under the
@@ -477,8 +485,10 @@ export function createAuthoredPilgrimHero(
         },
         {
           center: [side * 0.335, 0.77, 0.018],
-          radiusX: 0.041,
-          radiusZ: 0.038,
+          // Narrow wrist taper leaves a deliberate transition into the palm
+          // instead of carrying the forearm's toy-like oval into the hand.
+          radiusX: 0.037,
+          radiusZ: 0.034,
           color: palette.skin,
           skin: { bone: wristBone },
         },
@@ -491,34 +501,36 @@ export function createAuthoredPilgrimHero(
     // not an oval mitten, while remaining inside the unified body draw.
     bodyBuilder.addEllipsoid(
       [side * 0.335, 0.67, 0.032],
-      [0.05, 0.066, 0.042],
+      [0.044, 0.059, 0.037],
       (normal) => (normal.y < -0.45 ? palette.skinShadow : palette.skin),
       { bone: wristBone },
       14,
       9,
       (position, normal) => {
-        position.x += side * Math.max(0, -normal.y) * 0.008;
-        position.z += Math.max(0, -normal.y) * 0.008;
+        position.x += side * Math.max(0, -normal.y) * 0.005;
+        position.z += Math.max(0, -normal.y) * 0.007;
         return position;
       },
     );
-    const fingerOffsets = [-0.032, -0.011, 0.011, 0.032];
+    const fingerOffsets = [-0.036, -0.013, 0.013, 0.036];
     for (const [fingerIndex, offset] of fingerOffsets.entries()) {
-      const length = 0.078 - fingerIndex * 0.005;
+      // Longer, slightly separated fingers turn the hand into an adult
+      // taper. Narrow tubes keep each digit legible without a mitten mass.
+      const length = 0.088 - fingerIndex * 0.006;
       bodyBuilder.addTube(
         [
-          [side * (0.335 + offset), 0.643, 0.045],
-          [side * (0.337 + offset * 0.92), 0.603 - length * 0.3, 0.054],
-          [side * (0.34 + offset * 0.78), 0.57 - length * 0.2, 0.047],
+          [side * (0.335 + offset), 0.638, 0.045],
+          [side * (0.337 + offset * 0.92), 0.596 - length * 0.3, 0.054],
+          [side * (0.34 + offset * 0.78), 0.558 - length * 0.2, 0.047],
         ],
-        0.011,
+        0.0085,
         palette.skin,
         { bone: wristBone },
         5,
       );
       bodyBuilder.addEllipsoid(
-        [side * (0.34 + offset * 0.78), 0.57 - length * 0.2, 0.047],
-        [0.012, 0.015, 0.012],
+        [side * (0.34 + offset * 0.78), 0.558 - length * 0.2, 0.047],
+        [0.0095, 0.013, 0.0095],
         palette.skinShadow,
         { bone: wristBone },
         7,
@@ -527,11 +539,11 @@ export function createAuthoredPilgrimHero(
     }
     bodyBuilder.addTube(
       [
-        [side * 0.372, 0.688, 0.056],
-        [side * 0.397, 0.66, 0.069],
-        [side * 0.4, 0.618, 0.057],
+        [side * 0.368, 0.684, 0.056],
+        [side * 0.39, 0.648, 0.066],
+        [side * 0.388, 0.606, 0.055],
       ],
-      0.014,
+      0.011,
       palette.skin,
       { bone: wristBone },
       6,
@@ -599,15 +611,16 @@ export function createAuthoredPilgrimHero(
         },
         {
           center: [x, 0.18, 0.01],
-          radiusX: 0.07,
-          radiusZ: 0.069,
+          // Wrap hugs the ankle before the boot shaft widens below it.
+          radiusX: 0.066,
+          radiusZ: 0.064,
           color: palette.legWrap,
           skin: { bone: ankleBone },
         },
         {
           center: [x, 0.07, 0.025],
-          radiusX: 0.075,
-          radiusZ: 0.073,
+          radiusX: 0.068,
+          radiusZ: 0.066,
           color: palette.leather,
           skin: { bone: ankleBone },
         },
@@ -615,17 +628,49 @@ export function createAuthoredPilgrimHero(
       14,
     );
     bodyBuilder.addEllipsoid(
-      [x, 0.065, 0.105],
-      [0.078, 0.055, 0.125],
-      palette.leatherDark,
+      [x, 0.055, 0.11],
+      [0.074, 0.046, 0.13],
+      (normal) => (normal.y < -0.25 ? bootSole : bootToe),
       { bone: ankleBone },
       14,
       8,
       (position, normal) => {
-        if (normal.z > 0.3) position.y += normal.z * 0.012;
+        // Flatten sole, taper heel, and pitch toe upward so profile reads as a
+        // directional leather foot rather than a dark round ball.
+        if (normal.z > 0.3) {
+          position.y += normal.z * 0.01;
+          position.x *= 1 - normal.z * 0.08;
+        }
+        if (normal.z < -0.35) position.z -= 0.008;
         if (normal.y < -0.4) position.y = Math.max(position.y, 0.012);
         return position;
       },
+    );
+    bodyBuilder.addEllipsoid(
+      [x, 0.05, 0.205],
+      [0.068, 0.024, 0.078],
+      (normal) => (normal.y < -0.35 ? bootSole : bootToe),
+      { bone: ankleBone },
+      14,
+      7,
+      (position, normal) => {
+        // Low toe cap extends forward from shaft and shares same skinned body
+        // draw. Narrow front normal keeps cap pointed without changing width.
+        position.y = Math.max(position.y, 0.012);
+        if (normal.z > 0.2) {
+          position.x *= 1 - normal.z * 0.16;
+          position.y += normal.z * 0.004;
+        }
+        return position;
+      },
+    );
+    bodyBuilder.addTube(
+      ellipseLoop([x, 0.075, 0.016], [0.067, 0, 0.062], "xz", 16),
+      0.005,
+      bootToe,
+      { bone: ankleBone },
+      5,
+      true,
     );
     bodyBuilder.addTube(
       ellipseLoop([x, 0.46, 0.008], [0.1, 0, 0.098], "xz", 16),

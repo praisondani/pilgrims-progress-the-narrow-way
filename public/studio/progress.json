@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T04:34:00-05:00",
+  "updatedAt": "2026-08-10T04:47:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v36 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v37 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -25,10 +25,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-14-critic-failed",
+        "status": "iteration-15-critic-failed",
         "builder": "ultracode hero builder",
-        "critic": "fresh runtime critic — fail, 7.3/10, comparison v36",
-        "largestGap": "v36 materially improves v26 with a clean tunic front, compressed asymmetric cloth lobes, integrated relief/facet breakup, rear shoulder webbing, waist transfer, and far-LOD harness identity. Adult readability, burden contact/material, and tight-96 px load identity pass focused layers. The single remaining gap is bulbous low-poly hands and boots with minimal anatomical/material detail."
+        "critic": "fresh runtime critic — fail, 7.4/10, comparison v37",
+        "largestGap": "v37 materially improves v36 with a narrower wrist/palm transition, separated longer fingers, directional toe caps, sole flattening, and ankle material breakup. Adult readability, hands, boots, burden contact/material, and tight-96 px load identity pass focused layers. The single remaining gap is authored torso/garment volume and material nuance: the tunic remains rectangular and sleeve transitions remain procedural."
       },
       {
         "id": "dream",

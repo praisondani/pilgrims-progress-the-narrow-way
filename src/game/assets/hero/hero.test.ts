@@ -158,7 +158,7 @@ describe("authored Christian hero", () => {
     runtime.dispose();
   });
 
-  it("keeps v36 burden depth compressed and cinched behind the scapulae", () => {
+  it("keeps v37 burden depth compressed and cinched behind the scapulae", () => {
     const runtime = createPilgrimHero({ burden: 1 });
     const burden = runtime.root.getObjectByName(
       "hero.mesh.authored-burden",
@@ -171,7 +171,7 @@ describe("authored Christian hero", () => {
     // Profile depth is intentionally smaller than the shoulder-spanning X
     // width. The top tie extends beyond the loft crown and proves the load is
     // gathered cloth, not a smooth capsule.
-    // V36 preserves the stuffed cloth silhouette while keeping profile depth
+    // V37 preserves the stuffed cloth silhouette while keeping profile depth
     // materially smaller than its shoulder-spanning width.
     expect(size.z).toBeLessThan(0.43);
     expect(size.x).toBeGreaterThan(size.z * 1.45);
