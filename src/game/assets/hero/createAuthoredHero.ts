@@ -237,15 +237,28 @@ export function createAuthoredPilgrimHero(
     new Color(palette.skinShadow),
     0.28,
   );
-  // Keep the load in the reference's charcoal/brown cloth family. The old
-  // tan lerp flattened the sack into a hard leather shield under warm light.
-  const burdenCloth = new Color("#2d2724").lerp(
+  // Keep the load in the reference's charcoal/brown cloth family, but lift
+  // the base enough for packed folds to separate from the shadow side. A
+  // nearly-black vertex base made the sack read as one rigid shell under the
+  // warm key light.
+  const burdenCloth = new Color("#5b4a3d").lerp(
     new Color(palette.burden),
-    0.35,
+    0.16,
   );
-  const burdenFold = new Color(burdenCloth).lerp(
-    new Color("#58483b"),
-    0.18,
+  const burdenShade = new Color(palette.burdenShadow).lerp(
+    burdenCloth,
+    0.32,
+  );
+  const burdenFold = new Color("#987a5f").lerp(burdenCloth, 0.22);
+  const burdenFacet = new Color("#a18263").lerp(burdenCloth, 0.24);
+  const burdenDeepFold = new Color("#2f241d").lerp(burdenCloth, 0.28);
+  const burdenHarnessLeather = new Color("#79583f").lerp(
+    new Color(palette.leather),
+    0.22,
+  );
+  const burdenRope = new Color("#5b4634").lerp(
+    new Color(palette.rope),
+    0.28,
   );
   const root = new Group();
   root.name = `hero.root.${spec.id}.authored`;
@@ -358,9 +371,9 @@ export function createAuthoredPilgrimHero(
     },
   ];
   bodyBuilder.addLoft(torsoRings, 20, "start");
-  const tunicFold = new Color(palette.tunic).lerp(
-    new Color(palette.tunicShadow),
-    0.42,
+  const tunicFold = new Color(palette.tunicShadow).lerp(
+    new Color(palette.tunic),
+    0.3,
   );
   bodyBuilder.addTube(
     ellipseLoop([0, 0.74, 0], [0.22, 0, 0.15], "xz", 20),
@@ -382,7 +395,7 @@ export function createAuthoredPilgrimHero(
         [x - bend * 0.5, 1.25, 0.158],
         [x + bend, 1.47, 0.16],
       ],
-      0.008,
+      0.0055,
       tunicFold,
       { bone: boneIndex.pelvis, nextBone: boneIndex.chest, blend: 0.45 },
       5,
@@ -1050,33 +1063,21 @@ export function createAuthoredPilgrimHero(
       5,
     );
 
-  // Continuous harness contact keeps burden visibly carried, not floating.
-  // Keep the front leather narrow and close to the tunic: broad bars read as
-  // chest armour and obscure the waist/torso planes in the v20 front render.
+  // Leave the tunic front open. Earlier versions baked full-length harness
+  // rails into the body mesh, so the chest read as armour even after the
+  // burden was removed. The authored burden now owns the visible rear
+  // webbing; these short leather tabs only mark shoulder contact from front.
   for (const side of [-1, 1] as const)
     bodyBuilder.addTube(
       [
         [side * 0.215, 1.53, 0.145],
-        [side * 0.205, 1.36, 0.177],
-        [side * 0.19, 1.13, 0.178],
-        [side * 0.17, 0.96, 0.155],
+        [side * 0.205, 1.45, 0.17],
       ],
-      0.014,
+      0.007,
       palette.leather,
-      { bone: boneIndex.chest, nextBone: boneIndex.pelvis, blend: 0.42 },
-      7,
+      { bone: boneIndex.chest },
+      6,
     );
-  bodyBuilder.addTube(
-    [
-      [-0.245, 1.36, 0.178],
-      [0, 1.335, 0.188],
-      [0.245, 1.36, 0.178],
-    ],
-    0.012,
-    palette.leather,
-    { bone: boneIndex.chest },
-    7,
-  );
 
   const bodyGeometry = bodyBuilder.toGeometry("hero.authored.body.geometry");
   const lengthenLowerBody = (geometry: BufferGeometry) => {
@@ -1226,7 +1227,7 @@ export function createAuthoredPilgrimHero(
         // reads as a rigid shell strapped several inches off Christian's
         // back.
         radiusZ: 0.1,
-        color: palette.burdenShadow,
+        color: burdenShade,
         skin: { bone: 0 },
       },
       {
@@ -1261,7 +1262,7 @@ export function createAuthoredPilgrimHero(
         center: [0.12, 0.36, -0.035],
         radiusX: 0.07,
         radiusZ: 0.07,
-        color: palette.burdenShadow,
+        color: burdenShade,
         skin: { bone: 0 },
       },
     ],
@@ -1279,22 +1280,37 @@ export function createAuthoredPilgrimHero(
       position.z +=
         sag * (0.25 + Math.abs(normal.z) * 0.75) +
         Math.sin(position.y * 15 + normal.x * 3.1) * 0.014;
+      // Seat cloth into Christian's scapulae and waist. Front-facing vertices
+      // move a little toward the body, while the two contact bands are
+      // pinched on the rear face so straps leave a real compression line.
+      const front = Math.max(0, normal.z);
+      const shoulderSeat =
+        Math.exp(-Math.pow((position.y - 0.25) / 0.075, 2)) *
+        Math.exp(-Math.pow((Math.abs(position.x) - 0.18) / 0.1, 2));
+      const waistSeat = Math.exp(-Math.pow((position.y + 0.34) / 0.06, 2));
+      const rearBand = Math.max(0, -normal.z);
+      const bandPress =
+        Math.exp(-Math.pow((position.y - 0.2) / 0.045, 2)) *
+          (0.75 + 0.25 * Math.cos(position.x * 16)) +
+        Math.exp(-Math.pow((position.y + 0.34) / 0.045, 2));
+      position.z += front * (shoulderSeat * 0.024 + waistSeat * 0.018);
+      position.z += rearBand * bandPress * 0.022;
       // A shallow rear-facing center seam separates the stuffed lobes. It is
       // enough to catch grazing light without cutting a visible front gap.
       if (normal.z < -0.3) {
         const lobeGap = Math.max(0, 1 - Math.abs(position.x) / 0.21);
-        position.z -= lobeGap * 0.034;
+        position.z += lobeGap * 0.028;
       }
       return position;
     },
   );
-  // A dark padded saddle overlaps the upper back instead of leaving the
-  // profile's beige air wedge between tunic and load. It is part of the same
-  // burden primitive and follows the burden socket with every pose.
+  // A padded shoulder saddle overlaps the upper back instead of leaving the
+  // profile's air wedge between tunic and load. It is lighter than the deep
+  // shadow cloth so shoulder contact remains legible from profile/back.
   burdenBuilder.addEllipsoid(
     [0, 0.27, 0.02],
     [0.26, 0.075, 0.07],
-    palette.burdenShadow,
+    burdenShade,
     { bone: 0 },
     16,
     8,
@@ -1311,8 +1327,8 @@ export function createAuthoredPilgrimHero(
     // Two broad vertical lobes (upper shoulder pack + weighted lower pack)
     // leave a visible concave gutter down the center without becoming four
     // disconnected balloon primitives in the rear silhouette.
-    [-0.045, 0.08, 0.29, 0.22, 0.12, 0.4],
-    [0.05, -0.19, 0.285, 0.3, 0.125, 2.3],
+    [-0.065, 0.08, 0.245, 0.2, 0.105, 0.4],
+    [0.065, -0.19, 0.235, 0.255, 0.11, 2.3],
   ] as const)
     burdenBuilder.addEllipsoid(
       [x, y, -0.078],
@@ -1320,9 +1336,49 @@ export function createAuthoredPilgrimHero(
       (normal, position) => {
         position.x += Math.sin(position.y * 23 + phase) * 0.012;
         position.z += Math.sin(position.x * 18 + phase) * 0.012;
-        return normal.y > 0.35
-          ? burdenCloth
-          : new Color(burdenCloth).lerp(new Color(palette.burdenShadow), 0.18);
+        // Rear-facing cloth carries the readable base color. Previous shading
+        // only lit upward normals, so the turnaround rear collapsed to black.
+        const rear = Math.max(0, -normal.z);
+        const top = Math.max(0, normal.y);
+        const shadow = new Color(burdenCloth).lerp(burdenShade, 0.72);
+        const shoulderPress =
+          Math.exp(-Math.pow((position.y - 0.2) / 0.05, 2)) *
+          (0.65 +
+            0.35 * Math.exp(-Math.pow((Math.abs(position.x) - 0.18) / 0.06, 2)));
+        const waistPress = Math.exp(-Math.pow((position.y + 0.34) / 0.05, 2));
+        const gutter =
+          Math.max(0, 1 - Math.abs(position.x) / 0.07) *
+          Math.max(0, -normal.z);
+        // Low-profile tension ridges break the lobe's generated sphere without
+        // adding cylindrical rods. They stay shallow enough to preserve the
+        // front/profile silhouette, but catch grazing light on the rear cloth.
+        const foldChannel =
+          Math.sin(position.y * 11 + position.x * 8 + phase) * 0.018 +
+          Math.sin(position.y * 23 - position.x * 13 + phase * 1.7) * 0.009;
+        const clothRelief =
+          Math.sin(position.y * 19 + phase) * 0.014 +
+          Math.sin(position.x * 13 - position.y * 9 + phase * 1.7) * 0.008;
+        position.z +=
+          (clothRelief + foldChannel) *
+          Math.max(0, -normal.z) *
+          (0.72 + top * 0.28);
+        // Keep tonal breakup broad and woven into vertex color. It avoids
+        // floating plate silhouettes while preserving readable rear facets at
+        // the 96px review crop.
+        const facetSignal =
+          Math.sin(position.y * 24 + position.x * 12 + phase) * 0.6 +
+          Math.cos(position.x * 15 - position.y * 8 + phase * 1.4) * 0.4;
+        if (normal.z > 0.18)
+          position.z += shoulderPress * 0.018 + waistPress * 0.014;
+        if (normal.z < -0.2)
+          position.z += (shoulderPress * 0.8 + waistPress) * 0.018 + gutter * 0.035;
+        if (top > 0.42)
+          return new Color(burdenCloth).lerp(burdenFold, 0.28);
+        if (rear > 0.2 && facetSignal > 0.28)
+          return new Color(burdenCloth).lerp(burdenFacet, 0.44);
+        if (rear > 0.2 && facetSignal < -0.28)
+          return new Color(burdenCloth).lerp(burdenDeepFold, 0.34);
+        return rear > 0.2 ? burdenCloth : shadow;
       },
       { bone: 0 },
       20,
@@ -1335,8 +1391,8 @@ export function createAuthoredPilgrimHero(
   ] as const)
     burdenBuilder.addTube(
       ellipseLoop([0, y, 0], [radiusX, 0, radiusZ], "xz", 30),
-      0.011,
-      palette.rope,
+      0.007,
+      burdenRope,
       { bone: 0 },
       5,
       true,
@@ -1344,26 +1400,11 @@ export function createAuthoredPilgrimHero(
   for (const x of [-0.115, 0.11])
     burdenBuilder.addTube(
       ellipseLoop([x, -0.01, -0.045], [0, 0.29, 0.145], "yz", 30),
-      0.011,
-      palette.rope,
+      0.007,
+      burdenShade,
       { bone: 0 },
       5,
       true,
-    );
-  for (const side of [-1, 1] as const)
-    burdenBuilder.addTube(
-      [
-        [side * 0.12, 0.3, -0.01],
-        [side * 0.16, 0.22, 0.06],
-        [side * 0.19, 0.1, 0.1],
-        [side * 0.18, -0.08, 0.085],
-        [side * 0.2, -0.22, 0.055],
-        [side * 0.17, -0.3, 0.0],
-      ],
-      0.014,
-      palette.leather,
-      { bone: 0 },
-      6,
     );
   // Irregular cloth folds replace the old flat rear panel. The sack should
   // compress under the rope, not read as a shield bolted to Christian's back.
@@ -1372,16 +1413,36 @@ export function createAuthoredPilgrimHero(
     [0.04, 0.3, -0.38],
     [0.18, 0.2, -0.24],
   ] as const)
-    burdenBuilder.addTube(
+    burdenBuilder.addLoft(
       [
-        [x, top, -0.17],
-        [x + (x < 0 ? -0.028 : 0.02), (top + bottom) * 0.45, -0.198],
-        [x + (x < 0 ? 0.016 : -0.018), bottom, -0.16],
+        {
+          center: [x, top, -0.176],
+          radiusX: 0.026,
+          radiusZ: 0.011,
+          color: burdenFold,
+          skin: { bone: 0 },
+        },
+        {
+          center: [
+            x + (x < 0 ? -0.028 : 0.02),
+            (top + bottom) * 0.45,
+            -0.204,
+          ],
+          radiusX: 0.034,
+          radiusZ: 0.014,
+          color: burdenDeepFold,
+          skin: { bone: 0 },
+        },
+        {
+          center: [x + (x < 0 ? 0.016 : -0.018), bottom, -0.17],
+          radiusX: 0.022,
+          radiusZ: 0.009,
+          color: burdenFold,
+          skin: { bone: 0 },
+        },
       ],
-      0.014,
-      burdenFold,
-      { bone: 0 },
-      5,
+      8,
+      true,
     );
   burdenBuilder.addTube(
     [
@@ -1391,7 +1452,7 @@ export function createAuthoredPilgrimHero(
       [0, -0.44, -0.17],
     ],
     0.012,
-    palette.rope,
+    burdenRope,
     { bone: 0 },
     5,
   );
@@ -1402,7 +1463,7 @@ export function createAuthoredPilgrimHero(
     burdenBuilder.addEllipsoid(
       [x, y, -0.18],
       [0.038, 0.03, 0.022],
-      palette.rope,
+      burdenRope,
       { bone: 0 },
       8,
       6,
@@ -1412,7 +1473,7 @@ export function createAuthoredPilgrimHero(
   burdenBuilder.addTube(
     ellipseLoop([0.035, 0.31, -0.01], [0.125, 0, 0.095], "xz", 24),
     0.013,
-    palette.rope,
+    burdenRope,
     { bone: 0 },
     6,
     true,
@@ -1420,7 +1481,7 @@ export function createAuthoredPilgrimHero(
   burdenBuilder.addEllipsoid(
     [0.105, 0.335, -0.145],
     [0.045, 0.035, 0.026],
-    palette.rope,
+    burdenRope,
     { bone: 0 },
     10,
     7,
@@ -1432,7 +1493,7 @@ export function createAuthoredPilgrimHero(
       [0.13, 0.49, -0.085],
     ],
     0.011,
-    palette.rope,
+    burdenRope,
     { bone: 0 },
     6,
   );
@@ -1443,7 +1504,7 @@ export function createAuthoredPilgrimHero(
       [0.07, 0.445, -0.09],
     ],
     0.008,
-    palette.rope,
+    burdenRope,
     { bone: 0 },
     6,
   );
@@ -1465,26 +1526,39 @@ export function createAuthoredPilgrimHero(
       { bone: 0 },
       5,
     );
-  // Rear harness stays proud of cloth surface so burden contact reads from
-  // gameplay camera and turnaround back view.
-  for (const side of [-1, 1] as const)
-    burdenBuilder.addTube(
+  // Broad rear webbing makes the load's force path legible without the
+  // previous forest of cylindrical rods. Each stitched strip runs from a
+  // shoulder seat to the waist and is coplanar with the sack's rear cloth.
+  for (const side of [-1, 1] as const) {
+    burdenBuilder.addPatch(
       [
-        // Crown -> shoulder contact -> under-arm -> lower load. The positive
-        // Z shoulder segment intentionally overlaps the padded saddle and
-        // the body-side front strap, eliminating a floating termination in
-        // profile while remaining outside the chest centerline.
-        [side * 0.18, 0.4, 0.01],
-        [side * 0.27, 0.23, 0.085],
-        [side * 0.29, -0.02, 0.095],
-        [side * 0.27, -0.25, 0.075],
-        [side * 0.21, -0.44, 0.015],
+        [side * 0.14, 0.29, -0.192],
+        [side * 0.175, 0.29, -0.192],
+        [side * 0.2, -0.31, -0.192],
+        [side * 0.16, -0.31, -0.192],
       ],
-      0.016,
-      palette.leather,
+      burdenHarnessLeather,
       { bone: 0 },
-      6,
     );
+    burdenBuilder.addEllipsoid(
+      [side * 0.16, 0.29, -0.16],
+      [0.065, 0.04, 0.025],
+      burdenFold,
+      { bone: 0 },
+      12,
+      8,
+    );
+  }
+  burdenBuilder.addPatch(
+    [
+      [-0.2, -0.34, -0.194],
+      [0.2, -0.34, -0.194],
+      [0.2, -0.39, -0.194],
+      [-0.2, -0.39, -0.194],
+    ],
+    burdenHarnessLeather,
+    { bone: 0 },
+  );
   // Lower load belt transfers the weight into the waist instead of stopping
   // in mid-cloth. It is intentionally below the rear rope band.
   burdenBuilder.addTube(
@@ -1493,8 +1567,8 @@ export function createAuthoredPilgrimHero(
       [0, -0.37, 0.055],
       [0.29, -0.34, 0.015],
     ],
-    0.016,
-    palette.leather,
+    0.022,
+    burdenHarnessLeather,
     { bone: 0 },
     6,
   );
@@ -1505,7 +1579,7 @@ export function createAuthoredPilgrimHero(
       [0.27, 0.12, -0.11],
     ],
     0.018,
-    palette.rope,
+    burdenRope,
     { bone: 0 },
     6,
   );
@@ -1526,10 +1600,10 @@ export function createAuthoredPilgrimHero(
   const burdenFarBuilder = new AuthoredGeometryBuilder();
   burdenFarBuilder.addLoft(
     [
-      { center: [-0.035, -0.48, -0.04], radiusX: 0.11, radiusZ: 0.09, color: palette.burdenShadow, skin: { bone: 0 } },
+      { center: [-0.035, -0.48, -0.04], radiusX: 0.11, radiusZ: 0.09, color: burdenShade, skin: { bone: 0 } },
       { center: [0, -0.18, -0.055], radiusX: 0.17, radiusZ: 0.12, color: burdenCloth, skin: { bone: 0 } },
       { center: [0.025, 0.16, -0.05], radiusX: 0.18, radiusZ: 0.12, color: burdenCloth, skin: { bone: 0 } },
-      { center: [0.05, 0.31, -0.035], radiusX: 0.12, radiusZ: 0.085, color: palette.burdenShadow, skin: { bone: 0 } },
+      { center: [0.05, 0.31, -0.035], radiusX: 0.12, radiusZ: 0.085, color: burdenShade, skin: { bone: 0 } },
     ],
     8,
   );
@@ -1545,6 +1619,30 @@ export function createAuthoredPilgrimHero(
       10,
       7,
     );
+  // Keep the burden's identity at distance: two quiet webbing strips and a
+  // waist transfer survive the far LOD/96 px review without reintroducing the
+  // high-detail rope noise of the close mesh.
+  for (const side of [-1, 1] as const)
+    burdenFarBuilder.addPatch(
+      [
+        [side * 0.12, 0.27, -0.145],
+        [side * 0.165, 0.27, -0.145],
+        [side * 0.19, -0.29, -0.145],
+        [side * 0.145, -0.29, -0.145],
+      ],
+      burdenHarnessLeather,
+      { bone: 0 },
+    );
+  burdenFarBuilder.addPatch(
+    [
+      [-0.19, -0.31, -0.147],
+      [0.19, -0.31, -0.147],
+      [0.19, -0.37, -0.147],
+      [-0.19, -0.37, -0.147],
+    ],
+    burdenHarnessLeather,
+    { bone: 0 },
+  );
   const burdenFarMesh = new Mesh(
     burdenFarBuilder.toGeometry("hero.authored.burden.far.geometry"),
     burdenMaterial,
@@ -1560,12 +1658,12 @@ export function createAuthoredPilgrimHero(
   burdenVisual.name = "hero.attachment.burden";
   // Keep sack front plane behind Christian's scapulae. Earlier versions let
   // depth wrap around torso, making burden read like chest armor.
-  burdenVisual.position.set(0, -0.1, -0.08);
+  burdenVisual.position.set(0, -0.08, -0.04);
   // A real tied pack is broad at the shoulders but compresses toward the
   // spine in profile. Scale the authored cloth as a single unit so the ropes,
   // knot, and lower belt keep their relative contact while the load stops
   // reading like a rigid shield behind the head.
-  burdenVisual.scale.set(0.88, 1.04, 0.76);
+  burdenVisual.scale.set(0.8, 0.92, 0.62);
   burdenVisual.add(burdenLod);
   backBurden.add(burdenVisual);
   const burdenHarness = burdenVisual;

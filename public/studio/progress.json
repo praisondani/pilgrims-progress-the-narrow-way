@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T03:49:00-05:00",
+  "updatedAt": "2026-08-10T04:34:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v26 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v36 hero and City v5 remain visual-bar fails, while City draw-call budgets are now green for both desktop and mobile headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -25,10 +25,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-13-critic-failed",
+        "status": "iteration-14-critic-failed",
         "builder": "ultracode hero builder",
-        "critic": "fresh runtime critic — fail, 6.8/10, comparison v26",
-        "largestGap": "v26 materially improves v22 with a tapered waist, longer/slimmer arms and lower body, articulated fingers, smaller boots, and darker adult eye materials. Adult readability, limbs, torso, hands, and boots pass focused layers. The single remaining gap is burden contact/material realism: the oversized black load still reads as a mounted shell with weak shoulder/waist compression."
+        "critic": "fresh runtime critic — fail, 7.3/10, comparison v36",
+        "largestGap": "v36 materially improves v26 with a clean tunic front, compressed asymmetric cloth lobes, integrated relief/facet breakup, rear shoulder webbing, waist transfer, and far-LOD harness identity. Adult readability, burden contact/material, and tight-96 px load identity pass focused layers. The single remaining gap is bulbous low-poly hands and boots with minimal anatomical/material detail."
       },
       {
         "id": "dream",
