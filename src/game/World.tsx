@@ -58,14 +58,20 @@ function DreamGround({ color }: { color: Color }) {
             sin(vDreamGroundPosition.x * 0.18 + vDreamGroundPosition.y * 0.11) * 0.5 +
             sin(vDreamGroundPosition.x * 0.47 - vDreamGroundPosition.y * 0.23) * 0.24;
           float meadowBand = smoothstep(-0.62, 0.62, meadowGrain);
+          float distanceBand = smoothstep(0.0, 18.0, abs(vDreamGroundPosition.y));
           diffuseColor.rgb = mix(
             diffuseColor.rgb * 0.84,
             diffuseColor.rgb * 1.08,
             meadowBand
+          );
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb,
+            diffuseColor.rgb * 0.78 + vec3(0.018, 0.045, 0.052),
+            distanceBand * 0.2
           );`,
         );
     };
-    material.current.customProgramCacheKey = () => "dream-ground-breakup-v1";
+    material.current.customProgramCacheKey = () => "dream-ground-breakup-v2";
     material.current.needsUpdate = true;
   }, []);
   return (
@@ -598,6 +604,14 @@ export function World() {
   const sceneFog = authoredDream
     ? new Color("#2c4050")
     : sky.clone().lerp(new Color(scene.palette.fog), 0.45);
+  const targetLightIntensity = authoredDream
+    ? visibility === "highContrast"
+      ? 3.2
+      : 2.15
+    : visibility === "highContrast"
+      ? 7
+      : 4;
+  const targetLightColor = authoredDream ? "#f0ad68" : scene.palette.light;
   return (
     <>
       <color attach="background" args={[sceneSky]} />
@@ -629,9 +643,10 @@ export function World() {
           3,
           storyScenes[sceneIndex].steps[stepIndex].position[1],
         ]}
-        intensity={visibility === "highContrast" ? 7 : 4}
-        color={scene.palette.light}
-        distance={8}
+        intensity={targetLightIntensity}
+        color={targetLightColor}
+        distance={authoredDream ? 7 : 8}
+        decay={2}
       />
       <RigidBody type="fixed" colliders={false}>
         <CuboidCollider args={[8, 0.25, 8]} position={[0, -0.25, 0]} />

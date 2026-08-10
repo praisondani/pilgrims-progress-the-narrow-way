@@ -767,6 +767,9 @@ export function createDreamEnvironmentResources(
     flatShading: true,
   });
   depthMassesMaterial.onBeforeCompile = (shader) => {
+    shader.uniforms.dreamHazeColor = {
+      value: new Color(palette.fog),
+    };
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
@@ -779,17 +782,23 @@ export function createDreamEnvironmentResources(
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vDreamDepthPosition;",
+        "#include <common>\nuniform vec3 dreamHazeColor;\nvarying vec3 vDreamDepthPosition;",
       )
       .replace(
         "#include <color_fragment>",
         `#include <color_fragment>
         float stoneBand = smoothstep(0.2, 8.2, vDreamDepthPosition.y);
-        diffuseColor.rgb *= mix(0.78, 1.08, stoneBand);`,
+        float rearHaze = smoothstep(8.0, 18.0, vDreamDepthPosition.z);
+        diffuseColor.rgb *= mix(0.78, 1.08, stoneBand);
+        diffuseColor.rgb = mix(
+          diffuseColor.rgb,
+          mix(diffuseColor.rgb * 0.76, dreamHazeColor * 0.9, 0.45),
+          rearHaze * 0.38
+        );`,
       );
   };
   depthMassesMaterial.customProgramCacheKey = () =>
-    "dream-depth-atmosphere-v1";
+    "dream-depth-atmosphere-v2";
   const materials: DreamEnvironmentMaterials = {
     treeNear: new MeshPhysicalMaterial({
       color: palette.silhouette,
@@ -912,9 +921,9 @@ export function createDreamEnvironmentResources(
       // The glass carries a low warm source even before interaction so the
       // shrine reads as a destination; the flame still owns the lit-state
       // peak together with its point light.
-      emissiveIntensity: 0.55,
+      emissiveIntensity: 0.42,
       transparent: true,
-      opacity: 0.62,
+      opacity: 0.58,
       roughness: 0.34,
       vertexColors: true,
       depthWrite: false,

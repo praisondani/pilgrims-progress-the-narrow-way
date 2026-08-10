@@ -67,6 +67,9 @@
 - Dream v12 mobile objective UX pass: compact three-column movement/look/interact
   coach, readable guide action, safe-area-aware card sizing, and fresh desktop/
   mobile runtime evidence; local desktop/mobile first-objective flows remain green
+- Dream v13 lighting pass: warm target/lantern falloff, rear haze tint, and
+  distance-based ground value separation, with zero runtime console/page errors
+  and unchanged Dream draw/triangle budgets
 
 ## In progress
 
@@ -81,6 +84,10 @@
   scored 5.8/10 and ~6.8/10: the card now exposes the torso and route while
   retaining all guidance, but the authored 360-degree world still lacks layered
   lighting, material nuance, and atmospheric depth
+- Dream v13 remains below the visual bar after fresh critics scored 5.9/10 and
+  7.1/10: the warmer lantern/arch is a real focal lift, but rear haze and ground
+  shading are subtle at gameplay scale and the lantern still lacks convincing
+  emission across the 360-degree low-poly world
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -108,7 +115,7 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with authored 360-degree lighting, material nuance, and
-   atmospheric depth now that the mobile objective layout is compact
+5. Continue Dream with a visibly emitting lantern asset and authored rear
+   terrain/material layers now that lighting and mobile UX baselines are stable
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

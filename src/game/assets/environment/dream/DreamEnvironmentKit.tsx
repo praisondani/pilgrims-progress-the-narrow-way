@@ -329,8 +329,8 @@ function DreamLanternLandmark({
   useFrame(({ clock }) => {
     if (light.current) {
       const pulse =
-        lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.38 : 0;
-      light.current.intensity = (lit ? 5.8 : 1.25) + pulse;
+        lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.3 : 0;
+      light.current.intensity = (lit ? 5 : 1.1) + pulse;
     }
     if (!lit || reducedMotion) return;
     const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.07;
@@ -378,9 +378,9 @@ function DreamLanternLandmark({
       <pointLight
         ref={light}
         position={[0, 1.5, 0]}
-        color="#ffd58a"
-        intensity={lit ? 5.8 : 1.25}
-        distance={lit ? 8.2 : 5.6}
+        color="#ffb565"
+        intensity={lit ? 5 : 1.1}
+        distance={lit ? 7.2 : 5.2}
         decay={2}
       />
     </group>
