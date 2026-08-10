@@ -126,6 +126,23 @@ function addDreamMaterialBreakup(geometry: BufferGeometry, strength: number) {
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
 }
 
+function tintDreamHorizonBands(geometry: BufferGeometry) {
+  const position = geometry.getAttribute("position");
+  const color = geometry.getAttribute("color");
+  if (!color) return;
+  for (let index = 0; index < position.count; index += 1) {
+    if (position.getZ(index) < 10) continue;
+    const band = position.getY(index) < 1.2 ? 0.78 : position.getY(index) < 2.5 ? 0.88 : 0.98;
+    color.setXYZ(
+      index,
+      color.getX(index) * band * 0.88,
+      color.getY(index) * band * 0.96,
+      color.getZ(index) * Math.min(1.08, band + 0.16),
+    );
+  }
+  color.needsUpdate = true;
+}
+
 function createNearTreeGeometry() {
   const trunk = new CylinderGeometry(0.16, 0.46, 4.75, 6, 1);
   trunk.translate(0, 2.375, 0);
@@ -464,66 +481,79 @@ function createBankStripGeometry(
  * fog can layer it into the moonlit horizon without adding a draw call.
  */
 function createHorizonRidgeGeometry() {
-  const points: readonly [number, number][] = [
-    [-12, 1.1],
-    [-9, 2.6],
-    [-6, 1.7],
-    [-3, 3.4],
-    [0, 2.25],
-    [3, 3.05],
-    [6, 1.6],
-    [9, 2.55],
-    [12, 1.2],
-  ];
   const positions: number[] = [];
   const indices: number[] = [];
-  const frontZ = 13.1;
-  const backZ = 14.55;
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const [leftX, leftY] = points[index];
-    const [rightX, rightY] = points[index + 1];
-    const offset = positions.length / 3;
-    positions.push(
-      leftX,
-      0.05,
-      frontZ,
-      rightX,
-      0.05,
-      frontZ,
-      rightX,
-      rightY,
-      frontZ,
-      leftX,
-      leftY,
-      frontZ,
-      leftX,
-      0.05,
-      backZ,
-      rightX,
-      0.05,
-      backZ,
-      rightX,
-      rightY,
-      backZ,
-      leftX,
-      leftY,
-      backZ,
-    );
-    indices.push(
-      offset,
-      offset + 1,
-      offset + 2,
-      offset,
-      offset + 2,
-      offset + 3,
-      offset + 4,
-      offset + 6,
-      offset + 5,
-      offset + 4,
-      offset + 7,
-      offset + 6,
-    );
-  }
+  // Three staggered bands share the old eight-segment budget. Their gaps and
+  // different depths keep the rear orbit reading as layered terrain instead
+  // of one continuous faceted wall.
+  const bands: readonly {
+    points: readonly [number, number][];
+    frontZ: number;
+    backZ: number;
+  }[] = [
+    {
+      points: [[-14, 1.05], [-10.5, 2.45], [-7.1, 1.45], [-3.9, 2.9]],
+      frontZ: 12.8,
+      backZ: 13.7,
+    },
+    {
+      points: [[-3, 0.9], [0.2, 2.2], [3.6, 1.25], [6.1, 2.65]],
+      frontZ: 14.2,
+      backZ: 15.25,
+    },
+    {
+      points: [[6.7, 0.8], [10.1, 2.35], [14, 1.1]],
+      frontZ: 16,
+      backZ: 17.1,
+    },
+  ];
+  bands.forEach(({ points, frontZ, backZ }) => {
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const [leftX, leftY] = points[index];
+      const [rightX, rightY] = points[index + 1];
+      const offset = positions.length / 3;
+      positions.push(
+        leftX,
+        0.05,
+        frontZ,
+        rightX,
+        0.05,
+        frontZ,
+        rightX,
+        rightY,
+        frontZ,
+        leftX,
+        leftY,
+        frontZ,
+        leftX,
+        0.05,
+        backZ,
+        rightX,
+        0.05,
+        backZ,
+        rightX,
+        rightY,
+        backZ,
+        leftX,
+        leftY,
+        backZ,
+      );
+      indices.push(
+        offset,
+        offset + 1,
+        offset + 2,
+        offset,
+        offset + 2,
+        offset + 3,
+        offset + 4,
+        offset + 6,
+        offset + 5,
+        offset + 4,
+        offset + 7,
+        offset + 6,
+      );
+    }
+  });
   const geometry = new BufferGeometry();
   geometry.setAttribute(
     "position",
@@ -654,6 +684,7 @@ export function createDreamEnvironmentResources(
   addDreamMaterialBreakup(geometries.path, 0.045);
   addDreamMaterialBreakup(geometries.streamBed, 0.06);
   addDreamMaterialBreakup(geometries.depthMasses, 0.065);
+  tintDreamHorizonBands(geometries.depthMasses);
   addDreamMaterialBreakup(geometries.lanternBaseRock, 0.08);
   addDreamMaterialBreakup(geometries.lanternFrame, 0.06);
   addDreamMaterialBreakup(geometries.lanternGlass, 0.035);
@@ -816,7 +847,7 @@ export function createDreamEnvironmentResources(
       color: palette.groundMid,
       roughness: 1,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.32,
       depthWrite: false,
     }),
     ridge: new MeshStandardMaterial({
@@ -831,6 +862,8 @@ export function createDreamEnvironmentResources(
       metalness: 0,
       clearcoat: 0.16,
       clearcoatRoughness: 0.72,
+      emissive: palette.groundDark,
+      emissiveIntensity: 0.045,
       vertexColors: true,
       flatShading: true,
     }),
@@ -840,6 +873,8 @@ export function createDreamEnvironmentResources(
       metalness: 0.02,
       clearcoat: 0.48,
       clearcoatRoughness: 0.38,
+      emissive: palette.streamInk,
+      emissiveIntensity: 0.12,
       vertexColors: true,
       flatShading: true,
     }),
@@ -874,11 +909,12 @@ export function createDreamEnvironmentResources(
     lanternGlass: new MeshStandardMaterial({
       color: palette.lanternGlass,
       emissive: palette.lanternFlame,
-      // Keep the glass cool and readable while unlit; the warm response is
-      // reserved for the flame and point light after interaction.
-      emissiveIntensity: 0.24,
+      // The glass carries a low warm source even before interaction so the
+      // shrine reads as a destination; the flame still owns the lit-state
+      // peak together with its point light.
+      emissiveIntensity: 0.55,
       transparent: true,
-      opacity: 0.48,
+      opacity: 0.62,
       roughness: 0.34,
       vertexColors: true,
       depthWrite: false,

@@ -59,6 +59,9 @@
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
   and green unit, asset, build, secret, bundle, and first-objective gates
+- Dream v10 bounded environment pass: three staggered rear depth bands, brighter
+  lantern glass/emissive pool, and mobile/desktop runtime evidence; Dream tests,
+  build, and headless draw/triangle budgets remain green
 
 ## In progress
 
@@ -66,6 +69,9 @@
 - Dream v9 visual iteration remains open after fresh critics scored 5.8/10 and
   6.4/10: camera safety and route readability improved, but 360-degree authored
   material depth, rear-world density, and a luminous shrine still miss the bar
+- Dream v10 remains below the visual bar after fresh critics scored 5.6/10 and
+  6.7/10: the desktop ridge and shrine improved, but mobile/rear depth parity
+  still collapses and the mobile tutorial/objective card hides too much of the world
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -93,7 +99,7 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with authored 360-degree rear composition, layered terrain/lighting,
-   and a stronger shrine focal source before returning to Wicket Gate and finale
+5. Continue Dream with a mobile-safe tutorial/objective layout and authored rear
+   depth/material bands before returning to Wicket Gate and finale
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA
