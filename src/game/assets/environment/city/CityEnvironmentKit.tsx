@@ -1,8 +1,10 @@
 import { Sparkles } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
+  BackSide,
   BoxGeometry,
+  BufferGeometry,
   CapsuleGeometry,
   Color,
   ConeGeometry,
@@ -12,12 +14,15 @@ import {
   Float32BufferAttribute,
   Group,
   InstancedMesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
   Path,
   Shape,
+  SphereGeometry,
   StaticDrawUsage,
 } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
   CITY_BUILDING_SITES,
   CITY_DEBRIS_POSITIONS,
@@ -174,15 +179,32 @@ const CITY_CREST_MATERIAL = new MeshStandardMaterial({
 });
 const CITY_SKYLINE_BODY_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
-  emissive: "#2b2632",
-  emissiveIntensity: 0.13,
+  emissive: "#9a5065",
+  emissiveIntensity: 0.48,
   roughness: 0.96,
   vertexColors: true,
 });
 const CITY_SKYLINE_ROOF_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
+  emissive: "#b96375",
+  emissiveIntensity: 0.58,
   roughness: 1,
   vertexColors: true,
+});
+const CITY_HORIZON_MATERIAL = new MeshBasicMaterial({
+  color: "#ffffff",
+  side: BackSide,
+  vertexColors: true,
+  toneMapped: false,
+});
+const CITY_SKY_MATERIAL = new MeshStandardMaterial({
+  color: "#ffffff",
+  emissive: "#171522",
+  emissiveIntensity: 0.24,
+  roughness: 1,
+  side: BackSide,
+  vertexColors: true,
+  depthWrite: false,
 });
 
 /**
@@ -212,6 +234,132 @@ function variedStyleColor(value: string, index: number) {
   const color = new Color(value);
   color.offsetHSL(0, index % 2 === 0 ? 0.008 : -0.006, [-0.035, 0.018, 0.042][index % 3]);
   return `#${color.getHexString()}`;
+}
+
+function setGeometryColor(geometry: BufferGeometry, value: string) {
+  const position = geometry.getAttribute("position");
+  const color = new Color(value);
+  const colors = new Float32Array(position.count * 3);
+  for (let index = 0; index < position.count; index += 1) {
+    colors[index * 3] = color.r;
+    colors[index * 3 + 1] = color.g;
+    colors[index * 3 + 2] = color.b;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+}
+
+/**
+ * One low-poly, grounded city edge closes the view in every orbit. A low
+ * continuous plinth keeps the horizon grounded while narrower upper blocks
+ * step in and out around the ring, giving the rear view a connected skyline
+ * instead of one featureless perimeter wall. Twelve segments are used on
+ * mobile (288 triangles); fourteen elsewhere (336).
+ */
+function makeGroundedCityHorizonGeometry(segmentCount: number) {
+  const radius = 22;
+  const depth = 1.35;
+  const arc = (Math.PI * 2 * radius) / segmentCount;
+  const segmentWidth = arc * 1.06;
+  const baseHeights = [0.24, 0.32, 0.2, 0.38, 0.28, 0.34, 0.22, 0.32, 0.26, 0.36, 0.18, 0.3, 0.24, 0.34];
+  const skylineHeights = [2.56, 3.26, 2.34, 3.68, 2.82, 3.42, 2.48, 3.52, 2.7, 3.18, 2.3, 3.34, 2.76, 3.58];
+  const palette = [
+    ["#4d3c49", "#5b4655"],
+    ["#58424d", "#664e5b"],
+    ["#493946", "#564353"],
+    ["#604853", "#705565"],
+    ["#51404c", "#5f4a59"],
+    ["#5d4651", "#684f5e"],
+    ["#463746", "#544251"],
+  ] as const;
+  const parts: BufferGeometry[] = [];
+
+  for (let index = 0; index < segmentCount; index += 1) {
+    const angle = (index / segmentCount) * Math.PI * 2;
+    const baseHeight = baseHeights[index % baseHeights.length];
+    const skylineHeight = skylineHeights[index % skylineHeights.length];
+    const upperHeight = skylineHeight - baseHeight;
+    const rotation = Math.PI / 2 - angle;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    const [bodyColor, upperColor] = palette[index % palette.length];
+
+    const body = new BoxGeometry(segmentWidth, baseHeight, depth);
+    body.translate(0, baseHeight * 0.5, 0);
+    body.rotateY(rotation);
+    body.translate(x, 0, z);
+    setGeometryColor(body, bodyColor);
+    parts.push(body);
+
+    const upper = new BoxGeometry(segmentWidth * 0.46, upperHeight, depth * 0.9);
+    upper.translate(0, baseHeight + upperHeight * 0.5, 0);
+    upper.rotateY(rotation);
+    upper.translate(
+      Math.cos(angle) * (radius - 0.28),
+      0,
+      Math.sin(angle) * (radius - 0.28),
+    );
+    setGeometryColor(upper, upperColor);
+    parts.push(upper);
+  }
+
+  const compatible = parts.map((part) => {
+    const geometry = part.toNonIndexed();
+    part.dispose();
+    geometry.deleteAttribute("uv");
+    geometry.deleteAttribute("tangent");
+    return geometry;
+  });
+  const geometry = mergeGeometries(compatible, false);
+  compatible.forEach((part) => part.dispose());
+  if (!geometry) throw new Error("City horizon geometry merge failed");
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+}
+
+function makeCityDuskDomeGeometry(quality: CityQualityPreset) {
+  const geometry = new SphereGeometry(
+    29,
+    quality === "low" ? 12 : 16,
+    quality === "low" ? 6 : 8,
+  );
+  const position = geometry.getAttribute("position");
+  const horizon = new Color("#705260");
+  const zenith = new Color("#171a29");
+  const colors = new Float32Array(position.count * 3);
+  for (let index = 0; index < position.count; index += 1) {
+    const elevation = Math.max(
+      0,
+      Math.min(1, (position.getY(index) + 18) / 38),
+    );
+    const color = horizon.clone().lerp(zenith, elevation);
+    colors[index * 3] = color.r;
+    colors[index * 3 + 1] = color.g;
+    colors[index * 3 + 2] = color.b;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+  return geometry;
+}
+
+function makeSkylineTowerBodyGeometry() {
+  const skirt = new BoxGeometry(1.24, 0.24, 1.1);
+  skirt.translate(0, 0.12, 0);
+  const upper = new BoxGeometry(1, 0.76, 0.85);
+  upper.translate(0, 0.62, 0);
+  const parts = [skirt, upper].map((part) => {
+    const geometry = part.toNonIndexed();
+    part.dispose();
+    geometry.deleteAttribute("uv");
+    geometry.deleteAttribute("tangent");
+    return geometry;
+  });
+  const geometry = mergeGeometries(parts, false);
+  parts.forEach((part) => part.dispose());
+  if (!geometry) throw new Error("City tower body geometry merge failed");
+  geometry.computeVertexNormals();
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
+  return geometry;
 }
 
 type CityBuildingProfile = "steep" | "broad";
@@ -1054,24 +1202,55 @@ function CityThresholdLandmark({
 
 function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].skylineTowers;
+  const horizonSegments = quality === "low" ? 12 : 14;
+  const duskDomeGeometry = useMemo(
+    () => makeCityDuskDomeGeometry(quality),
+    [quality],
+  );
+  const horizonGeometry = useMemo(
+    () => makeGroundedCityHorizonGeometry(horizonSegments),
+    [horizonSegments],
+  );
   const towers = [
-    // Keep the first three on cardinal anchors: the low mobile preset still
-    // reads as a city when the camera orbits away from the front gate.
-    [0, -13.6, 3.2, 2.1, "#564554", "#342d3b"],
-    [-13.8, 0, 2.0, 1.5, "#5c4853", "#3a303c"],
-    [13.8, 0, 2.3, 1.65, "#514452", "#332c3a"],
-    [0, 13.8, 2.1, 1.55, "#68505c", "#3f3544"],
-    [-17.2, -17.2, 1.45, 1.15, "#6d4d55", "#40343f"],
-    [17.2, -17.2, 1.65, 1.32, "#66505b", "#3f3441"],
-    [-17.2, 17.2, 1.35, 1.08, "#5c4b58", "#382f3d"],
+    // Twelve authored placements keep a readable skyline in every heading;
+    // the mobile slice takes the first eight while desktop adds the rest.
+    [0, -20.2, 4.8, 2.2, "#684652", "#805865"],
+    [14.3, -14.3, 5.4, 2.0, "#704b54", "#8c6069"],
+    [20.6, 0, 4.4, 2.6, "#5f4351", "#795465"],
+    [14.8, 14.8, 5.7, 2.3, "#754e57", "#93636c"],
+    [0, 20.8, 4.8, 2.7, "#684658", "#805b6a"],
+    [-14.8, 14.8, 5.3, 2.1, "#79525e", "#966772"],
+    [-20.6, 0, 4.3, 2.4, "#624451", "#7d5863"],
+    [-14.3, -14.3, 5.6, 2.2, "#714b5b", "#8b606f"],
+    [7.4, -19.1, 4.6, 2.5, "#634351", "#7c5663"],
+    [19.1, 7.4, 5.2, 2.15, "#754d57", "#93626b"],
+    [-7.4, 19.1, 4.2, 2.55, "#664452", "#815968"],
+    [-19.1, -7.4, 5.8, 2.35, "#79505a", "#966570"],
   ] as const;
   const visibleTowers = useMemo(() => towers.slice(0, count), [count]);
   const towerBodies = useRef<InstancedMesh>(null);
   const towerRoofs = useRef<InstancedMesh>(null);
   const towerWindows = useRef<InstancedMesh>(null);
-  const towerBodyGeometry = useMemo(() => new BoxGeometry(1, 1, 0.85), []);
+  const towerBodyGeometry = useMemo(() => makeSkylineTowerBodyGeometry(), []);
   const towerRoofGeometry = useMemo(() => new ConeGeometry(1, 0.52, 4), []);
   const towerWindowGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
+
+  useEffect(
+    () => () => {
+      duskDomeGeometry.dispose();
+      horizonGeometry.dispose();
+      towerBodyGeometry.dispose();
+      towerRoofGeometry.dispose();
+      towerWindowGeometry.dispose();
+    },
+    [
+      duskDomeGeometry,
+      horizonGeometry,
+      towerBodyGeometry,
+      towerRoofGeometry,
+      towerWindowGeometry,
+    ],
+  );
 
   useLayoutEffect(() => {
     const dummy = new Object3D();
@@ -1083,32 +1262,40 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
     roof.instanceMatrix.setUsage(StaticDrawUsage);
     window.instanceMatrix.setUsage(StaticDrawUsage);
     visibleTowers.forEach(([x, z, height, width, bodyColor, roofColor], index) => {
-      dummy.position.set(x, height * 0.5, z);
-      dummy.rotation.set(0, 0, 0);
-      dummy.scale.set(width, height, 1);
+      const towerRotation = Math.atan2(x, z);
+      dummy.position.set(x, 0, z);
+      dummy.rotation.set(0, towerRotation, 0);
+      dummy.scale.set(width, height, 1.5);
       dummy.updateMatrix();
       body.setMatrixAt(index, dummy.matrix);
       body.setColorAt(index, new Color(bodyColor));
 
       dummy.position.set(x, height + 0.26, z);
-      dummy.rotation.set(0, Math.PI / 4, 0);
-      dummy.scale.set(width * 0.72, 1, width * 0.72);
+      dummy.rotation.set(0, towerRotation + Math.PI / 4, 0);
+      dummy.scale.set(width * 0.78, 1, width * 0.78);
       dummy.updateMatrix();
       roof.setMatrixAt(index, dummy.matrix);
       roof.setColorAt(index, new Color(roofColor));
 
       const facing = Math.atan2(-x, -z);
-      const lit = index % 2 === 0;
-      dummy.position.set(
-        x + Math.sin(facing) * 0.46,
-        height * 0.62,
-        z + Math.cos(facing) * 0.46,
-      );
-      dummy.rotation.set(0, facing, 0);
-      dummy.scale.set(lit ? width * 0.28 : 0, lit ? height * 0.2 : 0, 0.04);
-      dummy.updateMatrix();
-      window.setMatrixAt(index, dummy.matrix);
-      window.setColorAt(index, new Color("#d28a58"));
+      const inwardX = Math.sin(facing);
+      const inwardZ = Math.cos(facing);
+      const tangentX = Math.cos(facing);
+      const tangentZ = -Math.sin(facing);
+      for (let slot = 0; slot < 3; slot += 1) {
+        const lateral = (slot - 1) * width * 0.28;
+        const windowIndex = index * 3 + slot;
+        dummy.position.set(
+          x + inwardX * 0.68 + tangentX * lateral,
+          height * (0.42 + (slot % 2) * 0.16),
+          z + inwardZ * 0.68 + tangentZ * lateral,
+        );
+        dummy.rotation.set(0, facing, 0);
+        dummy.scale.set(width * 0.14, height * 0.085, 0.04);
+        dummy.updateMatrix();
+        window.setMatrixAt(windowIndex, dummy.matrix);
+        window.setColorAt(windowIndex, new Color(slot === 1 ? "#f4b56c" : "#dd8a55"));
+      }
     });
     [body, roof, window].forEach((mesh) => {
       mesh.instanceMatrix.needsUpdate = true;
@@ -1119,6 +1306,19 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
 
   return (
     <group name="city-depth-backdrop">
+      <mesh
+        name="city-dusk-dome"
+        geometry={duskDomeGeometry}
+        material={CITY_SKY_MATERIAL}
+        position={[0, 3, 0]}
+        renderOrder={-10}
+        frustumCulled={false}
+      />
+      <mesh
+        name="city-grounded-horizon"
+        geometry={horizonGeometry}
+        material={CITY_HORIZON_MATERIAL}
+      />
       <mesh position={[0, 1.08, -10.35]} receiveShadow>
         <boxGeometry args={[17.8, 2.16, 0.7]} />
         <meshStandardMaterial
@@ -1126,15 +1326,6 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
           emissive="#292531"
           emissiveIntensity={0.12}
           roughness={1}
-        />
-      </mesh>
-      <mesh position={[0, 1.18, 20.35]} rotation={[0, Math.PI, 0]} receiveShadow castShadow>
-        <boxGeometry args={[9.2, 2.35, 0.92]} />
-        <meshStandardMaterial
-          color="#76535b"
-          emissive="#3e2e3a"
-          emissiveIntensity={0.1}
-          roughness={0.96}
         />
       </mesh>
       <mesh position={[-20.35, 2.47, 0]} rotation={[0, Math.PI / 2, 0]} castShadow>
@@ -1161,7 +1352,7 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
           />
           <instancedMesh
             ref={towerWindows}
-            args={[towerWindowGeometry, CITY_WINDOW_MATERIAL, visibleTowers.length]}
+            args={[towerWindowGeometry, CITY_WINDOW_MATERIAL, visibleTowers.length * 3]}
           />
         </>
       )}

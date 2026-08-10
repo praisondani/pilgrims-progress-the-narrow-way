@@ -143,9 +143,9 @@ export const CITY_QUALITY_COUNTS: Record<CityQualityPreset, {
   marketProps: number;
   skylineTowers: number;
 }> = {
-  low: { streetStones: 7, marketProps: 2, skylineTowers: 3 },
-  medium: { streetStones: 14, marketProps: 4, skylineTowers: 5 },
-  high: { streetStones: 14, marketProps: 6, skylineTowers: 7 },
+  low: { streetStones: 7, marketProps: 2, skylineTowers: 8 },
+  medium: { streetStones: 14, marketProps: 4, skylineTowers: 10 },
+  high: { streetStones: 14, marketProps: 6, skylineTowers: 12 },
 };
 
 export function cityDistanceToTarget(

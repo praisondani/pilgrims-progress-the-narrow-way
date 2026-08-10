@@ -57,6 +57,11 @@
   restrained facade/road wear, target-safe planters, instanced market citizens,
   banners/crest, layered threshold masonry, cobbles, market dressing, skyline
   depth, street lamps/signs/debris, and threshold lantern
+- City v19 360-degree skyline pass: dusk dome, grounded stepped horizon ring,
+  radial windowed skyline towers with connected skirt bases, warm emissive roof
+  materials, and mobile 8/10/12 quality counts. City tests 2/2, full unit suite
+  68/68, build, bundle, secret audit, and mobile runtime smoke remain green;
+  current headless mobile profile is 97 draw calls p95 / 31,608 triangles p95.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -103,12 +108,11 @@
   independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
   pass that improves torso/garment construction but is paused before a fresh
   critic loop. A licensed sculpt/GLB remains the long-term target.
-- City v7 runtime critic review complete: conservative 6.1/10 (+0.3 versus v6;
-  desktop/orbit ~6.5), with the centered road, surrounding authored buildings,
-  and ring skyline readable without occluding the gate or path. Instanced
-  cardinal/diagonal depth geometry measures 136 desktop / 94 mobile draw-call
-  p95. The visual bar still fails on mobile depth parity: the low preset
-  collapses to a gate corridor with no readable surrounding skyline.
+- City v19 runtime critic review complete: 7.1/10 and 7.7/10 desktop-front,
+  5.1–5.3/10 rear proxy, and 5.4–6.9/10 mobile depending on critic. The ring,
+  skirts, windows, and radial towers remove black horizon artifacts and floating
+  pole silhouettes. Visual bar still fails because rear/side views lack layered
+  midground terrain around the ring and mobile framing lets one tower dominate.
 
 ## Blocked
 
@@ -118,7 +122,9 @@
 
 ## Next
 
-1. Preserve City v7's ring skyline on the low-quality mobile preset, then re-run blind runtime critique
+1. Add City outer terrain and rear/side midground layers around v19's grounded
+   skyline, then re-run blind runtime critique without increasing mobile draw
+   budget beyond the current 97-call p95 profile
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
