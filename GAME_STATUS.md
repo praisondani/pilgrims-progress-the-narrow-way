@@ -67,13 +67,12 @@
   independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
   pass that improves torso/garment construction but is paused before a fresh
   critic loop. A licensed sculpt/GLB remains the long-term target.
-- City v6 runtime critic review complete: clear lift to a conservative 5.7/10
-  (+0.6 versus v5; a second fresh critic scored 6.4/10), cue/interact flow
-  still passes, and draw budgets remain green at 150
-  desktop / 98 mobile p95. Facade/roof value breakup, warmer palettes, richer
-  backdrop separation, and dust atmosphere now read materially better on
-  desktop. The visual bar still fails on continuous authored 360-degree city
-  depth: orbit exposes a one-axis corridor and mobile remains largely unchanged.
+- City v7 runtime critic review complete: conservative 6.1/10 (+0.3 versus v6;
+  desktop/orbit ~6.5), with the centered road, surrounding authored buildings,
+  and ring skyline readable without occluding the gate or path. Instanced
+  cardinal/diagonal depth geometry measures 136 desktop / 94 mobile draw-call
+  p95. The visual bar still fails on mobile depth parity: the low preset
+  collapses to a gate corridor with no readable surrounding skyline.
 
 ## Blocked
 
@@ -83,7 +82,7 @@
 
 ## Next
 
-1. Give City v6 a true 360-degree skyline/depth pass, then re-run blind runtime critique
+1. Preserve City v7's ring skyline on the low-quality mobile preset, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test

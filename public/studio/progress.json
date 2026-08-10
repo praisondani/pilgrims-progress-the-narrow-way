@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T05:27:00-05:00",
+  "updatedAt": "2026-08-10T05:44:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v38 hero builder pass and City v6 remain visual-bar work, while City draw-call budgets are green for both desktop and mobile headless profiles.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v38 hero builder pass and City v7 remain visual-bar work, while City draw-call budgets are green for both desktop and mobile headless profiles.",
     "workstreams": [
       {
         "id": "baseline",
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-6-critic-failed-performance-pass",
+        "status": "iteration-7-critic-failed-performance-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critics — fail, conservative 5.7/10 (second 6.4/10), v6 comparison; perf follow-up within budget",
-        "largestGap": "v6 materially improves desktop facade/roof value breakup, palette separation, backdrop windows, warm lighting, and dust while preserving cue/interact flow and 150 desktop / 98 mobile draw-call p95. Mobile remains visually close to v5, and the fresh orbit still exposes a one-axis corridor with an empty 360-degree horizon; continuous authored skyline/depth remains the single largest gap versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critic — fail, conservative 6.1/10, v7 comparison; perf follow-up within budget",
+        "largestGap": "v7 adds instanced cardinal/diagonal skyline silhouettes and a ring backdrop, improving desktop orbit depth without occluding the playable axis; measured City p95 is 136 desktop / 94 mobile draw calls. The mobile low preset still reads as a gate corridor with no surrounding skyline, so low-tier depth parity is the single largest gap versus Kena/Pathless/RiME."
       },
       {
         "id": "wicket-gate",
@@ -416,6 +416,18 @@
     {
       "label": "City v6 runtime — mobile low-tier comparison",
       "path": "/studio-evidence/vertical-slice-01/city-v6-runtime-mobile.png"
+    },
+    {
+      "label": "City v7 runtime — ring skyline forward",
+      "path": "/studio-evidence/vertical-slice-01/city-v7-runtime-desktop.png"
+    },
+    {
+      "label": "City v7 runtime — ring skyline orbit",
+      "path": "/studio-evidence/vertical-slice-01/city-v7-runtime-orbit.png"
+    },
+    {
+      "label": "City v7 runtime — mobile low-tier ring comparison",
+      "path": "/studio-evidence/vertical-slice-01/city-v7-runtime-mobile.png"
     }
   ],
   "gates": {
@@ -428,6 +440,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates pass and City draw budgets pass, but v38 hero and City v6 critics fail the visual bar; City still needs continuous 360-degree skyline/depth and a production Christian GLB"
+    "deployment": "not authorized for studio release: gameplay/regression gates pass and City draw budgets pass, but v38 hero and City v7 critics fail the visual bar; City still needs mobile depth parity and a production Christian GLB"
   }
 }

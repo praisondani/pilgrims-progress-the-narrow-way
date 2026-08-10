@@ -172,6 +172,18 @@ const CITY_CREST_MATERIAL = new MeshStandardMaterial({
   roughness: 0.56,
   metalness: 0.24,
 });
+const CITY_SKYLINE_BODY_MATERIAL = new MeshStandardMaterial({
+  color: "#ffffff",
+  emissive: "#2b2632",
+  emissiveIntensity: 0.13,
+  roughness: 0.96,
+  vertexColors: true,
+});
+const CITY_SKYLINE_ROOF_MATERIAL = new MeshStandardMaterial({
+  color: "#ffffff",
+  roughness: 1,
+  vertexColors: true,
+});
 
 /**
  * Adds a restrained authored value breakup to the low-poly kits. The
@@ -1043,14 +1055,68 @@ function CityThresholdLandmark({
 function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].skylineTowers;
   const towers = [
-    [-7.35, 2.1, 1.65, "#5c4853", "#3a303c"],
-    [-4.45, 1.55, 1.25, "#6d4d55", "#40343f"],
-    [0, 3.9, 2.4, "#564554", "#342d3b"],
-    [4.6, 1.8, 1.5, "#68505c", "#3f3544"],
-    [7.2, 2.5, 1.82, "#514452", "#332c3a"],
-    [-9.2, 1.35, 1.05, "#66505b", "#3f3441"],
-    [9.1, 1.55, 1.15, "#5c4b58", "#382f3d"],
+    // Keep the first three on cardinal anchors: the low mobile preset still
+    // reads as a city when the camera orbits away from the front gate.
+    [0, -13.6, 3.2, 2.1, "#564554", "#342d3b"],
+    [-13.8, 0, 2.0, 1.5, "#5c4853", "#3a303c"],
+    [13.8, 0, 2.3, 1.65, "#514452", "#332c3a"],
+    [0, 13.8, 2.1, 1.55, "#68505c", "#3f3544"],
+    [-17.2, -17.2, 1.45, 1.15, "#6d4d55", "#40343f"],
+    [17.2, -17.2, 1.65, 1.32, "#66505b", "#3f3441"],
+    [-17.2, 17.2, 1.35, 1.08, "#5c4b58", "#382f3d"],
   ] as const;
+  const visibleTowers = useMemo(() => towers.slice(0, count), [count]);
+  const towerBodies = useRef<InstancedMesh>(null);
+  const towerRoofs = useRef<InstancedMesh>(null);
+  const towerWindows = useRef<InstancedMesh>(null);
+  const towerBodyGeometry = useMemo(() => new BoxGeometry(1, 1, 0.85), []);
+  const towerRoofGeometry = useMemo(() => new ConeGeometry(1, 0.52, 4), []);
+  const towerWindowGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
+
+  useLayoutEffect(() => {
+    const dummy = new Object3D();
+    const body = towerBodies.current;
+    const roof = towerRoofs.current;
+    const window = towerWindows.current;
+    if (!body || !roof || !window) return;
+    body.instanceMatrix.setUsage(StaticDrawUsage);
+    roof.instanceMatrix.setUsage(StaticDrawUsage);
+    window.instanceMatrix.setUsage(StaticDrawUsage);
+    visibleTowers.forEach(([x, z, height, width, bodyColor, roofColor], index) => {
+      dummy.position.set(x, height * 0.5, z);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(width, height, 1);
+      dummy.updateMatrix();
+      body.setMatrixAt(index, dummy.matrix);
+      body.setColorAt(index, new Color(bodyColor));
+
+      dummy.position.set(x, height + 0.26, z);
+      dummy.rotation.set(0, Math.PI / 4, 0);
+      dummy.scale.set(width * 0.72, 1, width * 0.72);
+      dummy.updateMatrix();
+      roof.setMatrixAt(index, dummy.matrix);
+      roof.setColorAt(index, new Color(roofColor));
+
+      const facing = Math.atan2(-x, -z);
+      const lit = index % 2 === 0;
+      dummy.position.set(
+        x + Math.sin(facing) * 0.46,
+        height * 0.62,
+        z + Math.cos(facing) * 0.46,
+      );
+      dummy.rotation.set(0, facing, 0);
+      dummy.scale.set(lit ? width * 0.28 : 0, lit ? height * 0.2 : 0, 0.04);
+      dummy.updateMatrix();
+      window.setMatrixAt(index, dummy.matrix);
+      window.setColorAt(index, new Color("#d28a58"));
+    });
+    [body, roof, window].forEach((mesh) => {
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      mesh.computeBoundingSphere();
+    });
+  }, [visibleTowers]);
+
   return (
     <group name="city-depth-backdrop">
       <mesh position={[0, 1.08, -10.35]} receiveShadow>
@@ -1062,7 +1128,7 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
           roughness={1}
         />
       </mesh>
-      <mesh position={[0, 1.18, -9.78]} receiveShadow castShadow>
+      <mesh position={[0, 1.18, 20.35]} rotation={[0, Math.PI, 0]} receiveShadow castShadow>
         <boxGeometry args={[9.2, 2.35, 0.92]} />
         <meshStandardMaterial
           color="#76535b"
@@ -1071,7 +1137,7 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
           roughness={0.96}
         />
       </mesh>
-      <mesh position={[0, 2.47, -9.38]} castShadow>
+      <mesh position={[-20.35, 2.47, 0]} rotation={[0, Math.PI / 2, 0]} castShadow>
         <boxGeometry args={[9.85, 0.28, 1.24]} />
         <meshStandardMaterial color="#a87363" emissive="#523c44" emissiveIntensity={0.08} roughness={0.9} />
       </mesh>
@@ -1081,34 +1147,29 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
           <meshStandardMaterial color={x < 0 ? "#594452" : "#5d594c"} roughness={0.98} />
         </mesh>
       ))}
-      {towers.slice(0, count).map(([x, height, width, bodyColor, roofColor], index) => (
-        <group key={x} position={[x, 0, -10.1]}>
-          <mesh position={[0, height * 0.5, 0]} castShadow>
-            <boxGeometry args={[width, height, 0.85]} />
-            <meshStandardMaterial
-              color={bodyColor}
-              emissive="#2b2632"
-              emissiveIntensity={0.12 + (index % 2) * 0.03}
-              roughness={0.96}
-            />
-          </mesh>
-          <mesh position={[0, height + 0.26, 0]} castShadow>
-            <coneGeometry args={[width * 0.72, 0.52, 4]} />
-            <meshStandardMaterial color={roofColor} roughness={1} />
-          </mesh>
-          {index % 2 === 0 && (
-            <mesh position={[0, height * 0.62, 0.46]}>
-              <boxGeometry args={[width * 0.28, height * 0.2, 0.04]} />
-              <meshStandardMaterial color="#d28a58" emissive="#9a4d32" emissiveIntensity={0.7} roughness={0.48} />
-            </mesh>
-          )}
-        </group>
-      ))}
-      <mesh position={[-8.8, 0.36, -8.95]} rotation={[0, 0, -0.08]}>
+      {visibleTowers.length > 0 && (
+        <>
+          <instancedMesh
+            ref={towerBodies}
+            args={[towerBodyGeometry, CITY_SKYLINE_BODY_MATERIAL, visibleTowers.length]}
+            castShadow
+          />
+          <instancedMesh
+            ref={towerRoofs}
+            args={[towerRoofGeometry, CITY_SKYLINE_ROOF_MATERIAL, visibleTowers.length]}
+            castShadow
+          />
+          <instancedMesh
+            ref={towerWindows}
+            args={[towerWindowGeometry, CITY_WINDOW_MATERIAL, visibleTowers.length]}
+          />
+        </>
+      )}
+      <mesh position={[-20.5, 0.36, 0]} rotation={[0, Math.PI / 2, -0.08]}>
         <boxGeometry args={[3.6, 0.72, 0.46]} />
         <meshStandardMaterial color="#66505a" roughness={1} />
       </mesh>
-      <mesh position={[8.7, 0.4, -8.85]} rotation={[0, 0, 0.08]}>
+      <mesh position={[20.5, 0.4, 0]} rotation={[0, Math.PI / 2, 0.08]}>
         <boxGeometry args={[3.5, 0.8, 0.46]} />
         <meshStandardMaterial color="#5c4b57" roughness={1} />
       </mesh>
