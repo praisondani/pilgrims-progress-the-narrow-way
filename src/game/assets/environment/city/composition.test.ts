@@ -3,6 +3,9 @@ import {
   CITY_BUILDING_SITES,
   CITY_QUALITY_COUNTS,
   CITY_MARKET_STALL_POSITIONS,
+  CITY_SIGN_POSITIONS,
+  CITY_STREET_LAMP_POSITIONS,
+  CITY_DEBRIS_POSITIONS,
   CITY_STORY_TARGETS,
   CITY_STREET_STONES,
   cityDistanceToTarget,
@@ -25,6 +28,12 @@ describe("City authored composition", () => {
       ).toBe(target[0] !== 0);
       for (const stall of CITY_MARKET_STALL_POSITIONS)
         expect(cityDistanceToTarget(stall, target), `stall near ${target.join(",")}`).toBeGreaterThan(2.35);
+      for (const prop of [
+        ...CITY_SIGN_POSITIONS,
+        ...CITY_STREET_LAMP_POSITIONS,
+        ...CITY_DEBRIS_POSITIONS,
+      ])
+        expect(cityDistanceToTarget(prop, target), `prop near ${target.join(",")}`).toBeGreaterThan(2.35);
     }
   });
 

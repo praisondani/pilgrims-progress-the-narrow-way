@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T01:01:21-05:00",
+  "updatedAt": "2026-08-10T01:48:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "30-scene real-controls journey now passes end to end (25.3m); v20 hero remains a visual fail while the new authored City kit enters fresh runtime critique.",
+    "resumeNote": "30-scene real-controls journey passes end to end (25.3m); v20 hero and City v4 remain visual-bar fails, with City now ready for a material/foliage depth pass.",
     "workstreams": [
       {
         "id": "baseline",
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-1-critic-queued",
+        "status": "iteration-4-critic-failed",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critic queued",
-        "largestGap": "The first City kit replaces the six box/cone houses with instanced facades, roofs, timber/window detail, cobbles, market dressing, skyline depth, and a warm threshold lantern while preserving every story target. A fresh gameplay capture must verify that the new kit reads as a cohesive authored chapter rather than another low-poly diorama."
+        "critic": "fresh runtime critic — fail, 4.6/10, v4 comparison",
+        "largestGap": "v4 adds steep/broad facade and roof profiles, framed window recesses, awnings, door surrounds, layered threshold masonry, market props, lamps, signs, and target-safe debris. Runtime interaction and mobile/desktop framing pass, and v4 clearly beats v3, but surfaces still read as flat-color low-poly boxes: no material breakup or wear, sparse foliage/people/skyline life, weak atmospheric depth, and limited threshold storytelling. Desktop production preview measured 5.67s ready, 2.0 FPS headless, 127 draw calls p95, 24,744 triangles p95; mobile 4.99s, 3.7 FPS, 90 draws p95, 23,208 triangles p95."
       },
       {
         "id": "wicket-gate",
@@ -324,6 +324,50 @@
     {
       "label": "Dream loop 6 — collision and route runtime",
       "path": "/studio-evidence/vertical-slice-01/dream-loop6-collision-runtime.jpg"
+    },
+    {
+      "label": "Dream critic runtime — continuity baseline",
+      "path": "/studio-evidence/vertical-slice-01/dream-critic-runtime.png"
+    },
+    {
+      "label": "Dream v2 runtime — authored route",
+      "path": "/studio-evidence/vertical-slice-01/dream-v2-runtime.png"
+    },
+    {
+      "label": "City v2 runtime — lighting and street life",
+      "path": "/studio-evidence/vertical-slice-01/city-v2-runtime.png"
+    },
+    {
+      "label": "City v3 runtime — bilateral window readability",
+      "path": "/studio-evidence/vertical-slice-01/city-v3-runtime.png"
+    },
+    {
+      "label": "City v3 critic — silhouette/material-depth gap",
+      "path": "/studio-evidence/vertical-slice-01/city-v3-critic.png"
+    },
+    {
+      "label": "City v4 runtime — geometry and burden approach",
+      "path": "/studio-evidence/vertical-slice-01/city-v4-runtime.png"
+    },
+    {
+      "label": "City v4 geometry — framed market approach",
+      "path": "/studio-evidence/vertical-slice-01/city-v4-geometry.png"
+    },
+    {
+      "label": "City v4 threshold — layered leave-city wall",
+      "path": "/studio-evidence/vertical-slice-01/city-v4-threshold-geometry.png"
+    },
+    {
+      "label": "City v4 mobile runtime",
+      "path": "/studio-evidence/vertical-slice-01/city-v4-mobile-runtime.png"
+    },
+    {
+      "label": "City v4 critic — desktop verdict",
+      "path": "/studio-evidence/vertical-slice-01/city-v4-critic.png"
+    },
+    {
+      "label": "City v4 critic — mobile verdict",
+      "path": "/studio-evidence/vertical-slice-01/city-v4-critic-mobile.png"
     }
   ],
   "gates": {
@@ -336,6 +380,6 @@
     "bundleBudget": "4.37 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v20 procedural reconstruction with near/far LOD proxies, narrowed/tapered anatomy, embedded facial volume, compressed burden depth, asymmetric lobes, cinched mouth, rope contact, and animated load settling; fresh runtime critic scores 3.4/10 and fails the studio bar; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates pass, but the v20 hero critic fails the visual bar and City still needs fresh runtime critique"
+    "deployment": "not authorized for studio release: gameplay/regression gates pass, but v20 hero and City v4 critics fail the visual bar; City needs authored materials, foliage, life, and atmosphere before release"
   }
 }

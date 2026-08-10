@@ -83,6 +83,24 @@ export const CITY_MARKET_STALL_POSITIONS: readonly CityPoint2[] = [
   [2.9, 1.95],
 ] as const;
 
+export const CITY_SIGN_POSITIONS: readonly CityPoint2[] = [
+  [-2.55, -3.5],
+  [2.45, 3.15],
+  [-3, 2.5],
+] as const;
+
+export const CITY_STREET_LAMP_POSITIONS: readonly CityPoint2[] = [
+  [-2.45, -2.1],
+  [2.35, 2.15],
+] as const;
+
+export const CITY_DEBRIS_POSITIONS: readonly CityPoint2[] = [
+  [-2.5, -2.4],
+  [2.7, -3.1],
+  [-2.55, 3.2],
+  [2.4, 3.2],
+] as const;
+
 /** Low-profile street stones avoid blocking any interaction target. */
 export const CITY_STREET_STONES: readonly CityPoint2[] = [
   [-0.68, 6.1],

@@ -16,9 +16,12 @@ import {
 } from "three";
 import {
   CITY_BUILDING_SITES,
+  CITY_DEBRIS_POSITIONS,
   CITY_LANDMARK_ANCHORS,
   CITY_MARKET_STALL_POSITIONS,
   CITY_QUALITY_COUNTS,
+  CITY_SIGN_POSITIONS,
+  CITY_STREET_LAMP_POSITIONS,
   CITY_STREET_STONES,
   citySiteClearsTarget,
   type CityBuildingSite,
@@ -34,50 +37,73 @@ type LocalTransform = {
 
 const CITY_STYLE_COLORS = {
   plaster: {
-    facade: "#67404a",
-    roof: "#252534",
-    beam: "#332833",
-    window: "#1c1a25",
+    facade: "#a66a70",
+    roof: "#514252",
+    beam: "#c28b63",
+    window: "#2c3440",
   },
   brick: {
-    facade: "#713c3e",
-    roof: "#2b2630",
-    beam: "#422a2a",
-    window: "#171823",
+    facade: "#a85c53",
+    roof: "#58404a",
+    beam: "#cd8a5f",
+    window: "#29303a",
   },
   ochre: {
-    facade: "#886449",
-    roof: "#2d2830",
-    beam: "#49342b",
-    window: "#211b20",
+    facade: "#bd8b58",
+    roof: "#55434a",
+    beam: "#d3a36b",
+    window: "#30323b",
   },
   slate: {
-    facade: "#4c5660",
-    roof: "#202631",
-    beam: "#303038",
-    window: "#161a23",
+    facade: "#70818b",
+    roof: "#3d4854",
+    beam: "#b58d6e",
+    window: "#293846",
   },
 } as const;
 
 const CITY_FACADE_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
   roughness: 0.94,
+  emissive: "#34202b",
+  emissiveIntensity: 0.42,
   vertexColors: true,
 });
 const CITY_ROOF_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
   roughness: 0.98,
+  emissive: "#28202d",
+  emissiveIntensity: 0.28,
   vertexColors: true,
 });
 const CITY_BEAM_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
   roughness: 0.88,
+  emissive: "#2d1c1b",
+  emissiveIntensity: 0.32,
   vertexColors: true,
 });
 const CITY_WINDOW_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
   roughness: 0.58,
   metalness: 0.05,
+  emissive: "#c16b3d",
+  emissiveIntensity: 0.82,
+  vertexColors: true,
+});
+const CITY_TRIM_MATERIAL = new MeshStandardMaterial({
+  color: "#b98463",
+  roughness: 0.82,
+  vertexColors: true,
+});
+const CITY_AWNING_MATERIAL = new MeshStandardMaterial({
+  color: "#8d4e4c",
+  roughness: 0.9,
+  vertexColors: true,
+});
+const CITY_DOOR_FRAME_MATERIAL = new MeshStandardMaterial({
+  color: "#8d6248",
+  roughness: 0.88,
   vertexColors: true,
 });
 const CITY_DOOR_MATERIAL = new MeshStandardMaterial({
@@ -105,18 +131,21 @@ const CITY_COBBLE_MATERIAL = new MeshStandardMaterial({
   roughness: 1,
 });
 
-function makeFacadeGeometry() {
-  const profile = new Shape();
-  profile.moveTo(-1, 0);
-  profile.lineTo(-0.96, 1.35);
-  profile.lineTo(-0.54, 1.57);
-  profile.lineTo(-0.12, 1.47);
-  profile.lineTo(0.34, 1.67);
-  profile.lineTo(0.88, 1.46);
-  profile.lineTo(1, 1.32);
-  profile.lineTo(1, 0);
-  profile.closePath();
-  const geometry = new ExtrudeGeometry(profile, {
+type CityBuildingProfile = "steep" | "broad";
+
+function makeFacadeGeometry(profileKind: CityBuildingProfile) {
+  const steep = profileKind === "steep";
+  const facadeProfile = new Shape();
+  facadeProfile.moveTo(-1, 0);
+  facadeProfile.lineTo(-0.96, steep ? 1.42 : 1.26);
+  facadeProfile.lineTo(-0.54, steep ? 1.72 : 1.48);
+  facadeProfile.lineTo(-0.12, steep ? 1.57 : 1.38);
+  facadeProfile.lineTo(0.34, steep ? 1.84 : 1.57);
+  facadeProfile.lineTo(0.88, steep ? 1.54 : 1.42);
+  facadeProfile.lineTo(1, steep ? 1.36 : 1.24);
+  facadeProfile.lineTo(1, 0);
+  facadeProfile.closePath();
+  const geometry = new ExtrudeGeometry(facadeProfile, {
     depth: 1.62,
     bevelEnabled: true,
     bevelSegments: 1,
@@ -129,17 +158,18 @@ function makeFacadeGeometry() {
   return geometry;
 }
 
-function makeRoofGeometry() {
-  const profile = new Shape();
-  profile.moveTo(-1.2, 0);
-  profile.lineTo(-0.94, 0.32);
-  profile.lineTo(-0.42, 0.88);
-  profile.lineTo(0, 1.06);
-  profile.lineTo(0.48, 0.86);
-  profile.lineTo(0.96, 0.31);
-  profile.lineTo(1.2, 0);
-  profile.closePath();
-  const geometry = new ExtrudeGeometry(profile, {
+function makeRoofGeometry(profile: CityBuildingProfile) {
+  const steep = profile === "steep";
+  const roofProfile = new Shape();
+  roofProfile.moveTo(-1.2, 0);
+  roofProfile.lineTo(-0.94, steep ? 0.38 : 0.26);
+  roofProfile.lineTo(-0.42, steep ? 1.02 : 0.72);
+  roofProfile.lineTo(0, steep ? 1.24 : 0.9);
+  roofProfile.lineTo(0.48, steep ? 1.0 : 0.7);
+  roofProfile.lineTo(0.96, steep ? 0.36 : 0.25);
+  roofProfile.lineTo(1.2, 0);
+  roofProfile.closePath();
+  const geometry = new ExtrudeGeometry(roofProfile, {
     depth: 1.86,
     bevelEnabled: true,
     bevelSegments: 1,
@@ -211,19 +241,29 @@ function CityBuildingBatches({
   sites: readonly CityBuildingSite[];
 }) {
   const facade = useRef<InstancedMesh>(null);
+  const facadeAlt = useRef<InstancedMesh>(null);
   const roof = useRef<InstancedMesh>(null);
+  const roofAlt = useRef<InstancedMesh>(null);
   const beams = useRef<InstancedMesh>(null);
   const windows = useRef<InstancedMesh>(null);
+  const windowTrim = useRef<InstancedMesh>(null);
+  const awnings = useRef<InstancedMesh>(null);
   const doors = useRef<InstancedMesh>(null);
+  const doorFrames = useRef<InstancedMesh>(null);
   const chimneys = useRef<InstancedMesh>(null);
 
   const geometries = useMemo(
     () => ({
-      facade: makeFacadeGeometry(),
-      roof: makeRoofGeometry(),
+      facade: makeFacadeGeometry("steep"),
+      facadeAlt: makeFacadeGeometry("broad"),
+      roof: makeRoofGeometry("steep"),
+      roofAlt: makeRoofGeometry("broad"),
       beam: new BoxGeometry(1, 1, 1),
       window: new BoxGeometry(1, 1, 1),
+      windowTrim: new BoxGeometry(1, 1, 1),
+      awning: new BoxGeometry(1, 1, 1),
       door: new BoxGeometry(1, 1, 1),
+      doorFrame: new BoxGeometry(1, 1, 1),
       chimney: new BoxGeometry(1, 1, 1),
     }),
     [],
@@ -232,7 +272,10 @@ function CityBuildingBatches({
   const detailTransforms = useMemo(() => {
     const beamTransforms: LocalTransform[] = [];
     const windowTransforms: LocalTransform[] = [];
+    const windowTrimTransforms: LocalTransform[] = [];
+    const awningTransforms: LocalTransform[] = [];
     const doorTransforms: LocalTransform[] = [];
+    const doorFrameTransforms: LocalTransform[] = [];
     const chimneyTransforms: LocalTransform[] = [];
     sites.forEach((site) => {
       const style = CITY_STYLE_COLORS[site.style];
@@ -247,14 +290,26 @@ function CityBuildingBatches({
         { local: [-0.48, 0.86, 0.88], scale: [0.33, 0.42, 0.055] },
         { local: [0.48, 0.86, 0.88], scale: [0.33, 0.42, 0.055] },
       );
+      windowTrimTransforms.push(
+        { local: [-0.48, 0.86, 0.84], scale: [0.43, 0.52, 0.035] },
+        { local: [0.48, 0.86, 0.84], scale: [0.43, 0.52, 0.035] },
+      );
+      awningTransforms.push(
+        { local: [-0.48, 1.13, 0.9], scale: [0.52, 0.07, 0.16], rotation: -0.08 },
+        { local: [0.48, 1.13, 0.9], scale: [0.52, 0.07, 0.16], rotation: 0.08 },
+      );
 
       doorTransforms.push({ local: [0, 0.37, 0.88], scale: [0.42, 0.72, 0.08] });
+      doorFrameTransforms.push({ local: [0, 0.38, 0.84], scale: [0.56, 0.86, 0.05] });
       chimneyTransforms.push({ local: [0.54, 2.1, -0.24], scale: [0.25, 0.62, 0.25] });
     });
     return {
       beamTransforms,
       windowTransforms,
+      windowTrimTransforms,
+      awningTransforms,
       doorTransforms,
+      doorFrameTransforms,
       chimneyTransforms,
     };
   }, [sites]);
@@ -282,33 +337,40 @@ function CityBuildingBatches({
       mesh.computeBoundingSphere();
     };
 
-    if (facade.current) {
-      facade.current.instanceMatrix.setUsage(StaticDrawUsage);
+    const setBuildingBatch = (
+      mesh: InstancedMesh | null,
+      profile: CityBuildingProfile,
+      localY: number,
+      colorFor: (site: CityBuildingSite) => string,
+    ) => {
+      if (!mesh) return;
+      mesh.instanceMatrix.setUsage(StaticDrawUsage);
       sites.forEach((site, index) => {
-        placeLocal(dummy, site, { local: [0, 0.08, 0], scale: [1, 1, 1] });
-        facade.current?.setMatrixAt(index, dummy.matrix);
-        facade.current?.setColorAt(index, new Color(CITY_STYLE_COLORS[site.style].facade));
+        placeLocal(dummy, site, { local: [0, localY, 0], scale: [1, 1, 1] });
+        const siteProfile =
+          site.style === "plaster" || site.style === "ochre" ? "steep" : "broad";
+        if (siteProfile !== profile) dummy.scale.set(0, 0, 0);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(index, dummy.matrix);
+        mesh.setColorAt(index, new Color(colorFor(site)));
       });
-      facade.current.instanceMatrix.needsUpdate = true;
-      if (facade.current.instanceColor) facade.current.instanceColor.needsUpdate = true;
-      facade.current.computeBoundingSphere();
-    }
-    if (roof.current) {
-      roof.current.instanceMatrix.setUsage(StaticDrawUsage);
-      sites.forEach((site, index) => {
-        placeLocal(dummy, site, { local: [0, 0, 0], scale: [1, 1, 1] });
-        roof.current?.setMatrixAt(index, dummy.matrix);
-        roof.current?.setColorAt(index, new Color(CITY_STYLE_COLORS[site.style].roof));
-      });
-      roof.current.instanceMatrix.needsUpdate = true;
-      if (roof.current.instanceColor) roof.current.instanceColor.needsUpdate = true;
-      roof.current.computeBoundingSphere();
-    }
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      mesh.computeBoundingSphere();
+    };
+
+    setBuildingBatch(facade.current, "steep", 0.08, (site) => CITY_STYLE_COLORS[site.style].facade);
+    setBuildingBatch(facadeAlt.current, "broad", 0.08, (site) => CITY_STYLE_COLORS[site.style].facade);
+    setBuildingBatch(roof.current, "steep", 0, (site) => CITY_STYLE_COLORS[site.style].roof);
+    setBuildingBatch(roofAlt.current, "broad", 0, (site) => CITY_STYLE_COLORS[site.style].roof);
     setBatch(beams.current, detailTransforms.beamTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
+    setBatch(windowTrim.current, detailTransforms.windowTrimTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
+    setBatch(awnings.current, detailTransforms.awningTransforms, (index) => index % 2 ? "#a45e55" : "#845053");
     setBatch(windows.current, detailTransforms.windowTransforms, (index, site) => {
       const siteIndex = Math.floor(index / 2);
       return siteIndex === 2 || siteIndex === 4 ? "#d98a4d" : CITY_STYLE_COLORS[site.style].window;
     });
+    setBatch(doorFrames.current, detailTransforms.doorFrameTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
     setBatch(doors.current, detailTransforms.doorTransforms, () => "#46302d");
     setBatch(chimneys.current, detailTransforms.chimneyTransforms, () => "#4f4042");
   }, [detailTransforms, sites]);
@@ -323,8 +385,19 @@ function CityBuildingBatches({
         receiveShadow
       />
       <instancedMesh
+        ref={facadeAlt}
+        args={[geometries.facadeAlt, CITY_FACADE_MATERIAL, sites.length]}
+        castShadow
+        receiveShadow
+      />
+      <instancedMesh
         ref={roof}
         args={[geometries.roof, CITY_ROOF_MATERIAL, sites.length]}
+        castShadow
+      />
+      <instancedMesh
+        ref={roofAlt}
+        args={[geometries.roofAlt, CITY_ROOF_MATERIAL, sites.length]}
         castShadow
       />
       <instancedMesh
@@ -337,8 +410,21 @@ function CityBuildingBatches({
         args={[geometries.window, CITY_WINDOW_MATERIAL, detailTransforms.windowTransforms.length]}
       />
       <instancedMesh
+        ref={windowTrim}
+        args={[geometries.windowTrim, CITY_TRIM_MATERIAL, detailTransforms.windowTrimTransforms.length]}
+      />
+      <instancedMesh
+        ref={awnings}
+        args={[geometries.awning, CITY_AWNING_MATERIAL, detailTransforms.awningTransforms.length]}
+        castShadow
+      />
+      <instancedMesh
         ref={doors}
         args={[geometries.door, CITY_DOOR_MATERIAL, detailTransforms.doorTransforms.length]}
+      />
+      <instancedMesh
+        ref={doorFrames}
+        args={[geometries.doorFrame, CITY_DOOR_FRAME_MATERIAL, detailTransforms.doorFrameTransforms.length]}
       />
       <instancedMesh
         ref={chimneys}
@@ -346,6 +432,34 @@ function CityBuildingBatches({
         castShadow
       />
     </group>
+  );
+}
+
+function CityLightRig({ mobile }: { mobile: boolean }) {
+  return (
+    <>
+      <hemisphereLight
+        color="#ffd5ad"
+        groundColor="#4a3040"
+        intensity={mobile ? 0.42 : 0.58}
+      />
+      <directionalLight
+        position={[-6, 9, 8]}
+        color="#ffd8b0"
+        intensity={mobile ? 0.7 : 1.05}
+      />
+      <directionalLight
+        position={[6, 7, 5]}
+        color="#e9b8a6"
+        intensity={mobile ? 0.36 : 0.62}
+      />
+      <pointLight
+        position={[0, 5.5, 1.5]}
+        color="#f2a06a"
+        intensity={mobile ? 1.7 : 2.6}
+        distance={18}
+      />
+    </>
   );
 }
 
@@ -394,6 +508,113 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
           castShadow
         />
       )}
+    </group>
+  );
+}
+
+function CitySign({ position, index }: { position: CityPoint2; index: number }) {
+  const faceColor = index % 2 ? "#d39a5d" : "#c4744f";
+  return (
+    <group position={[position[0], 0, position[1]]} rotation={[0, index % 2 ? -0.18 : 0.16, 0]}>
+      <mesh position={[0, 0.62, 0]} castShadow>
+        <cylinderGeometry args={[0.045, 0.07, 1.25, 6]} />
+        <meshStandardMaterial color="#604238" roughness={0.92} />
+      </mesh>
+      <mesh position={[0, 1.18, 0]} castShadow>
+        <boxGeometry args={[0.86, 0.52, 0.09]} />
+        <meshStandardMaterial color={faceColor} roughness={0.84} />
+      </mesh>
+      <mesh position={[0, 1.49, 0]} rotation={[0, 0, index % 2 ? -0.08 : 0.08]}>
+        <boxGeometry args={[1.02, 0.07, 0.13]} />
+        <meshStandardMaterial color="#664236" roughness={0.9} />
+      </mesh>
+      {[-0.24, -0.06, 0.14, 0.3].map((x, glyphIndex) => (
+        <mesh key={x} position={[x, 1.18 + (glyphIndex % 2) * 0.03, 0.054]}>
+          <boxGeometry args={[0.07, glyphIndex % 2 ? 0.22 : 0.28, 0.012]} />
+          <meshStandardMaterial color="#5c3340" roughness={0.76} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function CityStreetLamp({
+  position,
+  lit,
+}: {
+  position: CityPoint2;
+  lit: boolean;
+}) {
+  return (
+    <group position={[position[0], 0, position[1]]}>
+      <mesh position={[0, 0.92, 0]} castShadow>
+        <cylinderGeometry args={[0.055, 0.09, 1.84, 7]} />
+        <meshStandardMaterial color="#40343a" roughness={0.82} metalness={0.28} />
+      </mesh>
+      <mesh position={[0.15, 1.78, 0]} rotation={[0, 0, -0.55]}>
+        <cylinderGeometry args={[0.045, 0.055, 0.42, 7]} />
+        <meshStandardMaterial color="#4e3b3b" roughness={0.8} metalness={0.22} />
+      </mesh>
+      <mesh position={[0.29, 1.96, 0]}>
+        <boxGeometry args={[0.2, 0.24, 0.2]} />
+        <meshStandardMaterial
+          color="#f1b26d"
+          emissive="#be642f"
+          emissiveIntensity={lit ? 1.4 : 0.75}
+          roughness={0.4}
+        />
+      </mesh>
+      {lit && <pointLight position={[0.29, 1.94, 0]} color="#ffab60" intensity={2.2} distance={5.6} />}
+    </group>
+  );
+}
+
+function CityDebris({ position, index }: { position: CityPoint2; index: number }) {
+  const barrel = index % 2 === 0;
+  return (
+    <group position={[position[0], 0, position[1]]} rotation={[0, index * 0.7, 0]}>
+      {barrel ? (
+        <>
+          <mesh position={[0, 0.34, 0]} castShadow>
+            <cylinderGeometry args={[0.28, 0.34, 0.68, 8]} />
+            <meshStandardMaterial color="#76503b" roughness={0.94} />
+          </mesh>
+          {[-0.2, 0.2].map((y) => (
+            <mesh key={y} position={[0, 0.34 + y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.29, 0.025, 5, 12]} />
+              <meshStandardMaterial color="#bb8756" roughness={0.82} metalness={0.18} />
+            </mesh>
+          ))}
+        </>
+      ) : (
+        <>
+          <mesh position={[0, 0.27, 0]} castShadow>
+            <boxGeometry args={[0.58, 0.54, 0.58]} />
+            <meshStandardMaterial color="#9a6846" roughness={0.94} />
+          </mesh>
+          <mesh position={[0, 0.27, 0.3]}>
+            <boxGeometry args={[0.08, 0.62, 0.025]} />
+            <meshStandardMaterial color="#5f4134" roughness={0.9} />
+          </mesh>
+          <mesh position={[0.3, 0.27, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <boxGeometry args={[0.08, 0.62, 0.025]} />
+            <meshStandardMaterial color="#5f4134" roughness={0.9} />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+}
+
+function CityStreetLife({ quality, mobile }: { quality: CityQualityPreset; mobile: boolean }) {
+  const signs = CITY_SIGN_POSITIONS.slice(0, quality === "low" ? 1 : quality === "medium" ? 2 : 3);
+  const lamps = CITY_STREET_LAMP_POSITIONS.slice(0, quality === "low" ? 1 : 2);
+  const debris = CITY_DEBRIS_POSITIONS.slice(0, quality === "low" ? 2 : quality === "medium" ? 3 : 4);
+  return (
+    <group name="city-street-life">
+      {signs.map((position, index) => <CitySign key={`sign-${index}`} position={position} index={index} />)}
+      {lamps.map((position, index) => <CityStreetLamp key={`lamp-${index}`} position={position} lit={!mobile || index === 0} />)}
+      {debris.map((position, index) => <CityDebris key={`debris-${index}`} position={position} index={index} />)}
     </group>
   );
 }
@@ -533,6 +754,20 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
         <boxGeometry args={[17.8, 2.16, 0.7]} />
         <meshStandardMaterial color="#3c3440" roughness={1} />
       </mesh>
+      <mesh position={[0, 1.18, -9.78]} receiveShadow castShadow>
+        <boxGeometry args={[9.2, 2.35, 0.92]} />
+        <meshStandardMaterial color="#654650" roughness={0.96} />
+      </mesh>
+      <mesh position={[0, 2.47, -9.38]} castShadow>
+        <boxGeometry args={[9.85, 0.28, 1.24]} />
+        <meshStandardMaterial color="#866058" roughness={0.9} />
+      </mesh>
+      {[-4.35, 4.35].map((x) => (
+        <mesh key={x} position={[x, 1.35, -9.35]} castShadow>
+          <boxGeometry args={[0.48, 2.72, 1.16]} />
+          <meshStandardMaterial color="#4e3b49" roughness={0.98} />
+        </mesh>
+      ))}
       {towers.slice(0, count).map(([x, height, width], index) => (
         <group key={x} position={[x, 0, -10.1]}>
           <mesh position={[0, height * 0.5, 0]} castShadow>
@@ -582,6 +817,7 @@ export function CityEnvironmentKit({
   );
   return (
     <group name="city-environment-kit" dispose={null}>
+      <CityLightRig mobile={mobile} />
       <CityStreet quality={effectiveQuality} />
       <CityBackdrop quality={effectiveQuality} />
       <CityBuildingBatches sites={visibleSites} />
@@ -594,6 +830,7 @@ export function CityEnvironmentKit({
         />
       )}
       <CityMarket quality={effectiveQuality} />
+      <CityStreetLife quality={effectiveQuality} mobile={mobile} />
       <CityThresholdLandmark reducedMotion={reducedMotion} />
       <Sparkles
         count={mobile ? 16 : 34}

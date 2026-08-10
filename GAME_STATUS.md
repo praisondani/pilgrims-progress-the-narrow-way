@@ -50,9 +50,10 @@
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending
-- First authored City of Destruction environment kit integrated with preserved
-  story targets: instanced facades/roofs, timber and window detail, cobbles,
-  market dressing, skyline depth, and threshold lantern
+- City of Destruction v4 environment kit integrated with preserved story
+  targets: varied steep/broad facades and roofs, framed window recesses,
+  awnings, door surrounds, layered threshold masonry, cobbles, market dressing,
+  skyline depth, street lamps/signs/debris, and threshold lantern
 
 ## In progress
 
@@ -61,7 +62,9 @@
 - Christian v20 img2threejs procedural anatomy/face and compressed burden pass
   with fresh front/profile/rear/96 px critic evidence; 3.4/10 visual critic
   fail, external sculpt/GLB remains the target
-- Fresh City runtime critic review of the new authored kit
+- City v4 runtime critic review complete: cohesive chapter and clear v3 gain,
+  but 4.6/10 visual-bar fail; authored material breakup, foliage, people,
+  atmospheric depth, and stronger threshold storytelling remain
 
 ## Blocked
 
@@ -71,7 +74,7 @@
 
 ## Next
 
-1. Review City runtime evidence and close the largest Dream-to-City continuity gap
+1. Give City v4 a material/foliage/atmosphere pass, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
