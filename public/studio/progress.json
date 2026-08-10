@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T12:56:00-05:00",
+  "updatedAt": "2026-08-10T13:18:43-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "Dream v14 depth-tint pass is gameplay-verified but still fails the fresh visual critics at 6.0/10 and 7.1/10; mobile guidance is compact, while the next gap is a visibly emitting lantern plus authored rear landmark/terrain layers, with Dream/City draw-call budgets and core gates green for headless profiles.",
+    "resumeNote": "Dream v15–v31 is gameplay-verified with the former stream/beam artifacts removed; fresh v33/v34 critics score 7.2–7.3/10 front and 5.7–6.0/10 rear, with a minor lower-left path wedge and a larger gap in layered rear terrain/atmosphere versus the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
     "workstreams": [
       {
         "id": "baseline",
@@ -33,10 +33,10 @@
       {
         "id": "dream",
         "name": "The Dreamer environment",
-        "status": "iteration-14-critic-failed-depth-tint-pass",
+        "status": "iteration-34-critic-failed-rear-density-pass",
         "builder": "ultracode environment builder",
-        "critic": "fresh runtime critics — fail, 6.0/10 and 7.1/10 on v14",
-        "largestGap": "v14 strengthens rear-band vertex haze, ground distance falloff, and warm lantern glass without changing Dream budgets. The tonal lifts are visible, but the rear still reads as a flat low-poly plane with no landmark/depth story and the lantern has no convincing bloom."
+        "critic": "fresh runtime critics — fail, v33/v34 front 7.2–7.3/10, rear 5.7–6.0/10, Christian 6.2–6.8/10, composition 6.7–6.9/10; stream/beam artifact checks pass, with a minor rear path wedge noted",
+        "largestGap": "v15–v31 feather stream/path terminals, replace the hard rear wall with rounded mounds, add a grounded waystone/lantern echo with framing trees, and lift the lantern emissive pool. The largest remaining gap is a broad rear green plane under a dark sky without enough layered landmarks or atmospheric depth versus Kena/Pathless/RiME; the next pass should also trim the lower-left path wedge."
       },
       {
         "id": "city",
@@ -76,7 +76,7 @@
         "status": "browser-verified-physical-QA-required",
         "builder": "audio reliability builder",
         "critic": "fresh desktop + mobile browser critic",
-        "largestGap": "Legacy scene and SFX calibration is clamped before the shared limiter, unlock requests are coalesced, transient voices are capped, and AudioContext interruptions now update the HUD and recover on gesture. Dedicated finale beds and physical-device listening QA remain outstanding."
+        "largestGap": "Decoded scene beds and SFX now measure RMS/peak and receive bounded per-source calibration before the shared bus/master limiter; unlock requests are coalesced, transient voices are capped, and AudioContext interruptions update the HUD and recover on gesture. Dedicated finale beds and physical-device listening QA remain outstanding."
       },
       {
         "id": "runtime",
@@ -616,6 +616,14 @@
     {
       "label": "Dream v14 runtime — mobile depth check",
       "path": "/studio-evidence/vertical-slice-01/dream-v14-runtime-mobile.png"
+    },
+    {
+      "label": "Dream v31 runtime — artifact-safe forward composition",
+      "path": "/studio-evidence/vertical-slice-01/dream-v31-runtime-desktop-forward.png"
+    },
+    {
+      "label": "Dream v31 runtime — reverse-orbit waystone check",
+      "path": "/studio-evidence/vertical-slice-01/dream-v31-runtime-desktop-rear.png"
     }
   ],
   "gates": {
@@ -625,7 +633,7 @@
     "browserRegression": "Local desktop Gate/procedural focused flows 4/4 pass; mobile WebKit 4/4 pass including autoplay-permission reload handling and forced AudioContext interruption recovery; camera and Doubting Castle focused flows 2/2 pass; exhaustive desktop 30-scene real-controls journey 1/1 pass in 25.3m; GitHub Actions Playwright job intentionally disabled to conserve runner credits, so browser suites are run locally/manual",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
     "fullJourney": "Exhaustive Dream → Celestial City real-controls journey 1/1 pass (25.3m) across all 30 scenes; it now includes the low-FPS guided-route and cross-scene spawn-reset hardening.",
-    "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
+    "bundleBudget": "4.40 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
     "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v28 runtime safety pass, but Dream v14, v38 hero, and City v28 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs richer surface material detail and connected outer-world landmarks, and a production Christian GLB remains outstanding"

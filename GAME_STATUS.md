@@ -17,7 +17,8 @@
 - Cinematic conversation camera, chapter pullback shots, and letterbox framing
 - Procedural Web Audio ambience, footsteps, interaction cues, and sound toggle
 - Bounded audio source gains, four-voice transient cap, coalesced browser unlock,
-  and interruption-aware AudioContext state reporting
+  interruption-aware AudioContext state reporting, and decoded-bed RMS/peak
+  calibration with safe per-source lift before the shared bus limiter
 - Forty-seven symbolic trials using ordered-action and focus mechanics
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets
@@ -119,28 +120,25 @@
 - Dream v14 depth tint pass: stronger rear-band vertex haze, ground distance
   falloff, and brighter warm lantern glass, with Dream tests/build and fresh
   desktop/lit/rear/mobile runtime captures still within the existing budgets
+- Dream v15–v31 bounded 360-degree atmosphere pass: feathered stream/path
+  terminals remove reverse-orbit shards, rounded rear mounds replace the hard
+  blue wall, a grounded waystone/lantern echo and framing trees give the rear
+  orbit a readable landmark, and the lantern receives a stronger warm emissive
+  pool. Fresh desktop/mobile captures are clean of the former stream/beam
+  artifacts; the headless mobile
+  sample is 19 draw calls / 29,082 triangles; the rear capture retains a small
+  authored path wedge at the lower-left edge, but no stream end-cap shard or
+  blue beam.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v9 visual iteration remains open after fresh critics scored 5.8/10 and
-  6.4/10: camera safety and route readability improved, but 360-degree authored
-  material depth, rear-world density, and a luminous shrine still miss the bar
-- Dream v10 remains below the visual bar after fresh critics scored 5.6/10 and
-  6.7/10: the desktop ridge and shrine improved, but mobile/rear depth parity
-  still collapses and the mobile tutorial/objective card hides too much of the world
-- Dream v12 mobile layout is no longer the primary blocker after fresh critics
-  scored 5.8/10 and ~6.8/10: the card now exposes the torso and route while
-  retaining all guidance, but the authored 360-degree world still lacks layered
-  lighting, material nuance, and atmospheric depth
-- Dream v13 remains below the visual bar after fresh critics scored 5.9/10 and
-  7.1/10: the warmer lantern/arch is a real focal lift, but rear haze and ground
-  shading are subtle at gameplay scale and the lantern still lacks convincing
-  emission across the 360-degree low-poly world
-- Dream v14 remains below the visual bar after fresh critics scored 6.0/10 and
-  7.1/10: horizon tint and ground falloff are visible, but they dress a flat
-  low-poly plane; the rear still lacks a landmark/depth story and the lantern
-  has no convincing bloom
+- Dream v33/v34 remains below the visual bar after fresh independent critics
+  scored 7.2–7.3/10 front, 5.7–6.0/10 rear, 6.2–6.8/10 for Christian, and
+  6.7–6.9/10 for composition; the stream/beam artifacts are gone, but a small
+  path wedge remains at the rear edge and the reverse orbit still exposes a
+  broad green plane under a dark sky without enough layered landmarks or
+  atmospheric depth versus Kena/Pathless/RiME
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -180,7 +178,8 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with a visibly emitting lantern asset and authored rear
-   landmark/terrain layers now that lighting and mobile UX baselines are stable
+5. Continue Dream with richer rear terrain layers, atmospheric depth, and a
+   production-quality lantern asset now that the artifact-safe orbit baseline is
+   stable
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA
