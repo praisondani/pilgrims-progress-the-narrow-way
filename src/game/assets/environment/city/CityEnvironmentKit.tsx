@@ -154,6 +154,11 @@ const CITY_ROAD_WEAR_MATERIAL = new MeshStandardMaterial({
   roughness: 1,
   vertexColors: true,
 });
+const CITY_SURFACE_MATERIAL = new MeshStandardMaterial({
+  color: "#ffffff",
+  roughness: 0.96,
+  vertexColors: true,
+});
 const CITY_PLANTER_MATERIAL = new MeshStandardMaterial({
   color: "#9b5c43",
   roughness: 0.94,
@@ -214,8 +219,13 @@ const CITY_SKY_MATERIAL = new MeshStandardMaterial({
  * instanced style color still carries the palette; this attribute only keeps
  * broad faces from reading as one flat, unlit color while costing no draws.
  */
-function addMaterialBreakup(geometry: ExtrudeGeometry, strength: number) {
+function addMaterialBreakup(
+  geometry: BufferGeometry,
+  strength: number,
+  baseValue = "#ffffff",
+) {
   const position = geometry.getAttribute("position");
+  const base = new Color(baseValue);
   const colors = new Float32Array(position.count * 3);
   for (let index = 0; index < position.count; index += 1) {
     const x = position.getX(index);
@@ -225,9 +235,9 @@ function addMaterialBreakup(geometry: ExtrudeGeometry, strength: number) {
       Math.sin(x * 4.7 + y * 2.3 + z * 1.9) * 0.55 +
       Math.sin(x * 9.1 - y * 3.4) * 0.25;
     const shade = 1 + variation * strength;
-    colors[index * 3] = shade;
-    colors[index * 3 + 1] = shade * 0.96;
-    colors[index * 3 + 2] = shade * 0.94;
+    colors[index * 3] = base.r * shade;
+    colors[index * 3 + 1] = base.g * shade * 0.96;
+    colors[index * 3 + 2] = base.b * shade * 0.94;
   }
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
 }
@@ -732,6 +742,7 @@ function makeThresholdGeometry() {
   });
   geometry.translate(0, 0, -0.38);
   geometry.computeVertexNormals();
+  addMaterialBreakup(geometry, 0.055, "#5b5860");
   return geometry;
 }
 
@@ -1034,6 +1045,16 @@ function CitySceneFog({ mobile }: { mobile: boolean }) {
 function CityStreet({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].streetStones;
   const stones = useMemo(() => CITY_STREET_STONES.slice(0, count), [count]);
+  const roadGeometry = useMemo(() => {
+    const geometry = new BoxGeometry(2.45, 0.055, 15.7);
+    addMaterialBreakup(geometry, 0.065, "#4e4b54");
+    return geometry;
+  }, []);
+  const crossStreetGeometry = useMemo(() => {
+    const geometry = new BoxGeometry(13.8, 0.06, 1.5);
+    addMaterialBreakup(geometry, 0.055, "#514c54");
+    return geometry;
+  }, []);
   const stoneMesh = useRef<InstancedMesh>(null);
   const stoneGeometry = useMemo(() => new CylinderGeometry(0.2, 0.27, 0.08, 6), []);
   const roadWear = useMemo(
@@ -1075,12 +1096,12 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
   return (
     <group name="city-street-and-cobble">
       <mesh position={[0, 0.025, 0]} receiveShadow>
-        <boxGeometry args={[2.45, 0.055, 15.7]} />
-        <meshStandardMaterial color="#4e4b54" roughness={1} />
+        <primitive object={roadGeometry} attach="geometry" />
+        <primitive object={CITY_SURFACE_MATERIAL} attach="material" />
       </mesh>
       <mesh position={[0, 0.028, 0]} receiveShadow>
-        <boxGeometry args={[13.8, 0.06, 1.5]} />
-        <meshStandardMaterial color="#514c54" roughness={1} />
+        <primitive object={crossStreetGeometry} attach="geometry" />
+        <primitive object={CITY_SURFACE_MATERIAL} attach="material" />
       </mesh>
       <mesh position={[-1.22, 0.064, 0]}>
         <boxGeometry args={[0.07, 0.018, 15.2]} />
@@ -1361,6 +1382,16 @@ function CityMarketCitizens({
 }
 
 function MarketStall({ position, rotation = 0 }: { position: CityPoint2; rotation?: number }) {
+  const counterGeometry = useMemo(() => {
+    const geometry = new BoxGeometry(1.55, 0.12, 1.05);
+    addMaterialBreakup(geometry, 0.07, "#a45843");
+    return geometry;
+  }, []);
+  const shelfGeometry = useMemo(() => {
+    const geometry = new BoxGeometry(1.55, 0.12, 0.72);
+    addMaterialBreakup(geometry, 0.055, "#6b4a3d");
+    return geometry;
+  }, []);
   return (
     <group position={[position[0], 0, position[1]]} rotation={[0, rotation, 0]}>
       <mesh position={[-0.68, 0.72, 0]} castShadow>
@@ -1372,12 +1403,12 @@ function MarketStall({ position, rotation = 0 }: { position: CityPoint2; rotatio
         <primitive object={CITY_WOOD_MATERIAL} attach="material" />
       </mesh>
       <mesh position={[0, 1.32, 0]} castShadow>
-        <boxGeometry args={[1.55, 0.12, 1.05]} />
-        <meshStandardMaterial color="#a45843" roughness={0.9} />
+        <primitive object={counterGeometry} attach="geometry" />
+        <primitive object={CITY_SURFACE_MATERIAL} attach="material" />
       </mesh>
       <mesh position={[0, 0.38, 0.04]} receiveShadow>
-        <boxGeometry args={[1.55, 0.12, 0.72]} />
-        <meshStandardMaterial color="#6b4a3d" roughness={1} />
+        <primitive object={shelfGeometry} attach="geometry" />
+        <primitive object={CITY_SURFACE_MATERIAL} attach="material" />
       </mesh>
     </group>
   );
@@ -1451,17 +1482,21 @@ function CityThresholdLandmark({
   mobile: boolean;
 }) {
   const thresholdGeometry = useMemo(() => makeThresholdGeometry(), []);
+  const doorGeometry = useMemo(() => {
+    const geometry = new BoxGeometry(1.85, 2.5, 0.1);
+    addMaterialBreakup(geometry, 0.04, "#46302d");
+    return geometry;
+  }, []);
   return (
     <group
       position={[CITY_LANDMARK_ANCHORS.threshold[0], 0, CITY_LANDMARK_ANCHORS.threshold[1]]}
       name="city-threshold-landmark"
     >
       <mesh geometry={thresholdGeometry} castShadow receiveShadow>
-        <primitive object={CITY_STONE_MATERIAL} attach="material" />
+        <primitive object={CITY_SURFACE_MATERIAL} attach="material" />
       </mesh>
-      <mesh position={[0, 1.22, 0.42]} castShadow>
-        <boxGeometry args={[1.85, 2.5, 0.1]} />
-        <primitive object={CITY_DOOR_MATERIAL} attach="material" />
+      <mesh position={[0, 1.22, 0.42]} geometry={doorGeometry} castShadow>
+        <primitive object={CITY_SURFACE_MATERIAL} attach="material" />
       </mesh>
       {[-0.58, 0, 0.58].map((x, index) => (
         <mesh key={x} position={[x, 1.24, 0.5]}>

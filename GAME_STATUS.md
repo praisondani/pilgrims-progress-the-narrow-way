@@ -91,6 +91,12 @@
   scene fog on cleanup. Foreground path, Christian, gate, and stalls stay crisp
   while distant towers/berms recede; no new meshes/lights/draw groups and the
   mobile benchmark remains 97 draw calls p95 / 32,220 triangles p95.
+- City v26 surface-detail pass: generalized the existing material-breakup helper
+  to any `BufferGeometry` with a base color, then applied restrained vertex
+  variation to the road/cross-street, market stall surfaces, threshold stone,
+  and door through a shared vertex-color material. No new meshes/lights/draw
+  groups; City tests/build and the 97 draw-call / 32,220-triangle mobile audit
+  remain green.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -145,8 +151,9 @@
   6.7–7.6 rear, and 6.2–7.5 mobile; berms/haze improve contact and tonal
   separation without artifacts. City v25 critics score 7.5–8.0 front,
   6.8–7.8 rear, and 6.2–7.5 mobile; scoped fog is a real depth improvement
-  with crisp foreground readability, but the city remains sparse/toy-flat and
-  fails the Kena/Pathless/RiME bar.
+  with crisp foreground readability. City v26 critics score 7.5–8.0 front,
+  6.9–7.8 rear, and 6.3–7.5 mobile; breakup is subtle and safe, but foreground
+  surface richness remains below the Kena/Pathless/RiME bar.
 
 ## Blocked
 
@@ -156,10 +163,10 @@
 
 ## Next
 
-1. Give City v25 a denser authored foreground and outer world—surface texture,
-   contact-shadow variation, and connected silhouette variety beyond the ring—
-   without increasing the 97-call mobile p95 profile or reintroducing shell
-   artifacts, then re-run blind runtime critique
+1. Give City v26 a denser authored foreground and outer world—readable surface
+   texture, stronger contact-shadow variation, and connected silhouette/landmark
+   variety beyond the ring—without increasing the 97-call mobile p95 profile or
+   reintroducing shell artifacts, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
