@@ -353,22 +353,33 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
   // A sparse middle course bridges the playable island to the outer skyline.
   // Deep footprints overlap the tower skirts, while the gaps keep the ring
   // from becoming another continuous wall.
-  const midgroundCount = segmentCount === 12 ? 6 : 8;
   const midgroundPalette = [
     ["#5a414d", "#825767"],
     ["#664753", "#916170"],
     ["#543e4b", "#795366"],
     ["#6b4a55", "#966575"],
   ] as const;
+  const midgroundBlueprints = [
+    { angle: 30, radius: 17.4, height: 1.15, width: 2.0, depth: 3.8, roofX: 1.2, roofZ: 1.65, cluster: true },
+    { angle: 90, radius: 18.7, height: 1.62, width: 2.6, depth: 3.0, roofX: 1.55, roofZ: 1.4, cluster: false },
+    { angle: 150, radius: 19.2, height: 1.32, width: 2.3, depth: 3.6, roofX: 1.4, roofZ: 1.9, cluster: true },
+    { angle: 210, radius: 17.8, height: 1.86, width: 2.8, depth: 3.1, roofX: 1.7, roofZ: 1.5, cluster: false },
+    { angle: 270, radius: 19.4, height: 1.28, width: 2.2, depth: 4.0, roofX: 1.25, roofZ: 1.8, cluster: true },
+    { angle: 330, radius: 18.1, height: 1.58, width: 2.5, depth: 3.2, roofX: 1.55, roofZ: 1.55, cluster: false },
+    { angle: 0, radius: 17.6, height: 1.42, width: 2.1, depth: 3.7, roofX: 1.3, roofZ: 1.8, cluster: true },
+    { angle: 180, radius: 19.0, height: 1.75, width: 2.7, depth: 3.2, roofX: 1.65, roofZ: 1.45, cluster: false },
+  ] as const;
+  const midgroundCount = segmentCount === 12 ? 6 : midgroundBlueprints.length;
   for (let index = 0; index < midgroundCount; index += 1) {
-    const angle = ((index + 0.5) / midgroundCount) * Math.PI * 2;
-    const height = [1.22, 1.58, 1.34, 1.76][index % 4];
+    const blueprint = midgroundBlueprints[index];
+    const angle = (blueprint.angle * Math.PI) / 180;
+    const height = blueprint.height;
     const rotation = Math.PI / 2 - angle;
-    const x = Math.cos(angle) * 18.8;
-    const z = Math.sin(angle) * 18.8;
+    const x = Math.cos(angle) * blueprint.radius;
+    const z = Math.sin(angle) * blueprint.radius;
     const [bodyColor, roofColor] = midgroundPalette[index % midgroundPalette.length];
 
-    const block = new BoxGeometry(2.5, height, 3.2);
+    const block = new BoxGeometry(blueprint.width, height, blueprint.depth);
     block.translate(0, height * 0.5, 0);
     block.rotateY(rotation);
     block.translate(x, 0, z);
@@ -380,7 +391,7 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     parts.push(block);
 
     const roof = new ConeGeometry(1, 0.44, 4, 1, true);
-    roof.scale(1.4, 1, 1.72);
+    roof.scale(blueprint.roofX, 1, blueprint.roofZ);
     roof.rotateY(rotation + Math.PI / 4);
     roof.translate(x, height + 0.22, z);
     setGeometryVerticalRamp(
@@ -389,6 +400,40 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
       shiftedCityColor(roofColor, 0.14, -0.008),
     );
     parts.push(roof);
+
+    if (blueprint.cluster) {
+      const annexHeight = height * 0.52;
+      const annex = new BoxGeometry(blueprint.width * 0.42, annexHeight, blueprint.depth * 0.46);
+      annex.translate(blueprint.width * 0.42, annexHeight * 0.5, -blueprint.depth * 0.12);
+      annex.rotateY(rotation);
+      annex.translate(x, 0, z);
+      setGeometryVerticalRamp(
+        annex,
+        shiftedCityColor(bodyColor, 0.005, -0.008),
+        shiftedCityColor(bodyColor, 0.14, -0.01),
+      );
+      parts.push(annex);
+
+      const annexRoof = new ConeGeometry(1, 0.3, 4, 1, true);
+      annexRoof.scale(blueprint.roofX * 0.62, 1, blueprint.roofZ * 0.58);
+      annexRoof.rotateY(rotation + Math.PI / 4);
+      const annexRadialOffset = -blueprint.depth * 0.12;
+      annexRoof.translate(
+        x +
+          Math.cos(rotation) * blueprint.width * 0.42 +
+          Math.cos(angle) * annexRadialOffset,
+        height + annexHeight + 0.15,
+        z -
+          Math.sin(rotation) * blueprint.width * 0.42 +
+          Math.sin(angle) * annexRadialOffset,
+      );
+      setGeometryVerticalRamp(
+        annexRoof,
+        shiftedCityColor(roofColor, 0.005, -0.008),
+        shiftedCityColor(roofColor, 0.16, -0.012),
+      );
+      parts.push(annexRoof);
+    }
   }
 
   const compatible = parts.map((part) => {

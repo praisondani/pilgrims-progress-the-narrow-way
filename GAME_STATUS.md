@@ -72,6 +72,11 @@
   shared skyline tower body/roof geometry without adding lights, meshes, draw
   groups, or changing the 96 mobile draw-call profile. City tests, build,
   bundle, secret audit, and front runtime evidence are green.
+- City v22 spatial-depth pass: replaced repetitive midground placement with eight
+  authored blueprints spanning every heading, varied radius/width/depth/height and
+  roof scale, and added connected annex/roof clusters to selected blocks inside
+  the same merged horizon draw. Fresh front/rear/mobile evidence is captured;
+  City tests/build remain green and the mobile draw profile is unchanged.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -118,11 +123,11 @@
   independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
   pass that improves torso/garment construction but is paused before a fresh
   critic loop. A licensed sculpt/GLB remains the long-term target.
-- City v21 runtime critic review complete: front 7.1/10, with v20 rear proxy
-  5.8/10 and v20 mobile proxy 6.0/10; artifact check passes and the ramps add
-  modest warmth/contrast. The visual bar still fails because rear/side spatial
-  depth and authored midground density remain sparse, leaving flat wall slabs
-  and a broad empty outer field versus Kena/Pathless/RiME.
+- City v22 runtime critic review complete: front 7.3/10, rear 6.3/10, and
+  mobile 6.0/10 proxy; artifact check passes and the varied block/roof clusters
+  materially improve rear layering. The visual bar still fails because the
+  outer-ring world integration is empty dark-red void beyond the diorama, with
+  flat repeated materials and weak atmosphere versus Kena/Pathless/RiME.
 
 ## Blocked
 
@@ -132,9 +137,10 @@
 
 ## Next
 
-1. Give City v21 a denser authored rear/side city story—distinct midground
-   silhouettes, occluding depth layers, and atmospheric separation—without
-   increasing the 96-call mobile p95 profile, then re-run blind runtime critique
+1. Give City v22 a convincing outer-ring world—bounded terrain/atmosphere and
+   authored distant silhouettes beyond the city island—without increasing the
+   96-call mobile p95 profile or reintroducing shell artifacts, then re-run blind
+   runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test

@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T10:37:00-05:00",
+  "updatedAt": "2026-08-10T11:04:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-21-critic-failed-material-ramp-pass",
+        "status": "iteration-22-critic-failed-spatial-blueprint-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critics — fail, v21 front 7.1, v20 rear proxy 5.8, v20 mobile proxy 6.0; perf remains within budget",
-        "largestGap": "v21 adds bounded vertical warm-to-cool ramps and subtle lateral variation to the merged horizon, midground roofs/bodies, and shared skyline tower body/roof geometry without new draws. Artifact checks pass and warmth improves modestly, but rear/side spatial depth and authored midground density remain sparse, with flat wall slabs and a broad empty outer field versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critic — fail, v22 front 7.3, rear 6.3, mobile 6.0 proxy; perf remains within budget",
+        "largestGap": "v22 replaces repetitive midground placement with eight authored blueprints spanning every heading, varying radius/width/depth/height and roof scale, plus connected annex/roof clusters inside the same merged horizon draw. Artifact checks pass and rear layering improves materially, but the outer-ring world remains an empty dark-red void beyond the city island, with weak atmosphere and repeated materials versus Kena/Pathless/RiME."
       },
       {
         "id": "wicket-gate",
@@ -458,6 +458,18 @@
       "path": "/studio-evidence/vertical-slice-02/city-v21-runtime-desktop-front.png"
     },
     {
+      "label": "City v22 runtime — authored blueprint front composition",
+      "path": "/studio-evidence/vertical-slice-02/city-v22-runtime-desktop-front.png"
+    },
+    {
+      "label": "City v22 runtime — authored blueprint rear orbit",
+      "path": "/studio-evidence/vertical-slice-02/city-v22-runtime-desktop-rear.png"
+    },
+    {
+      "label": "City v22 runtime — mobile authored blueprint front",
+      "path": "/studio-evidence/vertical-slice-02/city-v22-runtime-mobile-front.png"
+    },
+    {
       "label": "Dream v9 runtime — authored forward composition",
       "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-desktop.png"
     },
@@ -544,6 +556,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v21 runtime safety pass, but Dream v14, v38 hero, and City v21 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs denser authored rear/side context and atmospheric separation, and a production Christian GLB remains outstanding"
+    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v22 runtime safety pass, but Dream v14, v38 hero, and City v22 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs a bounded outer-ring world with atmospheric separation, and a production Christian GLB remains outstanding"
   }
 }
