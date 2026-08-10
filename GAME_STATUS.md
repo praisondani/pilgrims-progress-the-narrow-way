@@ -97,6 +97,12 @@
   and door through a shared vertex-color material. No new meshes/lights/draw
   groups; City tests/build and the 97 draw-call / 32,220-triangle mobile audit
   remain green.
+- City v27/v28 grounding and fog-balance passes: baked bounded Gaussian contact
+  patches and edge darkening into subdivided road/cross-street geometry (same
+  draw groups), then tuned the disposable City fog from `#4d3440` 19/37 to
+  `#5b4652` 18/43 desktop and 17/41 mobile. The official mobile benchmark is
+  96 draw calls p95 / 32,596 triangles p95; foreground contacts remain readable
+  and the distant skyline recovers contrast after the v27 washout.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -152,8 +158,12 @@
   separation without artifacts. City v25 critics score 7.5–8.0 front,
   6.8–7.8 rear, and 6.2–7.5 mobile; scoped fog is a real depth improvement
   with crisp foreground readability. City v26 critics score 7.5–8.0 front,
-  6.9–7.8 rear, and 6.3–7.5 mobile; breakup is subtle and safe, but foreground
-  surface richness remains below the Kena/Pathless/RiME bar.
+  6.9–7.8 rear, and 6.3–7.5 mobile; breakup is subtle and safe. City v27
+  critics score 7.3–7.7 front, 6.8–7.8 rear, and 6.0–7.1 mobile; contacts
+  improve but fog over-washes some views. City v28 critics score 7.5–7.9
+  front, 7.0–7.9 rear, and 6.3–7.4 mobile; fog balance recovers skyline
+  contrast, but low-poly repetition and sparse outer world still fail the
+  Kena/Pathless/RiME bar.
 
 ## Blocked
 
@@ -163,9 +173,9 @@
 
 ## Next
 
-1. Give City v26 a denser authored foreground and outer world—readable surface
-   texture, stronger contact-shadow variation, and connected silhouette/landmark
-   variety beyond the ring—without increasing the 97-call mobile p95 profile or
+1. Give City v28 a denser authored foreground and outer world—readable surface
+   texture, stronger material richness, and connected silhouette/landmark variety
+   beyond the ring—without increasing the 96-call mobile p95 profile or
    reintroducing shell artifacts, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need

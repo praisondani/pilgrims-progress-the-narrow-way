@@ -223,9 +223,17 @@ function addMaterialBreakup(
   geometry: BufferGeometry,
   strength: number,
   baseValue = "#ffffff",
+  options: {
+    edgeDarken?: number;
+    edgeStart?: number;
+    edgeEnd?: number;
+    patches?: readonly (readonly [x: number, z: number, radiusX: number, radiusZ: number, strength: number])[];
+  } = {},
 ) {
   const position = geometry.getAttribute("position");
   const base = new Color(baseValue);
+  const edgeStart = options.edgeStart ?? Number.POSITIVE_INFINITY;
+  const edgeSpan = Math.max(0.001, (options.edgeEnd ?? edgeStart) - edgeStart);
   const colors = new Float32Array(position.count * 3);
   for (let index = 0; index < position.count; index += 1) {
     const x = position.getX(index);
@@ -234,7 +242,20 @@ function addMaterialBreakup(
     const variation =
       Math.sin(x * 4.7 + y * 2.3 + z * 1.9) * 0.55 +
       Math.sin(x * 9.1 - y * 3.4) * 0.25;
-    const shade = 1 + variation * strength;
+    const edge =
+      options.edgeDarken && Number.isFinite(edgeStart)
+        ? options.edgeDarken *
+          Math.max(0, Math.min(1, (Math.abs(x) - edgeStart) / edgeSpan))
+        : 0;
+    const patchShade = (options.patches ?? []).reduce(
+      (total, [patchX, patchZ, radiusX, radiusZ, patchStrength]) => {
+        const dx = (x - patchX) / Math.max(0.001, radiusX);
+        const dz = (z - patchZ) / Math.max(0.001, radiusZ);
+        return total + Math.exp(-(dx * dx + dz * dz) * 1.8) * patchStrength;
+      },
+      0,
+    );
+    const shade = Math.max(0.72, 1 + variation * strength - edge - patchShade);
     colors[index * 3] = base.r * shade;
     colors[index * 3 + 1] = base.g * shade * 0.96;
     colors[index * 3 + 2] = base.b * shade * 0.94;
@@ -1030,9 +1051,9 @@ function CitySceneFog({ mobile }: { mobile: boolean }) {
   useEffect(() => {
     const previousFog = scene.fog;
     const cityFog = new Fog(
-      "#4d3440",
-      mobile ? 17.5 : 19,
-      mobile ? 35 : 37,
+      "#5b4652",
+      mobile ? 17 : 18,
+      mobile ? 41 : 43,
     );
     scene.fog = cityFog;
     return () => {
@@ -1046,13 +1067,32 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].streetStones;
   const stones = useMemo(() => CITY_STREET_STONES.slice(0, count), [count]);
   const roadGeometry = useMemo(() => {
-    const geometry = new BoxGeometry(2.45, 0.055, 15.7);
-    addMaterialBreakup(geometry, 0.065, "#4e4b54");
+    const geometry = new BoxGeometry(2.45, 0.055, 15.7, 2, 1, 14);
+    addMaterialBreakup(geometry, 0.045, "#4e4b54", {
+      edgeDarken: 0.08,
+      edgeStart: 0.86,
+      edgeEnd: 1.18,
+      patches: [
+        [-1.02, -5.3, 0.2, 0.72, 0.12],
+        [1.03, -2.15, 0.2, 0.62, 0.1],
+        [-1.02, 2.7, 0.2, 0.68, 0.13],
+        [1.02, 5.7, 0.2, 0.64, 0.1],
+      ],
+    });
     return geometry;
   }, []);
   const crossStreetGeometry = useMemo(() => {
-    const geometry = new BoxGeometry(13.8, 0.06, 1.5);
-    addMaterialBreakup(geometry, 0.055, "#514c54");
+    const geometry = new BoxGeometry(13.8, 0.06, 1.5, 14, 1, 3);
+    addMaterialBreakup(geometry, 0.042, "#514c54", {
+      edgeDarken: 0.065,
+      edgeStart: 4.9,
+      edgeEnd: 6.5,
+      patches: [
+        [-3.3, -0.42, 0.62, 0.28, 0.1],
+        [0.15, 0.35, 0.72, 0.24, 0.08],
+        [3.75, -0.34, 0.58, 0.26, 0.1],
+      ],
+    });
     return geometry;
   }, []);
   const stoneMesh = useRef<InstancedMesh>(null);
