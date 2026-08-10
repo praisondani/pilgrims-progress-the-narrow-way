@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-01T07:41:55-05:00",
+  "updatedAt": "2026-08-09T23:06:45-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -25,10 +25,10 @@
       {
         "id": "hero",
         "name": "Christian protagonist",
-        "status": "iteration-9-required",
+        "status": "iteration-10-required",
         "builder": "ultracode hero builder",
-        "critic": "fresh runtime critic — fail, comparison v18",
-        "largestGap": "v18 narrows the waist, tapers limbs, enlarges the head, and adds embedded orbital, cheek, brow, nose, beard, moustache, lip, and chin volumes while preserving four draws and 12,636 triangles. Front reads more human, but the profile/rear burden remains a rigid 1.48× shoulder-width shield, the 96 px silhouette loses hands/neck/waist/knees, and an external 19–24k sculpt/GLB is still required."
+        "critic": "runtime critic queued — v19 gameplay evidence",
+        "largestGap": "v19 narrows the burden footprint, adds deterministic cloth relief, rope compression, asymmetric lobes, and a 26-segment loft while preserving four draws and 12,636 triangles. The gameplay rear reads less like a shield, but fresh isolated front/profile/rear review remains queued; the 96 px silhouette and procedural geometry are still below the 19–24k authored sculpt/GLB target."
       },
       {
         "id": "dream",
@@ -237,6 +237,10 @@
         "label": "Christian v18 — loaded gameplay burden critic capture",
         "path": "/studio-evidence/vertical-slice-01/christian-v18-gameplay-burden.png"
       },
+      {
+        "label": "Christian v19 — narrowed burden gameplay capture",
+        "path": "/studio-evidence/vertical-slice-01/christian-v19-gameplay-burden.png"
+      },
     {
       "label": "Dream loop 5 — moonlit S-curve",
       "path": "/studio-evidence/vertical-slice-01/dream-loop5-runtime-water-v2.jpg"
@@ -274,12 +278,12 @@
     "unitTests": "65/65 passed",
     "firstObjective": "desktop and mobile first-lantern flows pass; Dream den, book, and threshold routes are reachable through monotonic authored waypoints",
     "wicketGate": "desktop arrow-impact + six-beat real-door traversal 2/2 pass; mobile gate-specific touch-path cases intentionally skipped",
-    "browserRegression": "desktop focused flows 17/17 pass plus legacy 25-chapter real-controls journey 1/1 pass (26.2m); mobile Chromium focused flows 17/17 pass; mobile WebKit 4/4 pass including forced AudioContext interruption recovery; procedural desktop 2/2 pass with disabled-cue race hardening; mobile pointer capture hardening builds clean",
+    "browserRegression": "desktop Gate/procedural focused flows 4/4 pass; mobile WebKit 4/4 pass including autoplay-permission reload handling and forced AudioContext interruption recovery; historical desktop focused flows 17/17 plus legacy 25-chapter real-controls journey 1/1 remain recorded; mobile pointer capture hardening builds clean",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
     "fullJourney": "Legacy Dream → Doubting Castle traversal 1/1 pass (26.2m); new Delectable Mountains → Celestial City finale smoke 1/1 pass (2.2m). Full 30-scene rerun remains queued.",
-    "bundleBudget": "4.35 MB JavaScript + 2.16 MB audio — pass",
+    "bundleBudget": "4.36 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
-    "img2threejs": "Christian v18 procedural reconstruction with near/far LOD proxies, narrowed/tapered anatomy, embedded facial volume, asymmetric burden lobes, compression folds, and animated load settling; fresh runtime critic still fails the 96 px/reference bar; no production GLB accepted yet",
+    "img2threejs": "Christian v19 procedural reconstruction with near/far LOD proxies, narrowed/tapered anatomy, embedded facial volume, asymmetric burden lobes, compression folds, rope contact, and animated load settling; fresh isolated runtime critic remains queued and no production GLB is accepted yet",
     "deployment": "not authorized until current vertical slice passes real gameplay and regression gates"
   }
 }

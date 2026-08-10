@@ -48,8 +48,9 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v18 img2threejs procedural anatomy/face pass with profile, rear, and
-  gameplay evidence; external sculpt/GLB remains the target
+- Christian v19 img2threejs procedural anatomy/face and narrowed burden pass
+  with gameplay evidence; isolated front/profile/rear critic and external
+  sculpt/GLB remain the target
 - Exhaustive Dream-to-Celestial City real-controls rerun queued after pause
 
 ## Blocked

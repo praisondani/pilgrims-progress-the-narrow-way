@@ -1,10 +1,11 @@
 # Christian production asset handoff
 
-The current v18 procedural reconstruction is a reviewed runtime prototype, not
+The current v19 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It now keeps Christian's burden behind his scapulae,
-uses two asymmetric cloth lobes with compression folds and rope contact,
-embeds facial volume in the skinned body draw, and adds restrained loaded-cloth
-secondary motion. The v18 anatomy pass narrows the waist, tapers the limbs, and
+uses two asymmetric cloth lobes with compression folds, rope contact, and
+deterministic cloth relief, embeds facial volume in the skinned body draw, and
+adds restrained loaded-cloth secondary motion. The v19 anatomy pass narrows the
+waist, tapers the limbs, and
 adds embedded orbital, cheek, brow, nose, beard, moustache, lip, and chin
 volumes. The comparison remains below the acceptance bar:
 
@@ -13,12 +14,15 @@ volumes. The comparison remains below the acceptance bar:
 - v18 profile render: `public/studio-evidence/vertical-slice-01/christian-v18-profile.png`
 - v18 rear render: `public/studio-evidence/vertical-slice-01/christian-v18-back.png`
 - v18 gameplay burden render: `public/studio-evidence/vertical-slice-01/christian-v18-gameplay-burden.png`
+- v19 narrowed burden gameplay render: `public/studio-evidence/vertical-slice-01/christian-v19-gameplay-burden.png`
 - staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
 
-The fresh v18 runtime critic still fails the Loop 5 acceptance bar: the current
-pack is too wide and planar, the face and anatomy remain toy-like at 96 px, and
-the body/burden geometry is 12,636 triangles versus the 19–24k target. An
-external DCC-authored character/GLB remains required.
+The v19 isolated front/profile/rear runtime critic is still queued. The latest
+reviewed v18 comparison failed the Loop 5 acceptance bar: the pack was too wide
+and planar, the face and anatomy remained toy-like at 96 px, and the
+body/burden geometry was 12,636 triangles versus the 19–24k target. v19 narrows
+and reshapes the load in live gameplay, but does not replace that pending
+isolated review. An external DCC-authored character/GLB remains required.
 The procedural BufferGeometry remains useful as the API/rig and gameplay
 fallback while that source sculpt is produced.
 
