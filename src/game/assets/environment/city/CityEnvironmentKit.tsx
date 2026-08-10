@@ -436,6 +436,49 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     }
   }
 
+  // Sparse outer silhouettes keep the dusk field from ending at the island's
+  // edge. They are deliberately grounded, low, and discontinuous so the
+  // horizon reads as distant terrain rather than another enclosing wall.
+  const outerPalette = [
+    ["#343444", "#4b465c"],
+    ["#3c394b", "#57516a"],
+    ["#303143", "#46435a"],
+    ["#443c4d", "#5f5269"],
+  ] as const;
+  const outerBlueprints = [
+    { angle: 0, radius: 25.6, height: 0.8, width: 4.6, depth: 2.5, roofX: 1.6, roofZ: 1.25 },
+    { angle: 60, radius: 26.8, height: 1.2, width: 5.4, depth: 2.8, roofX: 1.9, roofZ: 1.4 },
+    { angle: 120, radius: 25.2, height: 0.95, width: 3.8, depth: 2.2, roofX: 1.35, roofZ: 1.1 },
+    { angle: 180, radius: 26.5, height: 1.45, width: 5.8, depth: 2.7, roofX: 2.0, roofZ: 1.35 },
+    { angle: 240, radius: 25.8, height: 0.72, width: 4.4, depth: 2.4, roofX: 1.5, roofZ: 1.2 },
+    { angle: 300, radius: 27.1, height: 1.1, width: 5.1, depth: 3.0, roofX: 1.8, roofZ: 1.5 },
+    { angle: 30, radius: 26.2, height: 1.05, width: 3.9, depth: 2.4, roofX: 1.45, roofZ: 1.2 },
+    { angle: 210, radius: 26.1, height: 1.25, width: 4.8, depth: 2.6, roofX: 1.7, roofZ: 1.3 },
+  ] as const;
+  const outerCount = segmentCount === 12 ? 6 : outerBlueprints.length;
+  for (let index = 0; index < outerCount; index += 1) {
+    const blueprint = outerBlueprints[index];
+    const angle = (blueprint.angle * Math.PI) / 180;
+    const rotation = Math.PI / 2 - angle;
+    const x = Math.cos(angle) * blueprint.radius;
+    const z = Math.sin(angle) * blueprint.radius;
+    const [bodyColor, roofColor] = outerPalette[index % outerPalette.length];
+
+    const mass = new BoxGeometry(blueprint.width, blueprint.height, blueprint.depth);
+    mass.translate(0, blueprint.height * 0.5, 0);
+    mass.rotateY(rotation);
+    mass.translate(x, 0, z);
+    setGeometryVerticalRamp(mass, bodyColor, shiftedCityColor(bodyColor, 0.12, -0.01));
+    parts.push(mass);
+
+    const roof = new ConeGeometry(1, 0.36, 4, 1, true);
+    roof.scale(blueprint.roofX, 1, blueprint.roofZ);
+    roof.rotateY(rotation + Math.PI / 4);
+    roof.translate(x, blueprint.height + 0.18, z);
+    setGeometryVerticalRamp(roof, roofColor, shiftedCityColor(roofColor, 0.14, -0.012));
+    parts.push(roof);
+  }
+
   const compatible = parts.map((part) => {
     const geometry = part.toNonIndexed();
     part.dispose();

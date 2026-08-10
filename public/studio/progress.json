@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T11:04:00-05:00",
+  "updatedAt": "2026-08-10T11:19:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-22-critic-failed-spatial-blueprint-pass",
+        "status": "iteration-23-critic-failed-outer-ring-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critic — fail, v22 front 7.3, rear 6.3, mobile 6.0 proxy; perf remains within budget",
-        "largestGap": "v22 replaces repetitive midground placement with eight authored blueprints spanning every heading, varying radius/width/depth/height and roof scale, plus connected annex/roof clusters inside the same merged horizon draw. Artifact checks pass and rear layering improves materially, but the outer-ring world remains an empty dark-red void beyond the city island, with weak atmosphere and repeated materials versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — v22 front 7.3–7.8, rear 6.3–7.5, mobile 6.0–7.5; v23 final front 7.4, rear 6.5, mobile 6.2; perf remains within budget",
+        "largestGap": "v23 adds six low-tier/eight desktop sparse grounded outer masses and roofs inside the existing merged horizon draw; final front/rear/mobile evidence confirms clear gaps, no enclosing-wall occlusion, and artifact checks pass. The dark-red field is only partially integrated: silhouettes remain sparse/toy-like with weak terrain contact and atmospheric depth versus Kena/Pathless/RiME."
       },
       {
         "id": "wicket-gate",
@@ -470,6 +470,18 @@
       "path": "/studio-evidence/vertical-slice-02/city-v22-runtime-mobile-front.png"
     },
     {
+      "label": "City v23 runtime — outer-ring front composition",
+      "path": "/studio-evidence/vertical-slice-02/city-v23-runtime-desktop-front-final.png"
+    },
+    {
+      "label": "City v23 runtime — outer-ring rear orbit",
+      "path": "/studio-evidence/vertical-slice-02/city-v23-runtime-desktop-rear-final.png"
+    },
+    {
+      "label": "City v23 runtime — outer-ring mobile front",
+      "path": "/studio-evidence/vertical-slice-02/city-v23-runtime-mobile-front-final.png"
+    },
+    {
       "label": "Dream v9 runtime — authored forward composition",
       "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-desktop.png"
     },
@@ -556,6 +568,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v22 runtime safety pass, but Dream v14, v38 hero, and City v22 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs a bounded outer-ring world with atmospheric separation, and a production Christian GLB remains outstanding"
+    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v23 runtime safety pass, but Dream v14, v38 hero, and City v23 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs world-scale outer-ring terrain contact and atmospheric separation, and a production Christian GLB remains outstanding"
   }
 }
