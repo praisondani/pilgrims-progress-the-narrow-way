@@ -60,13 +60,15 @@
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v22 img2threejs procedural anatomy/face, compacted adult head, and
-  compressed burden pass with fresh front/profile/rear/96 px critic evidence;
-  the independent runtime critic scores 5.3/10 (materially above v20, but
-  still below the Kena/Pathless/RiME bar). The single remaining hero gap is
-  the chibi adultness mismatch: body proportions and facial character still
-  read toy-like versus the adult Christian reference. A licensed sculpt/GLB
-  remains the long-term target.
+- Christian v26 img2threejs procedural anatomy/face, compacted adult head,
+  tapered torso, longer limbs, articulated hands, smaller boots, and compressed
+  burden pass with fresh front/profile/rear/96 px critic evidence; the
+  independent runtime critic scores 6.8/10. Adult readability, limbs, torso,
+  hands, and boots now pass the focused acceptance layers, while the Kena /
+  Pathless / RiME visual bar still fails on burden contact/material realism.
+  The single remaining hero gap is the oversized black load: its shoulder/waist
+  compression still reads like a mounted shell instead of carried cloth. A
+  licensed sculpt/GLB remains the long-term target.
 - City v5 runtime critic review complete: clear lift to 5.1/10, cue/interact
   flow still passes, and follow-up draw budgets are green at 150 desktop / 98
   mobile p95. Visual bar still fails: architecture remains flat-color low-poly,
@@ -85,5 +87,5 @@
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
 5. Upgrade Dream, Wicket Gate, and finale landmarks with authored props/material depth
-6. Continue the hero adult-proportion/face pass, then build the licensed GLB pipeline; replace characters scene by scene
+6. Continue the hero burden-contact/material pass, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

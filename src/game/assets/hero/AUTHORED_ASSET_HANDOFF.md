@@ -1,6 +1,6 @@
 # Christian production asset handoff
 
-The current v22 procedural reconstruction is a reviewed runtime prototype, not
+The current v26 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It now keeps Christian's burden behind his scapulae,
 uses two asymmetric cloth lobes with compression folds, rope contact, and
 deterministic cloth relief, embeds facial volume in the skinned body draw, and
@@ -14,6 +14,10 @@ below the acceptance bar:
 V22 additionally compacts the full head hierarchy, reduces the chest barrel,
 darkens the burden toward the charcoal reference, and scales the pack depth
 against the scapula while preserving the runtime sockets and LOD contract.
+V26 adds the focused adult-proportion pass: a tapered waist, longer/slimmer
+arms and lower body, articulated finger lengths, smaller boots, and darker
+adult eye materials. The current critic passes those anatomy layers but still
+fails burden contact/material realism.
 
 - reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
 - v18 front render: `public/studio-evidence/vertical-slice-01/christian-v18-front.png`
@@ -32,13 +36,17 @@ against the scapula while preserving the runtime sockets and LOD contract.
 - v22 profile critic render: `public/studio-evidence/vertical-slice-01/christian-v22-profile.png`
 - v22 rear critic render: `public/studio-evidence/vertical-slice-01/christian-v22-back.png`
 - v22 reference comparison: `public/studio-evidence/vertical-slice-01/christian-v22-comparison.png`
+- v26 front critic render: `public/studio-evidence/vertical-slice-01/christian-v26-front.png`
+- v26 profile critic render: `public/studio-evidence/vertical-slice-01/christian-v26-profile.png`
+- v26 rear critic render: `public/studio-evidence/vertical-slice-01/christian-v26-back.png`
+- v26 reference comparison: `public/studio-evidence/vertical-slice-01/christian-v26-comparison.png`
 - staged comparison: `.asset-work/img2threejs/christian-hero/reviews/profile-v17-comparison.png`
 
-The fresh v22 runtime critic scores 5.3/10 and fails the Loop 5 acceptance bar.
-The largest remaining gap is the chibi adultness mismatch: body proportions and
-facial character still read toy-like against the adult Christian reference.
-V22 geometry remains a four-draw procedural fallback; the licensed sculpt/GLB
-target is still required for final visual sign-off.
+The fresh v26 runtime critic scores 6.8/10 and fails the Loop 5 acceptance bar
+only on burden contact/material realism: the oversized black load still reads
+as a mounted shell with weak shoulder/waist compression. V26 geometry remains
+a four-draw procedural fallback; the licensed sculpt/GLB target is still
+required for final visual sign-off.
 The procedural fallback remains useful for API/rig and gameplay while an
 external DCC-authored character/GLB is produced.
 The procedural BufferGeometry remains useful as the API/rig and gameplay

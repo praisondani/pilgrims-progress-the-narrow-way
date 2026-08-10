@@ -281,7 +281,7 @@ export function createAuthoredPilgrimHero(
   // The turnaround reads as an adult traveler with a compact, angular head,
   // not a mascot. Scale the complete head hierarchy (face, beard, hair, and
   // expression patches) together so every facial socket stays registered.
-  head.scale.set(0.92, 0.94, 0.92);
+  head.scale.set(0.86, 0.88, 0.86);
   addBone("jaw", head, [0, 0.07, 0.045]);
   const leftShoulder = addBone("leftShoulder", chest, [-0.31, 0.12, 0]);
   const leftElbow = addBone("leftElbow", leftShoulder, [0, -0.335, 0]);
@@ -302,42 +302,42 @@ export function createAuthoredPilgrimHero(
       center: [0, 0.72, 0.008],
       // Keep tunic hem just outside the hips. The previous near-constant
       // radius made torso read as one barrel from front and profile.
-      radiusX: 0.255,
+      radiusX: 0.22,
       radiusZ: 0.145,
       color: palette.tunicShadow,
       skin: { bone: boneIndex.pelvis },
     },
     {
       center: [0, 0.86, 0.006],
-      radiusX: 0.265,
+      radiusX: 0.235,
       radiusZ: 0.15,
       color: palette.tunic,
       skin: { bone: boneIndex.pelvis },
     },
     {
       center: [0, 0.99, 0],
-      radiusX: 0.215,
+      radiusX: 0.205,
       radiusZ: 0.132,
       color: palette.tunic,
       skin: { bone: boneIndex.pelvis, nextBone: boneIndex.spine, blend: 0.4 },
     },
     {
       center: [0, 1.17, 0],
-      radiusX: 0.225,
+      radiusX: 0.23,
       radiusZ: 0.14,
       color: palette.tunic,
       skin: { bone: boneIndex.spine, nextBone: boneIndex.chest, blend: 0.45 },
     },
     {
       center: [0, 1.35, -0.002],
-      radiusX: 0.275,
+      radiusX: 0.26,
       radiusZ: 0.155,
       color: palette.tunic,
       skin: { bone: boneIndex.chest },
     },
     {
       center: [0, 1.5, -0.004],
-      radiusX: 0.295,
+      radiusX: 0.28,
       radiusZ: 0.165,
       color: palette.tunic,
       skin: { bone: boneIndex.chest },
@@ -363,7 +363,7 @@ export function createAuthoredPilgrimHero(
     0.42,
   );
   bodyBuilder.addTube(
-    ellipseLoop([0, 0.74, 0], [0.255, 0, 0.15], "xz", 20),
+    ellipseLoop([0, 0.74, 0], [0.22, 0, 0.15], "xz", 20),
     0.011,
     palette.tunicShadow,
     { bone: boneIndex.pelvis },
@@ -436,8 +436,8 @@ export function createAuthoredPilgrimHero(
         },
         {
           center: [side * 0.335, 1.32, 0.004],
-          radiusX: 0.08,
-          radiusZ: 0.077,
+          radiusX: 0.076,
+          radiusZ: 0.073,
           color: palette.linen,
           skin: { bone: shoulderBone },
         },
@@ -449,23 +449,23 @@ export function createAuthoredPilgrimHero(
           skin: { bone: shoulderBone, nextBone: elbowBone, blend: 0.7 },
         },
         {
-          center: [side * 0.345, 1.115, 0.01],
-          radiusX: 0.061,
-          radiusZ: 0.058,
+          center: [side * 0.345, 1.09, 0.01],
+          radiusX: 0.058,
+          radiusZ: 0.054,
           color: palette.skinShadow,
           skin: { bone: elbowBone },
         },
         {
-          center: [side * 0.34, 0.94, 0.014],
-          radiusX: 0.052,
-          radiusZ: 0.048,
+          center: [side * 0.34, 0.89, 0.014],
+          radiusX: 0.049,
+          radiusZ: 0.044,
           color: palette.skin,
           skin: { bone: elbowBone, nextBone: wristBone, blend: 0.55 },
         },
         {
-          center: [side * 0.335, 0.84, 0.018],
-          radiusX: 0.044,
-          radiusZ: 0.041,
+          center: [side * 0.335, 0.77, 0.018],
+          radiusX: 0.041,
+          radiusZ: 0.038,
           color: palette.skin,
           skin: { bone: wristBone },
         },
@@ -477,8 +477,8 @@ export function createAuthoredPilgrimHero(
     // and a thumb overlap it at the wrist so the silhouette reads as a hand,
     // not an oval mitten, while remaining inside the unified body draw.
     bodyBuilder.addEllipsoid(
-      [side * 0.335, 0.735, 0.032],
-      [0.058, 0.078, 0.048],
+      [side * 0.335, 0.67, 0.032],
+      [0.05, 0.066, 0.042],
       (normal) => (normal.y < -0.45 ? palette.skinShadow : palette.skin),
       { bone: wristBone },
       14,
@@ -491,12 +491,12 @@ export function createAuthoredPilgrimHero(
     );
     const fingerOffsets = [-0.032, -0.011, 0.011, 0.032];
     for (const [fingerIndex, offset] of fingerOffsets.entries()) {
-      const length = 0.064 - fingerIndex * 0.004;
+      const length = 0.078 - fingerIndex * 0.005;
       bodyBuilder.addTube(
         [
-          [side * (0.335 + offset), 0.708, 0.045],
-          [side * (0.337 + offset * 0.92), 0.675 - length * 0.3, 0.054],
-          [side * (0.34 + offset * 0.78), 0.646 - length * 0.2, 0.047],
+          [side * (0.335 + offset), 0.643, 0.045],
+          [side * (0.337 + offset * 0.92), 0.603 - length * 0.3, 0.054],
+          [side * (0.34 + offset * 0.78), 0.57 - length * 0.2, 0.047],
         ],
         0.011,
         palette.skin,
@@ -504,7 +504,7 @@ export function createAuthoredPilgrimHero(
         5,
       );
       bodyBuilder.addEllipsoid(
-        [side * (0.34 + offset * 0.78), 0.64 - length * 0.2, 0.047],
+        [side * (0.34 + offset * 0.78), 0.57 - length * 0.2, 0.047],
         [0.012, 0.015, 0.012],
         palette.skinShadow,
         { bone: wristBone },
@@ -514,9 +514,9 @@ export function createAuthoredPilgrimHero(
     }
     bodyBuilder.addTube(
       [
-        [side * 0.378, 0.754, 0.056],
-        [side * 0.405, 0.728, 0.069],
-        [side * 0.406, 0.686, 0.057],
+        [side * 0.372, 0.688, 0.056],
+        [side * 0.397, 0.66, 0.069],
+        [side * 0.4, 0.618, 0.057],
       ],
       0.014,
       palette.skin,
@@ -603,7 +603,7 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addEllipsoid(
       [x, 0.065, 0.105],
-      [0.09, 0.062, 0.145],
+      [0.078, 0.055, 0.125],
       palette.leatherDark,
       { bone: ankleBone },
       14,
@@ -718,7 +718,7 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addEllipsoid(
       [side * 0.072, 1.784, 0.102],
-      [0.058, 0.055, 0.031],
+      [0.046, 0.041, 0.025],
       (normal) => (normal.y < -0.35 ? palette.skinShadow : palette.skin),
       { bone: boneIndex.head },
       14,
@@ -834,23 +834,23 @@ export function createAuthoredPilgrimHero(
   bodyBuilder.addLoft(
     [
       {
-        center: [0, 1.89, 0.004],
-        radiusX: 0.137,
-        radiusZ: 0.136,
+        center: [0, 1.9, 0.004],
+        radiusX: 0.124,
+        radiusZ: 0.124,
         color: palette.hair,
         skin: { bone: boneIndex.head },
       },
       {
-        center: [0.008, 1.944, 0.003],
-        radiusX: 0.116,
-        radiusZ: 0.116,
+        center: [0.008, 1.95, 0.003],
+        radiusX: 0.105,
+        radiusZ: 0.105,
         color: palette.hair,
         skin: { bone: boneIndex.head },
       },
       {
-        center: [-0.012, 1.99, 0.0],
-        radiusX: 0.052,
-        radiusZ: 0.045,
+        center: [-0.012, 1.985, 0.0],
+        radiusX: 0.04,
+        radiusZ: 0.035,
         color: palette.hair,
         skin: { bone: boneIndex.head },
       },
@@ -871,11 +871,11 @@ export function createAuthoredPilgrimHero(
   // Small overlapping crown/temple clumps break the procedural cap into an
   // asymmetrical, swept hairline that survives the three-quarter camera.
   for (const [x, y, z, rx, ry, rz, phase] of [
-    [-0.082, 1.954, 0.048, 0.052, 0.043, 0.04, 0.4],
-    [0.028, 1.997, 0.026, 0.066, 0.032, 0.045, 1.2],
-    [0.086, 1.962, 0.025, 0.044, 0.048, 0.037, 2.1],
-    [-0.115, 1.902, 0.064, 0.037, 0.067, 0.033, 2.8],
-    [0.118, 1.904, 0.055, 0.034, 0.06, 0.03, 3.5],
+    [-0.082, 1.95, 0.048, 0.052, 0.032, 0.04, 0.4],
+    [0.028, 1.984, 0.026, 0.066, 0.023, 0.045, 1.2],
+    [0.086, 1.958, 0.025, 0.044, 0.036, 0.037, 2.1],
+    [-0.115, 1.902, 0.064, 0.037, 0.052, 0.033, 2.8],
+    [0.118, 1.904, 0.055, 0.034, 0.048, 0.03, 3.5],
   ] as const)
     bodyBuilder.addEllipsoid(
       [x, y, z],
@@ -918,7 +918,7 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const)
     bodyBuilder.addEllipsoid(
       [side * 0.052, 1.825, 0.156],
-      [0.016, 0.012, 0.01],
+      [0.012, 0.009, 0.008],
       palette.iris,
       { bone: boneIndex.head },
       10,
@@ -927,7 +927,7 @@ export function createAuthoredPilgrimHero(
   for (const side of [-1, 1] as const) {
     bodyBuilder.addEllipsoid(
       [side * 0.052, 1.825, 0.169],
-      [0.006, 0.007, 0.004],
+      [0.0045, 0.0055, 0.003],
       palette.pupil,
       { bone: boneIndex.head },
       8,
@@ -935,7 +935,7 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addEllipsoid(
       [side * 0.049, 1.829, 0.174],
-      [0.003, 0.0035, 0.0018],
+      [0.0024, 0.0028, 0.0015],
       palette.eyeWhite,
       { bone: boneIndex.head },
       6,
@@ -947,10 +947,10 @@ export function createAuthoredPilgrimHero(
     const x = side * 0.052;
     bodyBuilder.addPatch(
       [
-        [x - 0.016, 1.831, 0.151],
-        [x + 0.016, 1.831, 0.151],
-        [x + 0.014, 1.82, 0.154],
-        [x - 0.014, 1.82, 0.154],
+        [x - 0.012, 1.83, 0.151],
+        [x + 0.012, 1.83, 0.151],
+        [x + 0.011, 1.822, 0.154],
+        [x - 0.011, 1.822, 0.154],
       ],
       palette.eyeWhite,
       { bone: boneIndex.head },
@@ -958,10 +958,10 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addPatch(
       [
-        [x - 0.0055, 1.83, 0.156],
-        [x + 0.0055, 1.83, 0.156],
-        [x + 0.0055, 1.82, 0.158],
-        [x - 0.0055, 1.82, 0.158],
+        [x - 0.004, 1.829, 0.156],
+        [x + 0.004, 1.829, 0.156],
+        [x + 0.004, 1.822, 0.158],
+        [x - 0.004, 1.822, 0.158],
       ],
       palette.iris,
       { bone: boneIndex.head },
@@ -969,10 +969,10 @@ export function createAuthoredPilgrimHero(
     );
     bodyBuilder.addPatch(
       [
-        [x - 0.029, 1.868, 0.145],
-        [x + 0.028, 1.867, 0.146],
-        [x + 0.026, 1.862, 0.147],
-        [x - 0.027, 1.863, 0.146],
+        [x - 0.022, 1.866, 0.145],
+        [x + 0.021, 1.865, 0.146],
+        [x + 0.02, 1.862, 0.147],
+        [x - 0.021, 1.863, 0.146],
       ],
       palette.hair,
       { bone: boneIndex.head },
@@ -999,7 +999,7 @@ export function createAuthoredPilgrimHero(
   );
 
   bodyBuilder.addTube(
-    ellipseLoop([0, 1.0, 0], [0.255, 0, 0.165], "xz", 28),
+    ellipseLoop([0, 1.0, 0], [0.22, 0, 0.155], "xz", 28),
     0.025,
     palette.leather,
     { bone: boneIndex.pelvis },
@@ -1079,6 +1079,28 @@ export function createAuthoredPilgrimHero(
   );
 
   const bodyGeometry = bodyBuilder.toGeometry("hero.authored.body.geometry");
+  const lengthenLowerBody = (geometry: BufferGeometry) => {
+    const positions = geometry.getAttribute("position");
+    for (let index = 0; index < positions.count; index += 1) {
+      const x = positions.getX(index);
+      const y = positions.getY(index);
+      // Christian's reference is roughly seven heads tall. Stretch only the
+      // leg column below the tunic hem, preserving the chest/head sockets and
+      // avoiding a global scale that would also enlarge the burden.
+      if (
+        Math.abs(x) > 0.055 &&
+        Math.abs(x) < 0.27 &&
+        Math.abs(positions.getZ(index)) < 0.12 &&
+        y < 0.98
+      )
+        positions.setY(index, y * 1.12);
+    }
+    positions.needsUpdate = true;
+    geometry.computeVertexNormals();
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+  };
+  lengthenLowerBody(bodyGeometry);
   const bodyMaterial = createVertexMaterial(
     "hero.authored.body.material",
     0.82,
@@ -1145,6 +1167,7 @@ export function createAuthoredPilgrimHero(
     bodyFarBuilder.toGeometry("hero.authored.body.far.geometry"),
     bodyMaterial,
   );
+  lengthenLowerBody(bodyFarMesh.geometry);
   bodyFarMesh.name = "hero.mesh.authored-body-far";
   bodyFarMesh.castShadow = true;
 
