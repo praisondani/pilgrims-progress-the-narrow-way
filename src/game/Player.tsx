@@ -22,7 +22,12 @@ import {
 
 const keys = new Set<string>();
 export const mobileInput = { x: 0, z: 0 };
-export const playerPosition = new Vector3(0, 1.2, 7);
+export const PLAYER_SPAWN = { x: 0, y: 1.2, z: 7 } as const;
+export const playerPosition = new Vector3(
+  PLAYER_SPAWN.x,
+  PLAYER_SPAWN.y,
+  PLAYER_SPAWN.z,
+);
 const companionTarget = new Vector3();
 
 export function HopefulCompanion() {
@@ -82,6 +87,16 @@ export function Player() {
     reducedMotion,
   } = useGame();
   const burdenWeight = burden > 0 ? Math.min(1, 0.55 + sceneIndex * 0.07) : 0;
+  useEffect(() => {
+    // Player is remounted for every scene/checkpoint. Reset the shared
+    // position before ActiveTarget, arrows, and the camera can observe the
+    // previous scene's coordinates during the first sparse frame.
+    playerPosition.set(PLAYER_SPAWN.x, PLAYER_SPAWN.y, PLAYER_SPAWN.z);
+    body.current?.setTranslation(PLAYER_SPAWN, true);
+    body.current?.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    playerMotion.moving = false;
+    playerMotion.yaw = Math.PI;
+  }, [sceneIndex]);
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       keys.add(e.code);
@@ -170,15 +185,28 @@ export function Player() {
       guidedPoint[1] - p.z,
     );
     const guidedDistance = guided.length();
-    if (guidedTravel && guidedDistance < 1.45 && guidedWaypointIsFinal) {
-      useGame.getState().stopGuidedTravel();
+    const guidedSpeed = 14 * (1 - burdenWeight * 0.18);
+    const guidedArrivalDistance = Math.max(
+      1.45,
+      guidedSpeed * Math.max(delta, 1 / 60) * 1.5,
+    );
+    if (guidedTravel && guidedDistance <= guidedArrivalDistance) {
+      // Low-FPS frames can cross a short authored waypoint in one integration
+      // step. Snap to it instead of reversing and oscillating around the
+      // bend. Intermediate Dream waypoints stay guided; the final one stops
+      // guidance so the interaction prompt can take over on the next frame.
+      body.current.setTranslation(
+        { x: guidedPoint[0], y: p.y, z: guidedPoint[1] },
+        true,
+      );
       body.current.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
+      if (guidedWaypointIsFinal) useGame.getState().stopGuidedTravel();
       playerMotion.moving = false;
       if (walkingRef.current) {
         walkingRef.current = false;
         setWalking(false);
       }
-      playerPosition.set(p.x, p.y, p.z);
+      playerPosition.set(guidedPoint[0], p.y, guidedPoint[1]);
       return;
     }
     const dir = (guidedTravel ? guided : manual).normalize();
@@ -189,9 +217,10 @@ export function Player() {
     }
     playerMotion.moving = moving;
     const inSlough = storyScenes[sceneIndex].id === "slough";
-    const speed =
-      (guidedTravel ? 14 : inSlough ? 2.1 : keys.has("ShiftLeft") ? 5.2 : 3.5) *
-      (1 - burdenWeight * 0.18);
+    const speed = guidedTravel
+      ? guidedSpeed
+      : (inSlough ? 2.1 : keys.has("ShiftLeft") ? 5.2 : 3.5) *
+        (1 - burdenWeight * 0.18);
     gameAudio.walking(moving, inSlough);
     body.current.setLinvel(
       { x: dir.x * speed, y: velocity.y, z: dir.z * speed },

@@ -217,7 +217,14 @@ export function dreamGuidedWaypoint(
     // Use the player's progress along the authored eastward bend rather than
     // repeatedly selecting the nearest point. A nearest-point lookup would
     // send the player back to the exit once they passed it.
-    if (point[0] < -1.05) return DREAM_DEN_EXIT_WAYPOINT;
+    if (
+      point[0] < -1.05 &&
+      Math.hypot(
+        point[0] - DREAM_DEN_EXIT_WAYPOINT[0],
+        point[1] - DREAM_DEN_EXIT_WAYPOINT[1],
+      ) >= 1.45
+    )
+      return DREAM_DEN_EXIT_WAYPOINT;
     if (point[0] < 1.05 && point[1] > -4.2)
       return DREAM_DEN_MID_WAYPOINT;
     if (

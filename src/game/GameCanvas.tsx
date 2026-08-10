@@ -24,7 +24,12 @@ function CameraRig() {
   const offset = useRef(new Vector3());
   const dragging = useRef(false);
   const lastLook = useRef(0);
-  const chapterFlight = useRef({ sceneIndex: -1, elapsed: 0, active: true });
+  const chapterFlight = useRef({
+    sceneIndex: -1,
+    elapsed: 0,
+    active: true,
+    startedAt: 0,
+  });
   const flightStart = useRef(new Vector3());
   const flightEnd = useRef(new Vector3());
   const flightTarget = useRef(new Vector3());
@@ -44,7 +49,12 @@ function CameraRig() {
   const profile = chapterCameraProfile(sceneId, portrait);
 
   useEffect(() => {
-    chapterFlight.current = { sceneIndex, elapsed: 0, active: cinematicCamera };
+    chapterFlight.current = {
+      sceneIndex,
+      elapsed: 0,
+      active: cinematicCamera,
+      startedAt: performance.now(),
+    };
     gl.domElement.dataset.cameraTransition = cinematicCamera ? sceneId : "";
     gl.domElement.dataset.cameraMood = profile.mood;
   }, [cinematicCamera, gl, profile.mood, sceneId, sceneIndex]);
@@ -73,7 +83,13 @@ function CameraRig() {
         rig.current.position.copy(flightStart.current);
       }
       orbit.enabled = false;
-      flight.elapsed += dt;
+      // Use wall-clock elapsed time as a floor. Software WebGL and background
+      // tabs can deliver sparse frames or tiny deltas; camera flights must
+      // still settle instead of holding the transition veil indefinitely.
+      flight.elapsed = Math.max(
+        flight.elapsed + Math.max(0, dt),
+        (performance.now() - flight.startedAt) / 1000,
+      );
       const progress = reducedMotion
         ? 1
         : Math.min(1, flight.elapsed / profile.duration);
@@ -204,6 +220,15 @@ export function GameCanvas() {
   const sceneKey = `${sceneIndex}-${checkpointRevision}`;
   const [readyKey, setReadyKey] = useState("");
   const ready = readyKey === sceneKey;
+  useEffect(() => {
+    if (ready) return;
+    // FrameReady is preferred because it keeps the veil over the first real
+    // frame. Software WebGL and backgrounded mobile tabs can delay the render
+    // loop for much longer; a bounded fallback prevents a playable canvas from
+    // being hidden behind an indefinite loader in that case.
+    const fallback = window.setTimeout(() => setReadyKey(sceneKey), 3_500);
+    return () => window.clearTimeout(fallback);
+  }, [ready, sceneKey]);
   const companionVisible =
     sceneIndex > 20 || (sceneIndex === 20 && (stepIndex >= 2 || gameComplete));
   return (

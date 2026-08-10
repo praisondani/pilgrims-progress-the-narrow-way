@@ -14,6 +14,8 @@ import {
   DREAM_KEYFRAME_ANCHORS,
   DREAM_GUIDANCE_CUE_POLICY,
   DREAM_DEN_EXIT_WAYPOINT,
+  DREAM_DEN_MID_WAYPOINT,
+  DREAM_DEN_WAYPOINT,
   DREAM_LANTERN_COMPOSITION_THIRD,
   DREAM_NORTH_GROVE_WAYPOINT,
   DREAM_PATH_CONTROL_POINTS,
@@ -207,6 +209,12 @@ describe("Dream authored composition", () => {
     expect(
       dreamGuidedWaypoint(DREAM_KEYFRAME_ANCHORS.lanternShrine, DREAM_KEYFRAME_ANCHORS.denRidge),
     ).toEqual(DREAM_DEN_EXIT_WAYPOINT);
+    expect(
+      dreamGuidedWaypoint(DREAM_DEN_EXIT_WAYPOINT, DREAM_KEYFRAME_ANCHORS.denRidge),
+    ).toEqual(DREAM_DEN_MID_WAYPOINT);
+    expect(
+      dreamGuidedWaypoint(DREAM_DEN_MID_WAYPOINT, DREAM_KEYFRAME_ANCHORS.denRidge),
+    ).toEqual(DREAM_DEN_WAYPOINT);
   });
 
   it("exports collision-ready vertical terrain for the 12m lantern corridor", () => {
