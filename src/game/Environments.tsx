@@ -24,6 +24,7 @@ import { requestPlayerImpact } from "./camera";
 import { useGame } from "./state";
 import { gameAudio } from "./audio";
 import { DreamEnvironmentKit } from "./assets/environment/dream";
+import { CityEnvironmentKit } from "./assets/environment/city";
 import {
   GATE_ARROW_LANES,
   GATE_COVER_CENTERS,
@@ -119,36 +120,15 @@ function Dream({ stepIndex }: { stepIndex: number }) {
   );
 }
 function City({ target }: { target: Target }) {
+  const reducedMotion = useGame((state) => state.reducedMotion);
+  const mobileViewport =
+    typeof window !== "undefined" && window.innerWidth <= 720;
   return (
-    <>
-      {[
-        [-5.7, 0, -5],
-        [-5.8, 0, -1],
-        [-5.5, 0, 4],
-        [5.7, 0, -4],
-        [5.8, 0, 1],
-        [5.4, 0, 5],
-      ]
-        .filter((p) => clearsTarget(p, target))
-        .map((p, i) => (
-          <CrookedHouse
-            key={`${p[0]}-${p[2]}`}
-            position={p as [number, number, number]}
-            color={i % 2 ? "#4d292e" : "#593033"}
-            lit={i === 2}
-          />
-        ))}
-      <StoneArch position={[0, 0, -7]} />
-      <Sparkles
-        count={55}
-        scale={[14, 8, 14]}
-        position={[0, 3, 0]}
-        color="#8b5345"
-        size={3}
-        speed={0.08}
-        opacity={0.24}
-      />
-    </>
+    <CityEnvironmentKit
+      target={target}
+      quality={mobileViewport ? "low" : "medium"}
+      reducedMotion={reducedMotion}
+    />
   );
 }
 function Field({ target }: { target: Target }) {
