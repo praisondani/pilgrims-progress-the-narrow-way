@@ -67,6 +67,11 @@
   no additional draw call, 96 mobile draw-call p95, and 31,932 mobile triangles
   p95. Fresh critics confirm cleaner rear grounding and no black horizon or
   floating-tower artifacts.
+- City v21 material/lighting pass: bounded vertical warm-to-cool ramps and subtle
+  lateral variation now break up the merged horizon, midground roofs/bodies, and
+  shared skyline tower body/roof geometry without adding lights, meshes, draw
+  groups, or changing the 96 mobile draw-call profile. City tests, build,
+  bundle, secret audit, and front runtime evidence are green.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -113,11 +118,11 @@
   independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
   pass that improves torso/garment construction but is paused before a fresh
   critic loop. A licensed sculpt/GLB remains the long-term target.
-- City v20 runtime critic review complete: 7.0/10 and 7.7/10 desktop-front,
-  5.8–7.1/10 rear, and 6.0–7.4/10 mobile depending on critic. Midground
-  blocks/roofs now bridge houses to skyline without new draws; visual bar still
-  fails because materials/lighting remain flat and repeated, with sparse
-  rear/side authored density versus Kena/Pathless/RiME.
+- City v21 runtime critic review complete: front 7.1/10, with v20 rear proxy
+  5.8/10 and v20 mobile proxy 6.0/10; artifact check passes and the ramps add
+  modest warmth/contrast. The visual bar still fails because rear/side spatial
+  depth and authored midground density remain sparse, leaving flat wall slabs
+  and a broad empty outer field versus Kena/Pathless/RiME.
 
 ## Blocked
 
@@ -127,9 +132,9 @@
 
 ## Next
 
-1. Give City v20 midground and skyline richer authored materials, window/light
-   variation, and atmospheric depth without increasing the 96-call mobile p95
-   profile, then re-run blind runtime critique
+1. Give City v21 a denser authored rear/side city story—distinct midground
+   silhouettes, occluding depth layers, and atmospheric separation—without
+   increasing the 96-call mobile p95 profile, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test

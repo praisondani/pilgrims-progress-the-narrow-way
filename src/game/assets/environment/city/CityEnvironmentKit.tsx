@@ -248,6 +248,46 @@ function setGeometryColor(geometry: BufferGeometry, value: string) {
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
 }
 
+function shiftedCityColor(value: string, lightness: number, saturation = 0) {
+  const color = new Color(value);
+  color.offsetHSL(0, saturation, lightness);
+  return `#${color.getHexString()}`;
+}
+
+function setGeometryVerticalRamp(
+  geometry: BufferGeometry,
+  bottomValue: string,
+  topValue: string,
+) {
+  const position = geometry.getAttribute("position");
+  const bottom = new Color(bottomValue);
+  const top = new Color(topValue);
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+  for (let index = 0; index < position.count; index += 1) {
+    const y = position.getY(index);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  }
+  const height = Math.max(0.001, maxY - minY);
+  const colors = new Float32Array(position.count * 3);
+  const color = new Color();
+  for (let index = 0; index < position.count; index += 1) {
+    const x = position.getX(index);
+    const y = position.getY(index);
+    const z = position.getZ(index);
+    const t = Math.max(0, Math.min(1, (y - minY) / height));
+    color.lerpColors(bottom, top, t);
+    // A restrained side-to-side drift keeps repeated silhouettes from reading
+    // as a single flat swatch without introducing another material or draw.
+    const drift = 1 + Math.sin(x * 0.19 + z * 0.13) * 0.035;
+    colors[index * 3] = color.r * drift;
+    colors[index * 3 + 1] = color.g * drift;
+    colors[index * 3 + 2] = color.b * drift;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+}
+
 /**
  * One low-poly, grounded city edge closes the view in every orbit. A low
  * continuous plinth keeps the horizon grounded while narrower upper blocks
@@ -287,7 +327,11 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     body.translate(0, baseHeight * 0.5, 0);
     body.rotateY(rotation);
     body.translate(x, 0, z);
-    setGeometryColor(body, bodyColor);
+    setGeometryVerticalRamp(
+      body,
+      shiftedCityColor(bodyColor, -0.025, 0.008),
+      shiftedCityColor(bodyColor, 0.11, -0.004),
+    );
     parts.push(body);
 
     const upper = new BoxGeometry(segmentWidth * 0.46, upperHeight, depth * 0.9);
@@ -298,7 +342,11 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
       0,
       Math.sin(angle) * (radius - 0.28),
     );
-    setGeometryColor(upper, upperColor);
+    setGeometryVerticalRamp(
+      upper,
+      shiftedCityColor(upperColor, -0.035, 0.006),
+      shiftedCityColor(upperColor, 0.12, -0.006),
+    );
     parts.push(upper);
   }
 
@@ -324,14 +372,22 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     block.translate(0, height * 0.5, 0);
     block.rotateY(rotation);
     block.translate(x, 0, z);
-    setGeometryColor(block, bodyColor);
+    setGeometryVerticalRamp(
+      block,
+      shiftedCityColor(bodyColor, -0.035, 0.008),
+      shiftedCityColor(bodyColor, 0.12, -0.006),
+    );
     parts.push(block);
 
     const roof = new ConeGeometry(1, 0.44, 4, 1, true);
     roof.scale(1.4, 1, 1.72);
     roof.rotateY(rotation + Math.PI / 4);
     roof.translate(x, height + 0.22, z);
-    setGeometryColor(roof, roofColor);
+    setGeometryVerticalRamp(
+      roof,
+      shiftedCityColor(roofColor, -0.03, 0.006),
+      shiftedCityColor(roofColor, 0.14, -0.008),
+    );
     parts.push(roof);
   }
 
@@ -392,6 +448,7 @@ function makeSkylineTowerBodyGeometry() {
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
+  setGeometryVerticalRamp(geometry, "#d9b7bf", "#fff0d2");
   return geometry;
 }
 
@@ -1265,7 +1322,11 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
   const towerRoofs = useRef<InstancedMesh>(null);
   const towerWindows = useRef<InstancedMesh>(null);
   const towerBodyGeometry = useMemo(() => makeSkylineTowerBodyGeometry(), []);
-  const towerRoofGeometry = useMemo(() => new ConeGeometry(1, 0.52, 4), []);
+  const towerRoofGeometry = useMemo(() => {
+    const geometry = new ConeGeometry(1, 0.52, 4);
+    setGeometryVerticalRamp(geometry, "#c59ba8", "#ffe0c5");
+    return geometry;
+  }, []);
   const towerWindowGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
 
   useEffect(

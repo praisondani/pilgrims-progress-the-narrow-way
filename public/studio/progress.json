@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T10:18:00-05:00",
+  "updatedAt": "2026-08-10T10:37:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-20-critic-failed-midground-depth-pass",
+        "status": "iteration-21-critic-failed-material-ramp-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critics — fail, v20 front 7.0/7.7, rear 5.8–7.1, mobile 6.0–7.4; perf remains within budget",
-        "largestGap": "v20 adds six/eight sparse midground block-and-roof pairs inside the existing merged horizon draw; rear grounding and artifact checks pass, with mobile 96 draw-call p95 / 31,932 triangles p95. Materials and lighting remain flat/repetitive, while rear/side authored density still trails Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — fail, v21 front 7.1, v20 rear proxy 5.8, v20 mobile proxy 6.0; perf remains within budget",
+        "largestGap": "v21 adds bounded vertical warm-to-cool ramps and subtle lateral variation to the merged horizon, midground roofs/bodies, and shared skyline tower body/roof geometry without new draws. Artifact checks pass and warmth improves modestly, but rear/side spatial depth and authored midground density remain sparse, with flat wall slabs and a broad empty outer field versus Kena/Pathless/RiME."
       },
       {
         "id": "wicket-gate",
@@ -454,6 +454,10 @@
       "path": "/studio-evidence/vertical-slice-02/city-v20-runtime-mobile-front.png"
     },
     {
+      "label": "City v21 runtime — material ramp front composition",
+      "path": "/studio-evidence/vertical-slice-02/city-v21-runtime-desktop-front.png"
+    },
+    {
       "label": "Dream v9 runtime — authored forward composition",
       "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-desktop.png"
     },
@@ -540,6 +544,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v20 runtime safety pass, but Dream v14, v38 hero, and City v20 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs material/lighting depth and richer rear/side authored context, and a production Christian GLB remains outstanding"
+    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v21 runtime safety pass, but Dream v14, v38 hero, and City v21 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs denser authored rear/side context and atmospheric separation, and a production Christian GLB remains outstanding"
   }
 }
