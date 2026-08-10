@@ -28,7 +28,9 @@
   outside interaction range
 - Split production chunks with enforced bundle budget
 - Desktop and mobile Chromium smoke tests plus legacy exhaustive and finale real-control journey coverage
-- GitHub Actions unit/build/bundle/browser quality gates
+- GitHub Actions unit/build/bundle/asset/secret quality gates; Playwright browser
+  suites remain available locally but are intentionally disabled in CI to conserve
+  runner credits and avoid long pipelines
 - Persistent normal/large/largest text settings
 - Reduced-motion and cinematic-camera comfort controls
 - Recover-current-checkpoint action and persisted-save index clamping
