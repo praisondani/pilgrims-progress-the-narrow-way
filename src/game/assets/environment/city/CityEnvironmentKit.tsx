@@ -302,6 +302,39 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     parts.push(upper);
   }
 
+  // A sparse middle course bridges the playable island to the outer skyline.
+  // Deep footprints overlap the tower skirts, while the gaps keep the ring
+  // from becoming another continuous wall.
+  const midgroundCount = segmentCount === 12 ? 6 : 8;
+  const midgroundPalette = [
+    ["#5a414d", "#825767"],
+    ["#664753", "#916170"],
+    ["#543e4b", "#795366"],
+    ["#6b4a55", "#966575"],
+  ] as const;
+  for (let index = 0; index < midgroundCount; index += 1) {
+    const angle = ((index + 0.5) / midgroundCount) * Math.PI * 2;
+    const height = [1.22, 1.58, 1.34, 1.76][index % 4];
+    const rotation = Math.PI / 2 - angle;
+    const x = Math.cos(angle) * 18.8;
+    const z = Math.sin(angle) * 18.8;
+    const [bodyColor, roofColor] = midgroundPalette[index % midgroundPalette.length];
+
+    const block = new BoxGeometry(2.5, height, 3.2);
+    block.translate(0, height * 0.5, 0);
+    block.rotateY(rotation);
+    block.translate(x, 0, z);
+    setGeometryColor(block, bodyColor);
+    parts.push(block);
+
+    const roof = new ConeGeometry(1, 0.44, 4, 1, true);
+    roof.scale(1.4, 1, 1.72);
+    roof.rotateY(rotation + Math.PI / 4);
+    roof.translate(x, height + 0.22, z);
+    setGeometryColor(roof, roofColor);
+    parts.push(roof);
+  }
+
   const compatible = parts.map((part) => {
     const geometry = part.toNonIndexed();
     part.dispose();

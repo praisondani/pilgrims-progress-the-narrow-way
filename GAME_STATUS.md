@@ -62,6 +62,11 @@
   materials, and mobile 8/10/12 quality counts. City tests 2/2, full unit suite
   68/68, build, bundle, secret audit, and mobile runtime smoke remain green;
   current headless mobile profile is 97 draw calls p95 / 31,608 triangles p95.
+- City v20 rear-depth pass: sparse midground block-and-roof pairs bridge the
+  playable island to the skyline inside the existing merged horizon geometry;
+  no additional draw call, 96 mobile draw-call p95, and 31,932 mobile triangles
+  p95. Fresh critics confirm cleaner rear grounding and no black horizon or
+  floating-tower artifacts.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -108,11 +113,11 @@
   independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
   pass that improves torso/garment construction but is paused before a fresh
   critic loop. A licensed sculpt/GLB remains the long-term target.
-- City v19 runtime critic review complete: 7.1/10 and 7.7/10 desktop-front,
-  5.1–5.3/10 rear proxy, and 5.4–6.9/10 mobile depending on critic. The ring,
-  skirts, windows, and radial towers remove black horizon artifacts and floating
-  pole silhouettes. Visual bar still fails because rear/side views lack layered
-  midground terrain around the ring and mobile framing lets one tower dominate.
+- City v20 runtime critic review complete: 7.0/10 and 7.7/10 desktop-front,
+  5.8–7.1/10 rear, and 6.0–7.4/10 mobile depending on critic. Midground
+  blocks/roofs now bridge houses to skyline without new draws; visual bar still
+  fails because materials/lighting remain flat and repeated, with sparse
+  rear/side authored density versus Kena/Pathless/RiME.
 
 ## Blocked
 
@@ -122,9 +127,9 @@
 
 ## Next
 
-1. Add City outer terrain and rear/side midground layers around v19's grounded
-   skyline, then re-run blind runtime critique without increasing mobile draw
-   budget beyond the current 97-call p95 profile
+1. Give City v20 midground and skyline richer authored materials, window/light
+   variation, and atmospheric depth without increasing the 96-call mobile p95
+   profile, then re-run blind runtime critique
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
