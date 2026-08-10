@@ -1,4 +1,5 @@
 import {
+  AdditiveBlending,
   BoxGeometry,
   BufferGeometry,
   CatmullRomCurve3,
@@ -257,19 +258,26 @@ function createStreamGeometry(quality: DreamQualityPreset) {
   const indices: number[] = [];
   const dreamAcross: number[] = [];
   for (let index = 0; index <= segments; index += 1) {
-    const progress = index / segments;
+    // Keep the stream inside the authored terrain ring so the reverse orbit
+    // cannot expose a hard water-sheet cut at the camera-facing endpoint.
+    const progress = 0.08 + (index / segments) * 0.84;
     const point = curve.getPoint(progress);
     const tangent = curve.getTangent(progress);
     const normal = new Vector3(-tangent.z, 0, tangent.x).normalize();
+    const endpointTaper =
+      0.015 + Math.sin(((progress - 0.08) / 0.84) * Math.PI) * 0.985;
     const width =
       0.44 +
       Math.sin(progress * Math.PI * 3.2) * 0.05 +
       progress * 0.06;
-    const left = point.clone().addScaledVector(normal, width);
-    const right = point.clone().addScaledVector(normal, -width);
+    const taperedWidth = width * endpointTaper;
+    const left = point.clone().addScaledVector(normal, taperedWidth);
+    const right = point.clone().addScaledVector(normal, -taperedWidth);
     positions.push(left.x, left.y, left.z, right.x, right.y, right.z);
     dreamAcross.push(0, 1);
-    if (index < segments) {
+    // Omit the four terminal quads.  Their near-zero-width triangles can still
+    // project as pale shards when the orbit camera looks across the ribbon.
+    if (index > 3 && index < segments - 3) {
       const offset = index * 2;
       indices.push(
         offset,
@@ -307,18 +315,21 @@ function createStreamBedGeometry(quality: DreamQualityPreset) {
   const positions: number[] = [];
   const indices: number[] = [];
   for (let index = 0; index <= segments; index += 1) {
-    const progress = index / segments;
+    const progress = 0.08 + (index / segments) * 0.84;
     const point = curve.getPoint(progress);
     const tangent = curve.getTangent(progress);
     const normal = new Vector3(-tangent.z, 0, tangent.x).normalize();
+    const endpointTaper =
+      0.015 + Math.sin(((progress - 0.08) / 0.84) * Math.PI) * 0.985;
     const width =
       0.68 +
       Math.sin(progress * Math.PI * 3.2) * 0.07 +
       progress * 0.1;
-    const left = point.clone().addScaledVector(normal, width);
-    const right = point.clone().addScaledVector(normal, -width);
+    const taperedWidth = width * endpointTaper;
+    const left = point.clone().addScaledVector(normal, taperedWidth);
+    const right = point.clone().addScaledVector(normal, -taperedWidth);
     positions.push(left.x, left.y, left.z, right.x, right.y, right.z);
-    if (index < segments) {
+    if (index > 0 && index < segments - 1) {
       const offset = index * 2;
       indices.push(
         offset,
@@ -352,18 +363,27 @@ function createPathGeometry(quality: DreamQualityPreset) {
   const positions: number[] = [];
   const indices: number[] = [];
   for (let index = 0; index <= segments; index += 1) {
-    const progress = index / segments;
+    // The portrait route is already framed by ground dressing; keeping the
+    // visible ribbon inside its middle bend avoids end-cap projections during
+    // a 360-degree orbit while preserving the walkable lantern approach.
+    const progress = 0.34 + (index / segments) * 0.56;
     const point = curve.getPoint(progress);
     const tangent = curve.getTangent(progress);
     const normal = new Vector3(-tangent.z, 0, tangent.x).normalize();
+    // Preserve the full authored corridor width at the unused end vertices;
+    // terminal quads are omitted below, so the orbit never sees end-cap shards.
+    const endpointTaper = 1;
     const width =
-      0.86 +
+      1 +
       (1 - progress) * 0.2 +
       Math.sin(progress * Math.PI * 4) * 0.055;
-    const left = point.clone().addScaledVector(normal, width);
-    const right = point.clone().addScaledVector(normal, -width);
+    const taperedWidth = width * endpointTaper;
+    const left = point.clone().addScaledVector(normal, taperedWidth);
+    const right = point.clone().addScaledVector(normal, -taperedWidth);
     positions.push(left.x, left.y, left.z, right.x, right.y, right.z);
-    if (index < segments) {
+    // Do not render terminal quads: the route stays broad for collision and
+    // guidance bounds while its camera-facing end remains visually hidden.
+    if (index > 3 && index < segments - 3) {
       const offset = index * 2;
       indices.push(
         offset,
@@ -437,23 +457,31 @@ function createBankStripGeometry(
   const positions: number[] = [];
   const indices: number[] = [];
   for (let index = 0; index <= segments; index += 1) {
-    const progress = 0.08 + (index / segments) * 0.8;
+    const progress = 0.08 + (index / segments) * 0.64;
     const point = curve.getPoint(progress);
     const tangent = curve.getTangent(progress);
     const normal = new Vector3(-tangent.z, 0, tangent.x).normalize();
     const variation = Math.sin(progress * Math.PI * 4.2) * 0.07;
+    const endpointTaper =
+      0.015 + Math.sin((index / segments) * Math.PI) * 0.985;
     const inner = point
       .clone()
-      .addScaledVector(normal, side * (innerWidth + variation));
+      .addScaledVector(
+        normal,
+        side * (innerWidth + variation) * endpointTaper,
+      );
     const outer = point
       .clone()
-      .addScaledVector(normal, side * (outerWidth + variation * 1.35));
+      .addScaledVector(
+        normal,
+        side * (outerWidth + variation * 1.35) * endpointTaper,
+      );
     inner.y = innerHeight;
     outer.y = outerHeight;
     positions.push(inner.x, inner.y, inner.z, outer.x, outer.y, outer.z);
     if (index < segments) {
       const midpoint = curve.getPoint(
-        0.08 + ((index + 0.5) / segments) * 0.8,
+        0.08 + ((index + 0.5) / segments) * 0.64,
       );
       if (
         Math.hypot(
@@ -488,93 +516,28 @@ function createBankStripGeometry(
  * fog can layer it into the moonlit horizon without adding a draw call.
  */
 function createHorizonRidgeGeometry() {
-  const positions: number[] = [];
-  const indices: number[] = [];
-  // Three staggered bands share the old eight-segment budget. Their gaps and
-  // different depths keep the rear orbit reading as layered terrain instead
-  // of one continuous faceted wall.
-  const bands: readonly {
-    points: readonly [number, number][];
-    frontZ: number;
-    backZ: number;
-  }[] = [
-    {
-      points: [[-14, 1.05], [-10.5, 2.45], [-7.1, 1.45], [-3.9, 2.9]],
-      frontZ: 12.8,
-      backZ: 13.7,
-    },
-    {
-      points: [[-3, 0.9], [0.2, 2.2], [3.6, 1.25], [6.1, 2.65]],
-      frontZ: 14.2,
-      backZ: 15.25,
-    },
-    {
-      points: [[6.7, 0.8], [10.1, 2.35], [14, 1.1]],
-      frontZ: 16,
-      backZ: 17.1,
-    },
-  ];
-  bands.forEach(({ points, frontZ, backZ }) => {
-    for (let index = 0; index < points.length - 1; index += 1) {
-      const [leftX, leftY] = points[index];
-      const [rightX, rightY] = points[index + 1];
-      const offset = positions.length / 3;
-      positions.push(
-        leftX,
-        0.05,
-        frontZ,
-        rightX,
-        0.05,
-        frontZ,
-        rightX,
-        rightY,
-        frontZ,
-        leftX,
-        leftY,
-        frontZ,
-        leftX,
-        0.05,
-        backZ,
-        rightX,
-        0.05,
-        backZ,
-        rightX,
-        rightY,
-        backZ,
-        leftX,
-        leftY,
-        backZ,
-      );
-      indices.push(
-        offset,
-        offset + 1,
-        offset + 2,
-        offset,
-        offset + 2,
-        offset + 3,
-        offset + 4,
-        offset + 6,
-        offset + 5,
-        offset + 4,
-        offset + 7,
-        offset + 6,
-      );
-    }
-  });
-  const geometry = new BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new Float32BufferAttribute(positions, 3),
+  // Rounded, staggered mounds keep the reverse orbit grounded in an authored
+  // skyline. A previous ribbon wall read as three hard blue panels from the
+  // back; these low-poly forms preserve the same single merged draw group
+  // while giving light and fog real volume to work across.
+  return merged(
+    [
+      [-7.6, 0.9, 19.0, 1.45, 1.05, 0.62, -0.12],
+      [-1.2, 1.1, 19.6, 1.7, 1.2, 0.72, 0.08],
+      [5.6, 1.05, 19.2, 1.55, 1.1, 0.66, -0.1],
+      [10.8, 0.8, 19.8, 1.25, 0.95, 0.56, 0.16],
+    ].map(([x, y, z, sx, sy, sz, rotation]) => {
+      const mound = new DodecahedronGeometry(1, 0);
+      mound.scale(sx, sy, sz);
+      mound.rotateY(rotation);
+      mound.translate(x, y, z);
+      return mound;
+    }),
   );
-  geometry.setIndex(new Uint32BufferAttribute(indices, 1));
-  geometry.computeVertexNormals();
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
-  return geometry;
 }
 
 function createDepthMassesGeometry(quality: DreamQualityPreset) {
-  const segments = quality === "low" ? 6 : quality === "medium" ? 8 : 10;
+  const segments = quality === "low" ? 6 : quality === "medium" ? 7 : 10;
   const curve = new CatmullRomCurve3(
     DREAM_STREAM_CONTROL_POINTS.map(([x, z]) => new Vector3(x, 0, z)),
   );
@@ -928,17 +891,21 @@ export function createDreamEnvironmentResources(
       // The glass carries a low warm source even before interaction so the
       // shrine reads as a destination; the flame still owns the lit-state
       // peak together with its point light.
-      emissiveIntensity: 0.62,
+      emissiveIntensity: 1.18,
       transparent: true,
-      opacity: 0.66,
+      opacity: 0.74,
       roughness: 0.34,
       vertexColors: true,
       depthWrite: false,
+      toneMapped: false,
     }),
     lanternFlame: new MeshBasicMaterial({
       color: palette.lanternFlame,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.98,
+      blending: AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
     }),
   };
 

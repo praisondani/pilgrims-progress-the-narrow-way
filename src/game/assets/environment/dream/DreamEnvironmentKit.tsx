@@ -329,12 +329,13 @@ function DreamLanternLandmark({
   useFrame(({ clock }) => {
     if (light.current) {
       const pulse =
-        lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.3 : 0;
-      light.current.intensity = (lit ? 5 : 1.1) + pulse;
+        lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.5 : 0;
+      light.current.intensity = (lit ? 7.8 : 1.8) + pulse;
+      light.current.distance = lit ? 9.4 : 6;
     }
     if (!lit || reducedMotion) return;
-    const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.07;
-    if (flame.current) flame.current.scale.set(1, flamePulse, 1);
+    const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.09;
+    if (flame.current) flame.current.scale.set(1.12, flamePulse * 1.12, 1.12);
   });
 
   return (
@@ -379,8 +380,78 @@ function DreamLanternLandmark({
         ref={light}
         position={[0, 1.5, 0]}
         color="#ffb565"
-        intensity={lit ? 5 : 1.1}
-        distance={lit ? 7.2 : 5.2}
+        intensity={lit ? 7.8 : 1.8}
+        distance={lit ? 9.4 : 6}
+        decay={2}
+      />
+    </group>
+  );
+}
+
+/** A distant echo of the lantern gives the reverse orbit a readable waystone. */
+function DreamRearWaystone({
+  resources,
+  lit,
+}: {
+  resources: DreamEnvironmentResources;
+  lit: boolean;
+}) {
+  return (
+    <group
+      name="dream-rear-waystone"
+      position={[-4.2, 0.12, 14.2]}
+      scale={1.15}
+    >
+      {[
+        [-0.9, 0.02, 0.78],
+        [0.92, 0.02, 0.86],
+        [-0.48, 0.62, 0.64],
+        [0.55, 0.58, 0.58],
+      ].map(([x, z, rockScale], index) => (
+        <mesh
+          key={index}
+          geometry={resources.geometries.lanternBaseRock}
+          material={resources.materials.lanternBaseRock}
+          position={[x, 0, z]}
+          scale={rockScale}
+          castShadow
+          receiveShadow
+        />
+      ))}
+      <mesh
+        geometry={resources.geometries.treeFar}
+        material={resources.materials.treeFar}
+        position={[-2.65, 0, 1.2]}
+        scale={[1.05, 1.35, 1.02]}
+      />
+      <mesh
+        geometry={resources.geometries.treeFar}
+        material={resources.materials.treeFar}
+        position={[2.55, 0, 1.35]}
+        scale={[0.92, 1.2, 0.9]}
+      />
+      <mesh
+        geometry={resources.geometries.lanternFrame}
+        material={resources.materials.lanternFrame}
+        castShadow
+      />
+      <mesh
+        geometry={resources.geometries.lanternGlass}
+        material={resources.materials.lanternGlass}
+        renderOrder={2}
+      />
+      {lit && (
+        <mesh
+          geometry={resources.geometries.lanternFlame}
+          material={resources.materials.lanternFlame}
+          renderOrder={3}
+        />
+      )}
+      <pointLight
+        position={[0, 1.45, 0]}
+        color="#ffb565"
+        intensity={lit ? 2.1 : 0.45}
+        distance={lit ? 5.2 : 3.2}
         decay={2}
       />
     </group>
@@ -485,6 +556,7 @@ export function DreamEnvironmentKit({
           castShadow
           receiveShadow
         />
+        <DreamRearWaystone resources={resources} lit={lanternLit} />
         <mesh
           name="dream-s-curve-path"
           geometry={resources.geometries.path}

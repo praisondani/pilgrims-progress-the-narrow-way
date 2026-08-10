@@ -15,7 +15,9 @@ export const DREAM_DEFAULT_PALETTE: Readonly<DreamEnvironmentPalette> = {
   keyLightIntensity: 2.35,
   groundDark: "#1d3b34",
   groundMid: "#4f725d",
-  path: "#8f7b63",
+  // A mossed earth trail reads as a grounded route under moonlight; the
+  // previous pale clay value became a distracting ribbon in reverse orbit.
+  path: "#596653",
   moss: "#2d5545",
   silhouette: "#173b3b",
   silhouetteLift: "#4f7d64",
