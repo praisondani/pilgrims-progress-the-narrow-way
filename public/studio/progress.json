@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T11:44:00-05:00",
+  "updatedAt": "2026-08-10T12:02:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-24-critic-failed-terrain-atmosphere-pass",
+        "status": "iteration-25-critic-failed-scoped-fog-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critics — v24 front 7.4–7.9, rear 6.7–7.6, mobile 6.2–7.5; perf remains within budget",
-        "largestGap": "v24 adds six low-tier/eight desktop broken hex berms with inset terrace caps, radial vertex-color haze, and a subtle lower dusk-dome haze, preserving the merged horizon draw. Valid front/rear/mobile evidence and the mobile benchmark show 96 draw-call p95 / 32,208 triangles p95; artifact checks pass and terrain contact/tonal separation improve modestly. The scene remains flat low-poly with little texture, contact-shadow richness, or continuous atmospheric depth beyond the ring versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — v25 front 7.5–8.0, rear 6.8–7.8, mobile 6.2–7.5; perf remains within budget",
+        "largestGap": "v25 adds disposable City-only linear fog (#4d3440; desktop near/far 19/37, mobile 17.5/35) that restores prior scene fog on cleanup. Valid front/rear/mobile evidence and the mobile benchmark show 97 draw-call p95 / 32,220 triangles p95; artifact checks pass, distant towers/berms recede, and foreground path/Christian/gate stay crisp. Fog is a real but incremental depth improvement; the city remains sparse/toy-flat with limited surface texture, contact-shadow variation, and connected silhouette variety versus Kena/Pathless/RiME."
       },
       {
         "id": "wicket-gate",
@@ -494,6 +494,18 @@
       "path": "/studio-evidence/vertical-slice-02/city-v24-runtime-mobile-front-final.png"
     },
     {
+      "label": "City v25 runtime — scoped fog front",
+      "path": "/studio-evidence/vertical-slice-02/city-v25-runtime-desktop-front-final.png"
+    },
+    {
+      "label": "City v25 runtime — scoped fog rear",
+      "path": "/studio-evidence/vertical-slice-02/city-v25-runtime-desktop-rear-final.png"
+    },
+    {
+      "label": "City v25 runtime — scoped fog mobile",
+      "path": "/studio-evidence/vertical-slice-02/city-v25-runtime-mobile-front-final.png"
+    },
+    {
       "label": "Dream v9 runtime — authored forward composition",
       "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-desktop.png"
     },
@@ -580,6 +592,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v24 runtime safety pass, but Dream v14, v38 hero, and City v24 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs continuous outer-world contact shadows and atmospheric depth, and a production Christian GLB remains outstanding"
+    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v25 runtime safety pass, but Dream v14, v38 hero, and City v25 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs surface texture, contact-shadow richness, and connected silhouette variety, and a production Christian GLB remains outstanding"
   }
 }

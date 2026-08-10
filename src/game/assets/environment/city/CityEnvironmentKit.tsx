@@ -1,5 +1,5 @@
 import { Sparkles } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   BackSide,
@@ -13,6 +13,7 @@ import {
   DodecahedronGeometry,
   ExtrudeGeometry,
   Float32BufferAttribute,
+  Fog,
   Group,
   InstancedMesh,
   MeshBasicMaterial,
@@ -1013,6 +1014,23 @@ function CityLightRig({ mobile }: { mobile: boolean }) {
   );
 }
 
+function CitySceneFog({ mobile }: { mobile: boolean }) {
+  const { scene } = useThree();
+  useEffect(() => {
+    const previousFog = scene.fog;
+    const cityFog = new Fog(
+      "#4d3440",
+      mobile ? 17.5 : 19,
+      mobile ? 35 : 37,
+    );
+    scene.fog = cityFog;
+    return () => {
+      if (scene.fog === cityFog) scene.fog = previousFog;
+    };
+  }, [mobile, scene]);
+  return null;
+}
+
 function CityStreet({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].streetStones;
   const stones = useMemo(() => CITY_STREET_STONES.slice(0, count), [count]);
@@ -1681,6 +1699,9 @@ export function CityEnvironmentKit({
   );
   return (
     <group name="city-environment-kit" dispose={null}>
+      <group name="city-atmosphere" dispose={null}>
+        <CitySceneFog mobile={mobile} />
+      </group>
       <CityLightRig mobile={mobile} />
       <CityStreet quality={effectiveQuality} />
       <CityBackdrop quality={effectiveQuality} />
