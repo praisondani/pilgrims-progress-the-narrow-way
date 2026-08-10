@@ -438,3 +438,5 @@ export const puzzles: Record<string, Puzzle> = {
 };
 export const puzzleFor = (sceneId: string, stepId: string) =>
   puzzles[`${sceneId}:${stepId}`];
+
+export const totalPuzzles = Object.keys(puzzles).length;

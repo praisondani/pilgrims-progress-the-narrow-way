@@ -39,7 +39,7 @@ No scene component should directly check `navigator.gpu`.
 
 Before enabling WebGPU by default:
 
-1. Compare all 25 scene screenshots with WebGL.
+1. Compare all 30 scene screenshots with WebGL.
 2. Complete full 223-beat journey on both backends.
 3. Validate shadows, transparent water, particles, OrbitControls, Rapier, audio unlock, screenshots, reduced motion, and high contrast.
 4. Measure startup, shader compilation, frame time, draw calls, GPU time, and memory on real hardware.

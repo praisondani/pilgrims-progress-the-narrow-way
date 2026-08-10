@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { storyScenes, totalStoryBeats } from "./story";
-import { puzzles } from "./puzzles";
+import { puzzles, totalPuzzles } from "./puzzles";
 import { GATE_ANCHORS } from "./gate/GateController";
 
 describe("Part One story journey", () => {
@@ -38,6 +38,7 @@ describe("Part One story journey", () => {
       "celestial",
     ]);
     expect(totalStoryBeats).toBeGreaterThanOrEqual(220);
+    expect(storyScenes.length).toBe(30);
   });
 
   it("gates every beat behind a meaningful interaction", () => {
@@ -77,7 +78,7 @@ describe("Part One story journey", () => {
   });
 
   it("adds mechanical trials to every major journey phase", () => {
-    expect(Object.keys(puzzles).length).toBeGreaterThanOrEqual(47);
+    expect(totalPuzzles).toBeGreaterThanOrEqual(47);
     expect(
       new Set(Object.keys(puzzles).map((key) => key.split(":")[0])).size,
     ).toBeGreaterThanOrEqual(22);

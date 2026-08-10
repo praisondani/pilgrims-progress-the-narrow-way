@@ -10,7 +10,7 @@ import { mobileInput } from "../game/Player";
 import { useGame } from "../game/state";
 import { storyScenes, totalStoryBeats } from "../game/story";
 import { gameAudio } from "../game/audio";
-import { puzzleFor } from "../game/puzzles";
+import { puzzleFor, totalPuzzles } from "../game/puzzles";
 import { PuzzleOverlay } from "./PuzzleOverlay";
 import { playerPosition } from "../game/Player";
 
@@ -114,7 +114,7 @@ function Title() {
           <div className="title-vignette" aria-hidden="true" />
           <dl className="journey-facts">
             <div>
-              <dt>25</dt>
+              <dt>{storyScenes.length}</dt>
               <dd>chapters playable</dd>
             </div>
             <div>
@@ -122,7 +122,7 @@ function Title() {
               <dd>story beats</dd>
             </div>
             <div>
-              <dt>47</dt>
+              <dt>{totalPuzzles}</dt>
               <dd>symbolic trials</dd>
             </div>
           </dl>
