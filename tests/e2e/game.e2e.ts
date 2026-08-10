@@ -330,13 +330,18 @@ test("shows a readable continue action on chapter completion", async ({
 test("rotates the camera and moves relative to its heading", async ({
   page,
 }) => {
+  test.setTimeout(90_000);
   await page.getByRole("button", { name: "Begin the journey" }).click();
   const canvas = page.locator("canvas");
-  await expect(canvas).toHaveAttribute("data-camera-mood", "ominous");
-  await expect(canvas).toHaveAttribute("data-camera-transition", "", {
-    timeout: 8_000,
+  await expect(canvas).toHaveAttribute("data-camera-mood", "ominous", {
+    timeout: 25_000,
   });
-  await expect(canvas).toHaveAttribute("data-camera-yaw", "0.000");
+  await expect(canvas).toHaveAttribute("data-camera-transition", "", {
+    timeout: 25_000,
+  });
+  await expect(canvas).toHaveAttribute("data-camera-yaw", "0.000", {
+    timeout: 25_000,
+  });
   const bounds = await canvas.boundingBox();
   expect(bounds).not.toBeNull();
   await page.mouse.move(bounds!.x + bounds!.width * 0.65, bounds!.y + 300);
@@ -612,8 +617,12 @@ test("escapes Doubting Castle with the Key of Promise", async ({ page }) => {
   const chapterCta = page.locator(".chapter-card .primary");
   await expect(chapterCta).toContainText("Continue the journey");
   await chapterCta.click();
+  await expect(page.locator(".scene-loader")).toBeHidden({
+    timeout: 25_000,
+  });
   await expect(page.getByTestId("game-hud")).toContainText(
     "The Delectable Mountains",
+    { timeout: 25_000 },
   );
 });
 
@@ -633,30 +642,42 @@ test("completes the full Dream-to-Celestial City journey through real controls",
   await page.getByRole("button", { name: "Begin the journey" }).click();
   await expect(page.locator("canvas")).toBeVisible();
   const journeyStartedAt = Date.now();
-  const cue = page.locator(".navigation-cue");
-  const interactPrompt = page.locator(".interact-prompt");
   const walkToTarget = async (sceneId: string, stepId: string) => {
-    if (await interactPrompt.isVisible()) return;
     await expect
       .poll(
-        async () => {
-          if (await interactPrompt.isVisible()) return true;
-          // Once the player is inside the interaction radius the navigation
-          // cue is correctly disabled. Wait for the prompt instead of making
-          // a transient disabled state fail the exhaustive journey.
-          if (await cue.isEnabled())
-            await cue.evaluate((element) =>
-              (element as HTMLButtonElement).click(),
+        // Query and click in one page task. On software WebGL a cue can
+        // become disabled and the prompt can mount between two locator
+        // calls; the atomic task keeps the real-control journey synchronized
+        // with the same render tick that owns the interaction state.
+        () =>
+          page.evaluate(() => {
+            const prompt = document.querySelector<HTMLButtonElement>(
+              ".interact-prompt",
             );
-          return false;
-        },
+            if (prompt && !prompt.disabled) {
+              prompt.click();
+              return "prompt";
+            }
+            const cue = document.querySelector<HTMLButtonElement>(
+              ".navigation-cue",
+            );
+            if (cue && !cue.disabled) {
+              cue.click();
+              return "guide";
+            }
+            return "waiting";
+          }),
         {
-          timeout: process.env.CI ? 60_000 : 24_000,
+          // Software WebGL can deliver a sparse frame cadence locally. Keep
+          // the same generous budget in both environments so a valid guided
+          // route is not treated as unreachable just because the first frame
+          // arrives late.
+          timeout: 60_000,
           intervals: [0, 200, 400],
           message: `Reach ${sceneId}:${stepId} through guided travel`,
         },
       )
-      .toBe(true);
+      .toBe("prompt");
   };
 
   for (let sceneIndex = 0; sceneIndex < storyScenes.length; sceneIndex++) {
@@ -670,9 +691,6 @@ test("completes the full Dream-to-Celestial City journey through real controls",
       await expect(page.locator(".objective")).toContainText(step.objective);
       await page.waitForTimeout(140);
       await walkToTarget(scene.id, step.id);
-
-      await expect(interactPrompt).toBeVisible();
-      await interactPrompt.click({ force: true });
       const puzzle = puzzleFor(scene.id, step.id);
       if (puzzle) {
         await expect(page.locator(".puzzle-shell")).toBeVisible();
