@@ -22,6 +22,10 @@
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets
 - WASD and arrow-key movement documented and browser-tested
+- Bounded scene-loader fallback and wall-clock camera-flight settling for slow or
+  backgrounded render loops
+- Guided travel snaps across low-FPS target crossings instead of oscillating
+  outside interaction range
 - Split production chunks with enforced bundle budget
 - Desktop and mobile Chromium smoke tests plus legacy exhaustive and finale real-control journey coverage
 - GitHub Actions unit/build/bundle/browser quality gates
@@ -43,15 +47,21 @@
 - Opt-in lazy-loaded `WebGPURenderer` prototype with verified WebGL 2 default/fallback
 - Deterministic Chapter II countryside seed, authored route/landmark masks, generated terrain collider, instanced vegetation/rocks, distant landscape, and atmospheric life
 - Automated procedural determinism and path/landmark exclusion tests
+- Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
+  desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
+  transitions, and the Celestial City ending
+- First authored City of Destruction environment kit integrated with preserved
+  story targets: instanced facades/roofs, timber and window detail, cobbles,
+  market dressing, skyline depth, and threshold lantern
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v19 img2threejs procedural anatomy/face and narrowed burden pass
-  with gameplay evidence; isolated front/profile/rear critic and external
-  sculpt/GLB remain the target
-- Exhaustive Dream-to-Celestial City real-controls rerun queued after pause
+- Christian v20 img2threejs procedural anatomy/face and compressed burden pass
+  with fresh front/profile/rear/96 px critic evidence; 3.4/10 visual critic
+  fail, external sculpt/GLB remains the target
+- Fresh City runtime critic review of the new authored kit
 
 ## Blocked
 
@@ -61,7 +71,7 @@
 
 ## Next
 
-1. Complete and record the exhaustive Dream-to-Celestial City journey rerun
+1. Review City runtime evidence and close the largest Dream-to-City continuity gap
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test

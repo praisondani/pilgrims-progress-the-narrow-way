@@ -1,6 +1,6 @@
 # Asset Generation Pipeline
 
-Current game uses code-authored primitives. Christian v19 is the latest runtime
+Current game uses code-authored primitives. Christian v20 is the latest runtime
 img2threejs procedural fallback, with burden/face/profile evidence recorded in
 `src/game/assets/hero/AUTHORED_ASSET_HANDOFF.md`; no generated hero GLB is
 production-approved yet.
@@ -42,8 +42,8 @@ assets/
 - Collision: simple primitives first; dedicated low-poly mesh only when required.
 
 Generated output is a source—not a shippable asset—until all checks pass. The
-v18 isolated runtime review is intentionally recorded as a fail, while the v19
-isolated review remains queued: the procedural hero is 12,636 triangles and
-still below the 19–24k authored-hero target. Keep the API,
+v20 isolated runtime review is intentionally recorded as a 3.4/10 fail: the
+procedural hero is 13,732 triangles and still below the 19–24k authored-hero
+target, with body and roll below their per-primitive targets. Keep the API,
 sockets, colliders, LOD contract, and procedural fallback while a licensed DCC
 sculpt/GLB is produced and reviewed from front, profile, rear, and 96 px views.
