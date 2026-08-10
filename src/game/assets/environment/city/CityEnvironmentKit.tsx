@@ -9,6 +9,7 @@ import {
   CylinderGeometry,
   DodecahedronGeometry,
   ExtrudeGeometry,
+  Float32BufferAttribute,
   Group,
   InstancedMesh,
   MeshStandardMaterial,
@@ -43,50 +44,50 @@ type LocalTransform = {
 
 const CITY_STYLE_COLORS = {
   plaster: {
-    facade: "#a66a70",
-    roof: "#514252",
-    beam: "#c28b63",
+    facade: "#ad7177",
+    roof: "#5b4759",
+    beam: "#c9946a",
     window: "#2c3440",
   },
   brick: {
-    facade: "#a85c53",
-    roof: "#58404a",
-    beam: "#cd8a5f",
+    facade: "#b56558",
+    roof: "#624752",
+    beam: "#d29264",
     window: "#29303a",
   },
   ochre: {
-    facade: "#bd8b58",
-    roof: "#55434a",
-    beam: "#d3a36b",
+    facade: "#c4935e",
+    roof: "#604c57",
+    beam: "#d7aa70",
     window: "#30323b",
   },
   slate: {
-    facade: "#70818b",
-    roof: "#3d4854",
-    beam: "#b58d6e",
+    facade: "#7b929c",
+    roof: "#4b5a68",
+    beam: "#bc9674",
     window: "#293846",
   },
 } as const;
 
 const CITY_FACADE_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
-  roughness: 0.94,
-  emissive: "#34202b",
-  emissiveIntensity: 0.42,
+  roughness: 0.88,
+  emissive: "#2a1d28",
+  emissiveIntensity: 0.2,
   vertexColors: true,
 });
 const CITY_ROOF_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
-  roughness: 0.98,
-  emissive: "#28202d",
-  emissiveIntensity: 0.28,
+  roughness: 0.94,
+  emissive: "#241d2a",
+  emissiveIntensity: 0.14,
   vertexColors: true,
 });
 const CITY_BEAM_MATERIAL = new MeshStandardMaterial({
   color: "#ffffff",
-  roughness: 0.88,
+  roughness: 0.84,
   emissive: "#2d1c1b",
-  emissiveIntensity: 0.32,
+  emissiveIntensity: 0.2,
   vertexColors: true,
 });
 const CITY_WINDOW_MATERIAL = new MeshStandardMaterial({
@@ -171,6 +172,35 @@ const CITY_CREST_MATERIAL = new MeshStandardMaterial({
   roughness: 0.56,
   metalness: 0.24,
 });
+
+/**
+ * Adds a restrained authored value breakup to the low-poly kits. The
+ * instanced style color still carries the palette; this attribute only keeps
+ * broad faces from reading as one flat, unlit color while costing no draws.
+ */
+function addMaterialBreakup(geometry: ExtrudeGeometry, strength: number) {
+  const position = geometry.getAttribute("position");
+  const colors = new Float32Array(position.count * 3);
+  for (let index = 0; index < position.count; index += 1) {
+    const x = position.getX(index);
+    const y = position.getY(index);
+    const z = position.getZ(index);
+    const variation =
+      Math.sin(x * 4.7 + y * 2.3 + z * 1.9) * 0.55 +
+      Math.sin(x * 9.1 - y * 3.4) * 0.25;
+    const shade = 1 + variation * strength;
+    colors[index * 3] = shade;
+    colors[index * 3 + 1] = shade * 0.96;
+    colors[index * 3 + 2] = shade * 0.94;
+  }
+  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+}
+
+function variedStyleColor(value: string, index: number) {
+  const color = new Color(value);
+  color.offsetHSL(0, index % 2 === 0 ? 0.008 : -0.006, [-0.035, 0.018, 0.042][index % 3]);
+  return `#${color.getHexString()}`;
+}
 
 type CityBuildingProfile = "steep" | "broad";
 
@@ -297,20 +327,30 @@ function CityBuildingBatches({
   const chimneys = useRef<InstancedMesh>(null);
 
   const geometries = useMemo(
-    () => ({
-      facade: makeFacadeGeometry("steep"),
-      facadeAlt: makeFacadeGeometry("broad"),
-      roof: makeRoofGeometry("steep"),
-      roofAlt: makeRoofGeometry("broad"),
-      beam: new BoxGeometry(1, 1, 1),
-      window: new BoxGeometry(1, 1, 1),
-      windowTrim: new BoxGeometry(1, 1, 1),
-      awning: new BoxGeometry(1, 1, 1),
-      wear: new BoxGeometry(1, 1, 1),
-      door: new BoxGeometry(1, 1, 1),
-      doorFrame: new BoxGeometry(1, 1, 1),
-      chimney: new BoxGeometry(1, 1, 1),
-    }),
+    () => {
+      const facade = makeFacadeGeometry("steep");
+      const facadeAlt = makeFacadeGeometry("broad");
+      const roof = makeRoofGeometry("steep");
+      const roofAlt = makeRoofGeometry("broad");
+      addMaterialBreakup(facade, 0.075);
+      addMaterialBreakup(facadeAlt, 0.075);
+      addMaterialBreakup(roof, 0.045);
+      addMaterialBreakup(roofAlt, 0.045);
+      return {
+        facade,
+        facadeAlt,
+        roof,
+        roofAlt,
+        beam: new BoxGeometry(1, 1, 1),
+        window: new BoxGeometry(1, 1, 1),
+        windowTrim: new BoxGeometry(1, 1, 1),
+        awning: new BoxGeometry(1, 1, 1),
+        wear: new BoxGeometry(1, 1, 1),
+        door: new BoxGeometry(1, 1, 1),
+        doorFrame: new BoxGeometry(1, 1, 1),
+        chimney: new BoxGeometry(1, 1, 1),
+      };
+    },
     [],
   );
 
@@ -392,7 +432,7 @@ function CityBuildingBatches({
       mesh: InstancedMesh | null,
       profile: CityBuildingProfile,
       localY: number,
-      colorFor: (site: CityBuildingSite) => string,
+      colorFor: (index: number, site: CityBuildingSite) => string,
     ) => {
       if (!mesh) return;
       mesh.instanceMatrix.setUsage(StaticDrawUsage);
@@ -403,17 +443,17 @@ function CityBuildingBatches({
         if (siteProfile !== profile) dummy.scale.set(0, 0, 0);
         dummy.updateMatrix();
         mesh.setMatrixAt(index, dummy.matrix);
-        mesh.setColorAt(index, new Color(colorFor(site)));
+        mesh.setColorAt(index, new Color(colorFor(index, site)));
       });
       mesh.instanceMatrix.needsUpdate = true;
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       mesh.computeBoundingSphere();
     };
 
-    setBuildingBatch(facade.current, "steep", 0.08, (site) => CITY_STYLE_COLORS[site.style].facade);
-    setBuildingBatch(facadeAlt.current, "broad", 0.08, (site) => CITY_STYLE_COLORS[site.style].facade);
-    setBuildingBatch(roof.current, "steep", 0, (site) => CITY_STYLE_COLORS[site.style].roof);
-    setBuildingBatch(roofAlt.current, "broad", 0, (site) => CITY_STYLE_COLORS[site.style].roof);
+    setBuildingBatch(facade.current, "steep", 0.08, (index, site) => variedStyleColor(CITY_STYLE_COLORS[site.style].facade, index));
+    setBuildingBatch(facadeAlt.current, "broad", 0.08, (index, site) => variedStyleColor(CITY_STYLE_COLORS[site.style].facade, index));
+    setBuildingBatch(roof.current, "steep", 0, (index, site) => variedStyleColor(CITY_STYLE_COLORS[site.style].roof, index));
+    setBuildingBatch(roofAlt.current, "broad", 0, (index, site) => variedStyleColor(CITY_STYLE_COLORS[site.style].roof, index));
     setBatch(beams.current, detailTransforms.beamTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
     setBatch(windowTrim.current, detailTransforms.windowTrimTransforms, (_, site) => CITY_STYLE_COLORS[site.style].beam);
     setBatch(awnings.current, detailTransforms.awningTransforms, (index) => index % 2 ? "#a45e55" : "#845053");
@@ -499,19 +539,19 @@ function CityLightRig({ mobile }: { mobile: boolean }) {
   return (
     <>
       <hemisphereLight
-        color="#ffd5ad"
-        groundColor="#4a3040"
-        intensity={mobile ? 0.42 : 0.58}
+        color="#ffd9b4"
+        groundColor="#443646"
+        intensity={mobile ? 0.46 : 0.62}
       />
       <directionalLight
         position={[-6, 9, 8]}
-        color="#ffd8b0"
-        intensity={mobile ? 0.7 : 1.05}
+        color="#ffdbb5"
+        intensity={mobile ? 0.72 : 1.08}
       />
       <directionalLight
         position={[6, 7, 5]}
-        color="#e9b8a6"
-        intensity={mobile ? 0.36 : 0.62}
+        color="#e8b3a2"
+        intensity={mobile ? 0.38 : 0.66}
       />
       <pointLight
         position={[0, 5.5, 1.5]}
@@ -1003,59 +1043,74 @@ function CityThresholdLandmark({
 function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].skylineTowers;
   const towers = [
-    [-7.35, 2.1, 1.65],
-    [-4.45, 1.55, 1.25],
-    [0, 3.9, 2.4],
-    [4.6, 1.8, 1.5],
-    [7.2, 2.5, 1.82],
-    [-9.2, 1.35, 1.05],
-    [9.1, 1.55, 1.15],
+    [-7.35, 2.1, 1.65, "#5c4853", "#3a303c"],
+    [-4.45, 1.55, 1.25, "#6d4d55", "#40343f"],
+    [0, 3.9, 2.4, "#564554", "#342d3b"],
+    [4.6, 1.8, 1.5, "#68505c", "#3f3544"],
+    [7.2, 2.5, 1.82, "#514452", "#332c3a"],
+    [-9.2, 1.35, 1.05, "#66505b", "#3f3441"],
+    [9.1, 1.55, 1.15, "#5c4b58", "#382f3d"],
   ] as const;
   return (
     <group name="city-depth-backdrop">
       <mesh position={[0, 1.08, -10.35]} receiveShadow>
         <boxGeometry args={[17.8, 2.16, 0.7]} />
-        <meshStandardMaterial color="#3c3440" roughness={1} />
+        <meshStandardMaterial
+          color="#4b3e4b"
+          emissive="#292531"
+          emissiveIntensity={0.12}
+          roughness={1}
+        />
       </mesh>
       <mesh position={[0, 1.18, -9.78]} receiveShadow castShadow>
         <boxGeometry args={[9.2, 2.35, 0.92]} />
-        <meshStandardMaterial color="#654650" roughness={0.96} />
+        <meshStandardMaterial
+          color="#76535b"
+          emissive="#3e2e3a"
+          emissiveIntensity={0.1}
+          roughness={0.96}
+        />
       </mesh>
       <mesh position={[0, 2.47, -9.38]} castShadow>
         <boxGeometry args={[9.85, 0.28, 1.24]} />
-        <meshStandardMaterial color="#866058" roughness={0.9} />
+        <meshStandardMaterial color="#a87363" emissive="#523c44" emissiveIntensity={0.08} roughness={0.9} />
       </mesh>
       {[-4.35, 4.35].map((x) => (
         <mesh key={x} position={[x, 1.35, -9.35]} castShadow>
           <boxGeometry args={[0.48, 2.72, 1.16]} />
-          <meshStandardMaterial color="#4e3b49" roughness={0.98} />
+          <meshStandardMaterial color={x < 0 ? "#594452" : "#5d594c"} roughness={0.98} />
         </mesh>
       ))}
-      {towers.slice(0, count).map(([x, height, width], index) => (
+      {towers.slice(0, count).map(([x, height, width, bodyColor, roofColor], index) => (
         <group key={x} position={[x, 0, -10.1]}>
           <mesh position={[0, height * 0.5, 0]} castShadow>
             <boxGeometry args={[width, height, 0.85]} />
-            <meshStandardMaterial color={index % 2 ? "#514047" : "#453742"} roughness={1} />
+            <meshStandardMaterial
+              color={bodyColor}
+              emissive="#2b2632"
+              emissiveIntensity={0.12 + (index % 2) * 0.03}
+              roughness={0.96}
+            />
           </mesh>
           <mesh position={[0, height + 0.26, 0]} castShadow>
             <coneGeometry args={[width * 0.72, 0.52, 4]} />
-            <meshStandardMaterial color="#292633" roughness={1} />
+            <meshStandardMaterial color={roofColor} roughness={1} />
           </mesh>
           {index % 2 === 0 && (
             <mesh position={[0, height * 0.62, 0.46]}>
               <boxGeometry args={[width * 0.28, height * 0.2, 0.04]} />
-              <meshStandardMaterial color="#b36d4a" emissive="#7b412e" emissiveIntensity={0.55} />
+              <meshStandardMaterial color="#d28a58" emissive="#9a4d32" emissiveIntensity={0.7} roughness={0.48} />
             </mesh>
           )}
         </group>
       ))}
       <mesh position={[-8.8, 0.36, -8.95]} rotation={[0, 0, -0.08]}>
         <boxGeometry args={[3.6, 0.72, 0.46]} />
-        <meshStandardMaterial color="#56434a" roughness={1} />
+        <meshStandardMaterial color="#66505a" roughness={1} />
       </mesh>
       <mesh position={[8.7, 0.4, -8.85]} rotation={[0, 0, 0.08]}>
         <boxGeometry args={[3.5, 0.8, 0.46]} />
-        <meshStandardMaterial color="#4b3d48" roughness={1} />
+        <meshStandardMaterial color="#5c4b57" roughness={1} />
       </mesh>
     </group>
   );
@@ -1098,13 +1153,13 @@ export function CityEnvironmentKit({
       <CityMarketCitizens quality={effectiveQuality} reducedMotion={reducedMotion} />
       <CityThresholdLandmark reducedMotion={reducedMotion} mobile={mobile} />
       <Sparkles
-        count={mobile ? 16 : 34}
-        scale={[14, 6, 14]}
-        position={[0, 2.2, -0.8]}
-        color="#d4865c"
-        size={mobile ? 1.8 : 2.2}
+        count={mobile ? 20 : 42}
+        scale={[14, 6.5, 14]}
+        position={[0, 2.45, -0.8]}
+        color="#efad79"
+        size={mobile ? 1.7 : 2.15}
         speed={reducedMotion ? 0 : 0.08}
-        opacity={0.2}
+        opacity={0.28}
       />
     </group>
   );
