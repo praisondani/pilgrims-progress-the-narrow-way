@@ -6,6 +6,7 @@ import {
   BoxGeometry,
   BufferGeometry,
   CapsuleGeometry,
+  CircleGeometry,
   Color,
   ConeGeometry,
   CylinderGeometry,
@@ -288,6 +289,30 @@ function setGeometryVerticalRamp(
   geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
 }
 
+function setGeometryDepthHaze(
+  geometry: BufferGeometry,
+  hazeValue: string,
+  startRadius: number,
+  endRadius: number,
+  strength: number,
+) {
+  const position = geometry.getAttribute("position");
+  const colorAttribute = geometry.getAttribute("color");
+  if (!colorAttribute) return;
+  const haze = new Color(hazeValue);
+  const color = new Color();
+  const radiusSpan = Math.max(0.001, endRadius - startRadius);
+  for (let index = 0; index < position.count; index += 1) {
+    const radius = Math.hypot(position.getX(index), position.getZ(index));
+    const depth = Math.max(0, Math.min(1, (radius - startRadius) / radiusSpan));
+    if (depth === 0) continue;
+    color.fromBufferAttribute(colorAttribute, index);
+    color.lerp(haze, depth * strength);
+    colorAttribute.setXYZ(index, color.r, color.g, color.b);
+  }
+  colorAttribute.needsUpdate = true;
+}
+
 /**
  * One low-poly, grounded city edge closes the view in every orbit. A low
  * continuous plinth keeps the horizon grounded while narrower upper blocks
@@ -479,6 +504,84 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     parts.push(roof);
   }
 
+  // Low, broken berms extend the island's ground language to the outer
+  // silhouettes. Each footprint reaches back toward the skyline plinth, but
+  // the generous angular gaps keep this from becoming a second annulus.
+  const bermPalette = [
+    ["#493b4b", "#665466"],
+    ["#523f4e", "#705a6b"],
+    ["#443849", "#5d4d61"],
+    ["#59434f", "#755d6b"],
+  ] as const;
+  const bermBlueprints = [
+    { angle: 0, radius: 25.45, height: 0.58, width: 7.1, depth: 5.25 },
+    { angle: 60, radius: 26.5, height: 0.76, width: 7.6, depth: 5.35 },
+    { angle: 120, radius: 25.2, height: 0.48, width: 6.2, depth: 5.05 },
+    { angle: 180, radius: 26.35, height: 0.9, width: 7.9, depth: 5.55 },
+    { angle: 240, radius: 25.65, height: 0.46, width: 6.6, depth: 5.1 },
+    { angle: 300, radius: 26.85, height: 0.72, width: 7.2, depth: 5.35 },
+    { angle: 30, radius: 25.95, height: 0.63, width: 5.9, depth: 4.9 },
+    { angle: 210, radius: 25.9, height: 0.8, width: 6.7, depth: 5.2 },
+  ] as const;
+  const bermCount = segmentCount === 12 ? 6 : bermBlueprints.length;
+  for (let index = 0; index < bermCount; index += 1) {
+    const blueprint = bermBlueprints[index];
+    const angle = (blueprint.angle * Math.PI) / 180;
+    const rotation = Math.PI / 2 - angle;
+    const x = Math.cos(angle) * blueprint.radius;
+    const z = Math.sin(angle) * blueprint.radius;
+    const [baseColor, topColor] = bermPalette[index % bermPalette.length];
+
+    const berm = new CylinderGeometry(0.72, 1.04, blueprint.height, 6, 1, true);
+    berm.scale(blueprint.width * 0.5, 1, blueprint.depth * 0.5);
+    berm.translate(0, blueprint.height * 0.5, 0);
+    berm.rotateY(rotation);
+    berm.translate(x, 0, z);
+    setGeometryVerticalRamp(
+      berm,
+      shiftedCityColor(baseColor, -0.025, 0.006),
+      shiftedCityColor(topColor, 0.045, -0.006),
+    );
+    parts.push(berm);
+
+    // A short inset step breaks the berm's profile and gives the distant
+    // bodies a believable shelf to grow from without adding another draw.
+    const terraceHeight = Math.min(0.24, blueprint.height * 0.42);
+    const terrace = new CylinderGeometry(0.48, 0.74, terraceHeight, 6, 1, true);
+    terrace.scale(blueprint.width * 0.34, 1, blueprint.depth * 0.3);
+    terrace.translate(0, blueprint.height + terraceHeight * 0.5 - 0.02, blueprint.depth * 0.08);
+    terrace.rotateY(rotation);
+    terrace.translate(x, 0, z);
+    setGeometryVerticalRamp(
+      terrace,
+      shiftedCityColor(baseColor, 0.025, 0.004),
+      shiftedCityColor(topColor, 0.09, -0.01),
+    );
+    parts.push(terrace);
+
+    // Cylinder caps are intentionally open for the inward-facing horizon
+    // material. A flipped, six-sided top patch supplies a readable terrace
+    // plane without introducing a double-sided terrain material or draw.
+    const terraceTop = new CircleGeometry(1, 6);
+    terraceTop.scale(blueprint.width * 0.34, blueprint.depth * 0.3, 1);
+    terraceTop.rotateX(Math.PI / 2);
+    terraceTop.rotateY(rotation);
+    terraceTop.translate(
+      x + Math.cos(angle) * blueprint.depth * 0.08,
+      blueprint.height + terraceHeight - 0.015,
+      z + Math.sin(angle) * blueprint.depth * 0.08,
+    );
+    setGeometryColor(terraceTop, shiftedCityColor(topColor, 0.08, -0.01));
+    parts.push(terraceTop);
+  }
+
+  // Blend only the farthest radial vertices toward the dusk horizon. This
+  // softens toy-like contrast while preserving the saturated front path and
+  // the authored color ramps on the playable island.
+  parts.forEach((part) =>
+    setGeometryDepthHaze(part, "#705260", 22, 29, 0.22),
+  );
+
   const compatible = parts.map((part) => {
     const geometry = part.toNonIndexed();
     part.dispose();
@@ -503,6 +606,7 @@ function makeCityDuskDomeGeometry(quality: CityQualityPreset) {
   const position = geometry.getAttribute("position");
   const horizon = new Color("#705260");
   const zenith = new Color("#171a29");
+  const haze = new Color("#86616b");
   const colors = new Float32Array(position.count * 3);
   for (let index = 0; index < position.count; index += 1) {
     const elevation = Math.max(
@@ -510,6 +614,14 @@ function makeCityDuskDomeGeometry(quality: CityQualityPreset) {
       Math.min(1, (position.getY(index) + 18) / 38),
     );
     const color = horizon.clone().lerp(zenith, elevation);
+    // A narrow warm band at the lower dome gives the distant berms a shared
+    // atmospheric value. The azimuth drift is intentionally tiny so the
+    // backdrop never reads as a painted radial gradient or a new shell.
+    const hazeBand = (1 - elevation) * 0.1;
+    color.lerp(haze, hazeBand);
+    const azimuth = Math.atan2(position.getZ(index), position.getX(index));
+    const valueDrift = Math.sin(azimuth * 2.2 + elevation * 3.7) * 0.012 * hazeBand;
+    color.offsetHSL(0, 0, valueDrift);
     colors[index * 3] = color.r;
     colors[index * 3 + 1] = color.g;
     colors[index * 3 + 2] = color.b;

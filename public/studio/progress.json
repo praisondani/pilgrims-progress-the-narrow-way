@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-10T11:19:00-05:00",
+  "updatedAt": "2026-08-10T11:44:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -41,10 +41,10 @@
       {
         "id": "city",
         "name": "City of Destruction environment",
-        "status": "iteration-23-critic-failed-outer-ring-pass",
+        "status": "iteration-24-critic-failed-terrain-atmosphere-pass",
         "builder": "authored City environment builder",
-        "critic": "fresh runtime critics — v22 front 7.3–7.8, rear 6.3–7.5, mobile 6.0–7.5; v23 final front 7.4, rear 6.5, mobile 6.2; perf remains within budget",
-        "largestGap": "v23 adds six low-tier/eight desktop sparse grounded outer masses and roofs inside the existing merged horizon draw; final front/rear/mobile evidence confirms clear gaps, no enclosing-wall occlusion, and artifact checks pass. The dark-red field is only partially integrated: silhouettes remain sparse/toy-like with weak terrain contact and atmospheric depth versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — v24 front 7.4–7.9, rear 6.7–7.6, mobile 6.2–7.5; perf remains within budget",
+        "largestGap": "v24 adds six low-tier/eight desktop broken hex berms with inset terrace caps, radial vertex-color haze, and a subtle lower dusk-dome haze, preserving the merged horizon draw. Valid front/rear/mobile evidence and the mobile benchmark show 96 draw-call p95 / 32,208 triangles p95; artifact checks pass and terrain contact/tonal separation improve modestly. The scene remains flat low-poly with little texture, contact-shadow richness, or continuous atmospheric depth beyond the ring versus Kena/Pathless/RiME."
       },
       {
         "id": "wicket-gate",
@@ -482,6 +482,18 @@
       "path": "/studio-evidence/vertical-slice-02/city-v23-runtime-mobile-front-final.png"
     },
     {
+      "label": "City v24 runtime — terrain-atmosphere front",
+      "path": "/studio-evidence/vertical-slice-02/city-v24-runtime-desktop-front-final.png"
+    },
+    {
+      "label": "City v24 runtime — terrain-atmosphere rear",
+      "path": "/studio-evidence/vertical-slice-02/city-v24-runtime-desktop-rear-final.png"
+    },
+    {
+      "label": "City v24 runtime — terrain-atmosphere mobile",
+      "path": "/studio-evidence/vertical-slice-02/city-v24-runtime-mobile-front-final.png"
+    },
+    {
       "label": "Dream v9 runtime — authored forward composition",
       "path": "/studio-evidence/vertical-slice-01/dream-v9-runtime-desktop.png"
     },
@@ -568,6 +580,6 @@
     "bundleBudget": "4.39 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
-    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v23 runtime safety pass, but Dream v14, v38 hero, and City v23 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs world-scale outer-ring terrain contact and atmospheric separation, and a production Christian GLB remains outstanding"
+    "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v24 runtime safety pass, but Dream v14, v38 hero, and City v24 critics fail the visual bar; Dream still needs a visibly emitting lantern and authored 360-degree landmark/terrain/material depth, City still needs continuous outer-world contact shadows and atmospheric depth, and a production Christian GLB remains outstanding"
   }
 }
