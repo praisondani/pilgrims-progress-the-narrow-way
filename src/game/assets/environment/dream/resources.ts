@@ -447,6 +447,21 @@ function createMossArchGeometry() {
   return merged([leftPier, rightPier, arch]);
 }
 
+/** A broken pilgrim waymarker gives reverse orbit a readable authored landmark. */
+function createRearWaymarkerGeometry() {
+  const base = new DodecahedronGeometry(0.42, 0);
+  base.scale(1.3, 0.58, 0.95);
+  base.translate(0, 0.24, 0);
+  const pillar = new BoxGeometry(0.3, 1.82, 0.3);
+  pillar.translate(0, 1.08, 0);
+  const shoulder = new BoxGeometry(1.02, 0.2, 0.32);
+  shoulder.translate(0, 1.72, 0);
+  const cap = new DodecahedronGeometry(0.28, 0);
+  cap.scale(1.22, 0.52, 0.86);
+  cap.translate(0, 1.98, 0);
+  return merged([base, pillar, shoulder, cap]);
+}
+
 function createBankStripGeometry(
   curve: CatmullRomCurve3,
   side: -1 | 1,
@@ -598,6 +613,16 @@ function createDepthMassesGeometry(quality: DreamQualityPreset) {
     DREAM_KEYFRAME_ANCHORS.mossArch[1],
   );
   parts.push(arch);
+  // One scale-shifted marker sits on the rear meadow axis. It shares the
+  // merged stone material/draw group, but breaks the repeated tree-and-rock
+  // rhythm without becoming a cropped edge artifact during orbit.
+  [[2.7, 14.7, 0.12, 0.56]].forEach(([x, z, rotation, scale]) => {
+    const marker = createRearWaymarkerGeometry();
+    marker.scale(scale, scale, scale);
+    marker.rotateY(rotation);
+    marker.translate(x, 0, z);
+    parts.push(marker);
+  });
   return merged(parts);
 }
 

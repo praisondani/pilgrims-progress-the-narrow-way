@@ -415,8 +415,8 @@ function DreamRearWaystone({
   return (
     <group
       name="dream-rear-waystone"
-      position={[-4.2, 0.12, 14.2]}
-      scale={1.15}
+      position={[-2.8, 0.12, 15.1]}
+      scale={1.05}
     >
       {[
         [-0.9, 0.02, 0.78],

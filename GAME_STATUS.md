@@ -145,15 +145,23 @@
   wedge artifacts. The mobile headless sample is 21 draw calls / 29,986
   triangles p95 at 12.7 headless FPS; environment contribution remains inside
   its 15-call / 7,200-triangle medium contract.
+- Dream v41 landmark pass: one merged broken waymarker now anchors the rear
+  meadow axis without adding a draw call or collision wall. Fresh front/rear
+  orbit captures show a grounded, readable sign silhouette with no cropped
+  monument, stream end-cap, shard, slab, beam, or black-wedge artifact. The
+  marker remains an incremental readability win, not a visual-bar pass: fresh
+  critics score 7.4–7.8 front, 6.6–6.8 rear, 6.4–7.0 for Christian, 6.3–7.5
+  for composition, and 7.2–8.5 for artifact hygiene.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v38 remains below the visual bar after fresh independent critics scored
-  7.5–7.8/10 front, 7.0/10 rear, 6.4–7.1/10 for Christian, and 6.5–7.5/10
-  for composition; aura, point-light falloff, and rear middle-distance dressing
-  improve the shrine read and 360 layering. The remaining gap is distinctive
-  secondary landmarks plus richer material/lighting depth versus
+- Dream v41 remains below the visual bar after fresh independent critics scored
+  7.4–7.8/10 front, 6.6–6.8/10 rear, 6.4–7.0/10 for Christian, and 6.3–7.5/10
+  for composition; the waymarker improves rear navigation readability and
+  artifact hygiene, but still feels pasted onto a broad flat meadow. The next
+  gap is authored terrain/material depth: layered ground relief, distinctive
+  secondary landmarks, and believable lantern illumination versus
   Kena/Pathless/RiME.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
@@ -194,8 +202,8 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with richer rear terrain layers, atmospheric depth, and a
+5. Continue Dream with layered terrain relief, richer material response, and a
    production-quality lantern asset now that the artifact-safe orbit baseline is
-   stable
+   stable; the v41 waymarker is only a readability increment
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

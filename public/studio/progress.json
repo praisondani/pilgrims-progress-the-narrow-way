@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T08:53:00-05:00",
+  "updatedAt": "2026-08-12T09:10:43-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "Dream v37/v38 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, warm meadow falloff, and bounded point-light pool; fresh critics score 7.5–7.8/10 front and 7.0/10 rear, with artifact checks passing. The remaining gap is distinctive secondary landmarks plus richer material/lighting depth versus the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
+    "resumeNote": "Dream v41 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, warm meadow falloff, bounded point-light pool, and one merged broken waymarker on the rear axis. Fresh critics score 7.4–7.8/10 front and 6.6–6.8/10 rear, with artifact checks passing; the marker improves readability but does not close the flat-terrain/material-depth gap versus the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
     "workstreams": [
       {
         "id": "baseline",
@@ -33,10 +33,10 @@
       {
         "id": "dream",
         "name": "The Dreamer environment",
-        "status": "iteration-38-critic-failed-landmark-material-pass",
+        "status": "iteration-41-critic-failed-terrain-material-depth-pass",
         "builder": "ultracode environment builder",
-        "critic": "fresh runtime critics — fail, v38 front 7.5–7.8/10, rear 7.0/10, Christian 6.4–7.1/10, composition 6.5–7.5/10, artifact hygiene 7.5–8.5/10; aura and point-light falloff improve shrine read, artifact checks pass",
-        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, and lantern now combines tapered glass, additive aura, warm ground falloff, and bounded 10-intensity / 12.5-distance point light. Remaining gap: distinctive secondary landmarks plus richer material/lighting depth versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — fail, v41 front 7.4–7.8/10, rear 6.6–6.8/10, Christian 6.4–7.0/10, composition 6.3–7.5/10, artifact hygiene 7.2–8.5/10; merged waymarker is grounded and artifact-safe but dim/generic",
+        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, lantern combines tapered glass, additive aura, warm ground falloff, and bounded 10-intensity / 12.5-distance point light, and v41 adds one merged broken waymarker on the rear axis. Remaining gap: layered terrain relief, richer material response, distinctive secondary landmarks, and believable lantern illumination versus Kena/Pathless/RiME."
       },
       {
         "id": "city",
@@ -644,6 +644,14 @@
     {
       "label": "Dream v38 runtime — lit reverse-orbit check",
       "path": "/studio-evidence/vertical-slice-01/dream-v38-runtime-desktop-lit-rear.png"
+    },
+    {
+      "label": "Dream v41 runtime — clean forward landmark framing",
+      "path": "/studio-evidence/vertical-slice-01/dream-v41-runtime-desktop-forward.png"
+    },
+    {
+      "label": "Dream v41 runtime — rear waymarker orbit",
+      "path": "/studio-evidence/vertical-slice-01/dream-v41-runtime-desktop-rear.png"
     }
   ],
   "gates": {
