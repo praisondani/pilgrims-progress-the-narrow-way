@@ -116,6 +116,25 @@ describe("Dream environment performance contract", () => {
     resources.forEach((resource) => resource.dispose());
   });
 
+  it("keeps the lantern warm pool as a bounded disposable shader resource", () => {
+    const resources = createDreamEnvironmentResources(
+      resolveDreamPalette(),
+      "medium",
+      "moonlit",
+    );
+    const pool = resources.materials.lanternPool;
+    expect(pool.transparent).toBe(true);
+    expect(pool.depthWrite).toBe(false);
+    expect(pool.uniforms.poolStrength.value).toBeCloseTo(0.035);
+    resources.geometries.lanternPool.computeBoundingSphere();
+    expect(resources.geometries.lanternPool.boundingSphere?.radius).toBeCloseTo(
+      1,
+      1,
+    );
+    resources.dispose();
+    expect(resources.disposed).toBe(true);
+  });
+
   it("disposes owned geometries and materials once after final release", async () => {
     const resources = createDreamEnvironmentResources(
       resolveDreamPalette(),

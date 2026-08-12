@@ -16,6 +16,7 @@ import {
   MeshStandardMaterial,
   OctahedronGeometry,
   PointsMaterial,
+  ShaderMaterial,
   SphereGeometry,
   TorusGeometry,
   Uint32BufferAttribute,
@@ -55,6 +56,7 @@ export interface DreamEnvironmentGeometries {
   lanternGlass: BufferGeometry;
   lanternFlame: BufferGeometry;
   lanternAura: BufferGeometry;
+  lanternPool: BufferGeometry;
 }
 
 export interface DreamEnvironmentMaterials {
@@ -77,6 +79,7 @@ export interface DreamEnvironmentMaterials {
   lanternGlass: Material;
   lanternFlame: Material;
   lanternAura: Material;
+  lanternPool: ShaderMaterial;
 }
 
 export interface DreamEnvironmentResources {
@@ -692,6 +695,9 @@ export function createDreamEnvironmentResources(
   lanternFlame.translate(0, 1.49, 0);
   const lanternAura = new SphereGeometry(0.34, 12, 8);
   lanternAura.translate(0, 1.5, 0);
+  const lanternPool = new CircleGeometry(1, quality === "low" ? 16 : 24);
+  lanternPool.rotateX(-Math.PI / 2);
+  lanternPool.translate(0, 0.018, 0);
 
   const geometries: DreamEnvironmentGeometries = {
     treeNear: createNearTreeGeometry(),
@@ -714,6 +720,7 @@ export function createDreamEnvironmentResources(
     lanternGlass,
     lanternFlame,
     lanternAura,
+    lanternPool,
   };
 
   addDreamMaterialBreakup(geometries.treeNear, 0.075);
@@ -794,6 +801,37 @@ export function createDreamEnvironmentResources(
     streamMaterial.customProgramCacheKey = () =>
       "dream-moonlit-specular-edge-v1";
   }
+
+  const lanternPoolMaterial = new ShaderMaterial({
+    uniforms: {
+      poolColor: { value: new Color(palette.lanternFlame) },
+      poolStrength: { value: 0.035 },
+    },
+    vertexShader: `
+      varying vec2 vDreamPoolUv;
+      void main() {
+        vDreamPoolUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 poolColor;
+      uniform float poolStrength;
+      varying vec2 vDreamPoolUv;
+      void main() {
+        float distanceFromCenter = distance(vDreamPoolUv, vec2(0.5));
+        float feather = 1.0 - smoothstep(0.08, 0.5, distanceFromCenter);
+        float broadFalloff = 1.0 - smoothstep(0.2, 0.52, distanceFromCenter);
+        float alpha = feather * broadFalloff * poolStrength;
+        gl_FragColor = vec4(poolColor, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: AdditiveBlending,
+    side: DoubleSide,
+    toneMapped: false,
+  });
 
   const depthMassesMaterial = new MeshPhysicalMaterial({
     // The arch and layered horizon share one draw call. A restrained vertical
@@ -994,6 +1032,7 @@ export function createDreamEnvironmentResources(
       depthWrite: false,
       toneMapped: false,
     }),
+    lanternPool: lanternPoolMaterial,
   };
 
   let disposed = false;

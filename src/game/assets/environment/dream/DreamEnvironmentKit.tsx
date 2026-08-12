@@ -338,6 +338,12 @@ function DreamLanternLandmark({
       light.current.intensity = (lit ? 10 : 2.2) + pulse;
       light.current.distance = lit ? 12.5 : 7;
     }
+    if (resources.materials.lanternPool) {
+      const poolPulse =
+        lit && !reducedMotion ? Math.sin(clock.elapsedTime * 1.6) * 0.012 : 0;
+      resources.materials.lanternPool.uniforms.poolStrength.value =
+        (lit ? 0.14 : 0.028) + poolPulse;
+    }
     if (!lit || reducedMotion) return;
     const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.09;
     if (flame.current) flame.current.scale.set(1.12, flamePulse * 1.12, 1.12);
@@ -371,6 +377,14 @@ function DreamLanternLandmark({
         geometry={resources.geometries.lanternFrame}
         material={resources.materials.lanternFrame}
         castShadow
+      />
+      <mesh
+        name="dream-lantern-warm-pool"
+        geometry={resources.geometries.lanternPool}
+        material={resources.materials.lanternPool}
+        position={[0, -0.07, 0]}
+        scale={[2.2, 1, 1.65]}
+        renderOrder={0}
       />
       <mesh
         ref={aura}

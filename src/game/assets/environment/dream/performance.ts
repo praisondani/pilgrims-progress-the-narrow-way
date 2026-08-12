@@ -118,13 +118,14 @@ export function estimateDreamPerformance(
     geometryTriangleCount(resources.geometries.depthMasses) +
     geometryTriangleCount(resources.geometries.moon);
 
-  visibleDrawCalls += 4;
+  visibleDrawCalls += 5;
   triangles +=
     5 * geometryTriangleCount(resources.geometries.lanternBaseRock) +
     geometryTriangleCount(resources.geometries.lanternFrame) +
     geometryTriangleCount(resources.geometries.lanternGlass) +
     geometryTriangleCount(resources.geometries.lanternFlame) +
-    geometryTriangleCount(resources.geometries.lanternAura);
+    geometryTriangleCount(resources.geometries.lanternAura) +
+    geometryTriangleCount(resources.geometries.lanternPool);
 
   return {
     quality: composition.quality,

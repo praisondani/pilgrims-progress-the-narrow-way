@@ -57,7 +57,7 @@ Three.js geometries and rejects budget overruns.
 Integrated medium runtime uses far LOD at initial camera distance:
 66 visible instances, 13 draw calls, 3,582 triangles, one point light, and zero
 textures. Near LOD remains the budget worst case at 83 instances, 15 draw calls,
-and 7,210 triangles.
+and 7,210 triangles plus the bounded lantern warm-pool pass.
 
 Resources are owned by one pool, retained by mounted kit, and explicitly
 disposed after final release. Deferred release survives React Strict Mode effect

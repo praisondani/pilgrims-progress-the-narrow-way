@@ -48,12 +48,28 @@ function DreamGround({ color }: { color: Color }) {
         Math.exp(-((z - 12.4) ** 2) / 26 - (x * x) / 72) * 0.14;
       const eastRise =
         Math.exp(-((x - 8.2) ** 2) / 24 - ((z - 4.5) ** 2) / 56) * 0.1;
+      const lanternBowl =
+        Math.exp(-((x + 4.0) ** 2) / 24 - ((z + 4.0) ** 2) / 20) * 0.075;
+      const bookTerrace =
+        Math.exp(-((x + 4.0) ** 2) / 30 - ((z - 5.0) ** 2) / 34) * 0.06;
+      const thresholdTerrace =
+        Math.exp(-((x - 4.0) ** 2) / 34 - ((z - 5.0) ** 2) / 28) * 0.052;
+      const southernHollow =
+        Math.exp(-((x - 2.2) ** 2) / 48 - ((z + 8.0) ** 2) / 38) * 0.05;
       const streamAxis = x - (z * 0.28 + 1.72);
       const streamDip =
         Math.exp(-(streamAxis * streamAxis) / 1.5 - (z * z) / 220) * 0.09;
       position.setZ(
         index,
-        rolling + rearShelf + eastRise - streamDip - 0.018,
+        rolling +
+          rearShelf +
+          eastRise +
+          lanternBowl +
+          bookTerrace +
+          thresholdTerrace -
+          southernHollow -
+          streamDip -
+          0.018,
       );
     }
     relief.computeVertexNormals();
@@ -79,14 +95,18 @@ function DreamGround({ color }: { color: Color }) {
         .replace(
           "#include <color_fragment>",
           `#include <color_fragment>
+          vec2 meadowXZ = vec2(
+            vDreamGroundPosition.x,
+            -vDreamGroundPosition.y
+          );
           float meadowGrain =
-            sin(vDreamGroundPosition.x * 0.18 + vDreamGroundPosition.y * 0.11) * 0.5 +
-            sin(vDreamGroundPosition.x * 0.47 - vDreamGroundPosition.y * 0.23) * 0.24;
+            sin(meadowXZ.x * 0.18 + meadowXZ.y * 0.11) * 0.5 +
+            sin(meadowXZ.x * 0.47 - meadowXZ.y * 0.23) * 0.24;
           float meadowBand = smoothstep(-0.62, 0.62, meadowGrain);
           // Keep far meadow value changes gradual. The wider authored plane
           // now reaches into fog instead of exposing a straight cut at orbit
           // distance.
-          float distanceBand = smoothstep(0.0, 28.0, abs(vDreamGroundPosition.y));
+          float distanceBand = smoothstep(0.0, 28.0, abs(meadowXZ.y));
           // Hand-authored clearings keep the wide meadow from reading as one
           // procedural green sheet when the camera turns away from landmarks.
           float lanternClearing = exp(-length(
@@ -117,15 +137,108 @@ function DreamGround({ color }: { color: Color }) {
             diffuseColor.rgb * vec3(1.06, 1.025, 0.94),
             authoredClearings * 0.16
           );
-          float reliefBand = smoothstep(-0.06, 0.18, vDreamGroundHeight);
+          // These broad, named meadow zones are deliberately low frequency:
+          // a lantern bowl, two grove terraces, a damp rear wetland and a
+          // southern hollow. They give the plane authored material language
+          // without turning the ground into noisy shader wallpaper.
+          float lanternBowl = 1.0 - smoothstep(
+            1.4,
+            4.8,
+            length((meadowXZ - vec2(-4.0, -4.0)) * vec2(0.72, 0.82))
+          );
+          float bookTerrace = 1.0 - smoothstep(
+            1.3,
+            4.9,
+            length((meadowXZ - vec2(-4.0, 5.0)) * vec2(0.62, 0.72))
+          );
+          float thresholdTerrace = 1.0 - smoothstep(
+            1.2,
+            4.7,
+            length((meadowXZ - vec2(4.0, 5.0)) * vec2(0.58, 0.7))
+          );
+          float southernHollow = 1.0 - smoothstep(
+            1.6,
+            5.6,
+            length((meadowXZ - vec2(2.2, -8.0)) * vec2(0.48, 0.72))
+          );
+          float rearWetland = 1.0 - smoothstep(
+            2.2,
+            8.6,
+            length((meadowXZ - vec2(0.0, 11.2)) * vec2(0.28, 0.55))
+          );
+          float westMossBank = 1.0 - smoothstep(
+            1.1,
+            5.2,
+            length((meadowXZ - vec2(-8.0, 1.2)) * vec2(0.34, 0.56))
+          );
+          float eastHeather = 1.0 - smoothstep(
+            1.2,
+            5.6,
+            length((meadowXZ - vec2(8.0, 2.0)) * vec2(0.3, 0.5))
+          );
+          float streamAxis = meadowXZ.x - (meadowXZ.y * 0.28 + 1.72);
+          float wetShoulder = exp(
+            -abs(streamAxis) * 0.42 - abs(meadowXZ.y) * 0.018
+          );
+          float mossPocket = max(
+            bookTerrace * 0.82,
+            max(
+              thresholdTerrace * 0.72,
+              max(southernHollow * 0.64, max(rearWetland * 0.58, westMossBank * 0.48))
+            )
+          );
+          vec3 mossTint =
+            diffuseColor.rgb * vec3(0.68, 0.98, 0.78) +
+            vec3(0.012, 0.028, 0.018);
+          vec3 warmGrassTint =
+            diffuseColor.rgb * vec3(1.13, 1.045, 0.82) +
+            vec3(0.018, 0.012, 0.0);
+          vec3 dampGrassTint =
+            diffuseColor.rgb * vec3(0.64, 0.88, 0.98) +
+            vec3(0.006, 0.022, 0.034);
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb,
+            mossTint,
+            mossPocket * 0.22
+          );
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb,
+            warmGrassTint,
+            lanternBowl * 0.12
+          );
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb,
+            dampGrassTint,
+            wetShoulder * 0.16
+          );
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb,
+            mossTint * vec3(0.9, 1.02, 0.94),
+            eastHeather * 0.14
+          );
+          float terraceContour = smoothstep(
+            0.28,
+            0.86,
+            0.5 + 0.5 * sin(meadowXZ.x * 0.42 + meadowXZ.y * 0.16)
+          );
+          float contourMask = max(
+            bookTerrace * 0.48,
+            max(thresholdTerrace * 0.4, southernHollow * 0.34)
+          );
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb * 0.94,
+            diffuseColor.rgb * 1.045,
+            terraceContour * contourMask * 0.48
+          );
+          float reliefBand = smoothstep(-0.06, 0.22, vDreamGroundHeight);
           diffuseColor.rgb = mix(
             diffuseColor.rgb * vec3(0.92, 0.98, 0.94),
             diffuseColor.rgb * vec3(1.06, 1.04, 0.94),
-            reliefBand * 0.22
+            reliefBand * 0.34
           );`,
         );
     };
-    material.current.customProgramCacheKey = () => "dream-ground-breakup-v4-relief";
+    material.current.customProgramCacheKey = () => "dream-ground-breakup-v5-meadow-zones";
     material.current.needsUpdate = true;
   }, []);
   return (
