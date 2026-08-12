@@ -343,4 +343,20 @@ describe("persisted replay safety", () => {
       })?.sceneComplete,
     ).toBe(false);
   });
+
+  it("does not unlock replay chapters from an early final-scene flag", () => {
+    const finalScene = storyScenes.length - 1;
+    const merged = mergePersistedState(
+      { sceneIndex: finalScene, stepIndex: 0, gameComplete: true },
+      useGame.getState(),
+    );
+    expect(merged.gameComplete).toBe(false);
+    expect(
+      normalizeReplayCheckpoint({
+        sceneIndex: finalScene,
+        stepIndex: 0,
+        gameComplete: true,
+      })?.gameComplete,
+    ).toBe(false);
+  });
 });

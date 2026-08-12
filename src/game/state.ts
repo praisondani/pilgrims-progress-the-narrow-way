@@ -187,6 +187,19 @@ function completedStepValue(
   );
 }
 
+function gameCompleteValue(
+  sceneIndex: number,
+  stepIndex: number,
+  value: unknown,
+  fallback = false,
+) {
+  return (
+    sceneIndex === storyScenes.length - 1 &&
+    stepIndex === storyScenes[sceneIndex].steps.length - 1 &&
+    booleanValue(value, fallback)
+  );
+}
+
 function persistedCandidate(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
     ? (value as Record<string, unknown>)
@@ -214,9 +227,11 @@ export function normalizeReplayCheckpoint(
       stepIndex,
       candidate.sceneComplete,
     ),
-    gameComplete:
-      sceneIndex === storyScenes.length - 1 &&
-      booleanValue(candidate.gameComplete),
+    gameComplete: gameCompleteValue(
+      sceneIndex,
+      stepIndex,
+      candidate.gameComplete,
+    ),
   };
 }
 
@@ -283,7 +298,7 @@ export function migratePersistedState(persisted: unknown, version: number) {
     gameComplete:
       version < 6 || doubtingWasComplete
         ? false
-        : booleanValue(saved.gameComplete),
+        : gameCompleteValue(sceneIndex, stepIndex, saved.gameComplete),
     soundEnabled: version < 7 ? false : booleanValue(saved.soundEnabled),
     visibility: visibilityValue(saved.visibility),
     textSize: textSizeValue(saved.textSize),
@@ -334,7 +349,12 @@ export function mergePersistedState(
     journal:
       saved.journal === undefined ? current.journal : stringList(saved.journal),
     sceneComplete,
-    gameComplete: booleanValue(saved.gameComplete, current.gameComplete),
+    gameComplete: gameCompleteValue(
+      sceneIndex,
+      stepIndex,
+      saved.gameComplete,
+      current.gameComplete,
+    ),
     soundEnabled: booleanValue(saved.soundEnabled, current.soundEnabled),
     visibility: visibilityValue(saved.visibility, current.visibility),
     textSize: textSizeValue(saved.textSize, current.textSize),
