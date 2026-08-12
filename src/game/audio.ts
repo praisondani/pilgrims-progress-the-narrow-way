@@ -633,8 +633,10 @@ export class GameAudio {
   }
 
   walking(moving: boolean, mud = false) {
-    if (!moving || !this.ctx || !this.enabled) return;
-    const now = this.ctx.currentTime;
+    if (!moving || !this.enabled) return;
+    // Native fallback has no AudioContext clock. Keep footsteps available on
+    // WebKit/decode-failure paths by using the same monotonic wall clock.
+    const now = this.ctx?.currentTime ?? performance.now() / 1000;
     if (now - this.lastStep < (mud ? 0.48 : 0.34)) return;
     this.lastStep = now;
     void this.playSfx(mud ? "step-mud" : "step-earth");

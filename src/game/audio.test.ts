@@ -133,6 +133,23 @@ describe("safe local audio assets", () => {
     );
   });
 
+  it("keeps native fallback footsteps available without an AudioContext", async () => {
+    vi.stubGlobal("Audio", FakeAudioElement);
+    const audio = new GameAudio();
+    audio.setEnabled(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const ambienceCount = FakeAudioElement.instances.length;
+    audio.walking(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(FakeAudioElement.instances).toHaveLength(ambienceCount + 1);
+    expect(FakeAudioElement.instances.at(-1)?.src).toBe(
+      "/audio/sfx/step-earth.mp3",
+    );
+    expect(FakeAudioElement.instances.at(-1)?.playing).toBe(true);
+  });
+
   it("keeps fallback scene trims bounded before they reach the graph", () => {
     expect(ambienceSourceGainDb("arbor")).toBeLessThanOrEqual(
       4,

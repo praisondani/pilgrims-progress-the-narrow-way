@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T11:49:00-05:00",
+  "updatedAt": "2026-08-12T12:03:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "Dream v54 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, bounded warm meadow falloff, bounded point-light pool, a feathered lantern warm-pool shader, one merged broken waymarker on the rear axis, subtle authored ground relief, softened ridge/fog continuity, distant outcrops occluded behind the ridge, bounded haze convergence on distant stone, v52 authored meadow zones, and a merged broken shrine silhouette behind the rear ridge. Fresh v52 critics score 7.6–7.8/10 front and 7.2–7.4/10 rear with artifact checks passing; the remaining quality gap is genuinely layered terrain/material depth. The v53 lit-state pool and v54 shrine still need visual captures because browser review is paused to protect workstation performance. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
+    "resumeNote": "Dream v54 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, bounded warm meadow falloff, bounded point-light pool, a feathered lantern warm-pool shader, one merged broken waymarker on the rear axis, subtle authored ground relief, softened ridge/fog continuity, distant outcrops occluded behind the ridge, bounded haze convergence on distant stone, v52 authored meadow zones, and a merged broken shrine silhouette behind the rear ridge. Fresh v52 critics score 7.6–7.8/10 front and 7.2–7.4/10 rear with artifact checks passing; the remaining quality gap is genuinely layered terrain/material depth. The v53 lit-state pool and v54 shrine still need visual captures because browser review is paused to protect workstation performance. Decoded audio calibration is browser-verified; native fallback now keeps footsteps audible without an AudioContext; physical-device listening and performance QA remain open.",
     "workstreams": [
       {
         "id": "baseline",
@@ -76,7 +76,7 @@
         "status": "browser-verified-physical-QA-required",
         "builder": "audio reliability builder",
         "critic": "fresh desktop + mobile browser critic",
-        "largestGap": "Decoded scene beds and SFX now measure RMS/peak and receive bounded per-source calibration before the shared bus/master limiter; the title-screen journey action unlocks sound on first play, bounded native audio fallback covers Web Audio context/decode failures, transient voices are capped, and AudioContext interruptions update the HUD and recover on gesture. Tests verify every resolved scene alias and SFX MP3 frame. Dedicated finale compositions and physical-device listening QA remain outstanding."
+        "largestGap": "Decoded scene beds and SFX now measure RMS/peak and receive bounded per-source calibration before the shared bus/master limiter; the title-screen journey action unlocks sound on first play, bounded native audio fallback covers Web Audio context/decode failures, native fallback footsteps use a wall-clock cadence, transient voices are capped, and AudioContext interruptions update the HUD and recover on gesture. Tests verify every resolved scene alias, SFX MP3 frame, and native fallback footstep. Dedicated finale compositions and physical-device listening QA remain outstanding."
       },
       {
         "id": "runtime",

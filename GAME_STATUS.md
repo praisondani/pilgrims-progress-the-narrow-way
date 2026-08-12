@@ -22,6 +22,9 @@
 - Title-screen journey action now unlocks sound on first play; bounded native
   `<audio>` fallback covers Web Audio context/decode failures without speaker
   spikes.
+- Native fallback now preserves movement footsteps when `AudioContext` is
+  unavailable by switching cadence to a monotonic wall clock; audio tests cover
+  the fallback SFX path.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.
