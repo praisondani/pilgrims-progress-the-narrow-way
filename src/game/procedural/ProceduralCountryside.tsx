@@ -8,7 +8,6 @@ import {
   Float32BufferAttribute,
   Group,
   InstancedMesh,
-  Material,
   Object3D,
   Uint32BufferAttribute,
   Vector3,
@@ -24,6 +23,7 @@ import type { ProceduralSceneDefinition, ScatterPoint, ScatterRule } from "./typ
 import { useGame } from "../state";
 import { atmosphericLifeOffset, atmosphericLifeRotation } from "./motion";
 import {
+  collectOwnedResources,
   deferOwnedResourcesDisposal,
   retainOwnedResources,
 } from "../assets/environment/resourceLifecycle";
@@ -278,18 +278,7 @@ export function ProceduralCountryside() {
   const terrain = useMemo(() => generateTerrain(definition, mobile ? 14 : 20, mobile ? 56 : 72), [definition, mobile]);
   const pathGeometry = useMemo(() => createPathGeometry(definition), [definition]);
   useLayoutEffect(() => {
-    const resources: Array<BufferGeometry | Material> = [];
-    root.current?.traverse((object) => {
-      const candidate = object as Object3D & {
-        geometry?: BufferGeometry;
-        material?: Material | Material[];
-      };
-      if (candidate.geometry) resources.push(candidate.geometry);
-      if (candidate.material) {
-        if (Array.isArray(candidate.material)) resources.push(...candidate.material);
-        else resources.push(candidate.material);
-      }
-    });
+    const resources = root.current ? collectOwnedResources(root.current) : [];
     retainOwnedResources(resources);
     return () => deferOwnedResourcesDisposal(resources);
   }, []);

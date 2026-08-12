@@ -188,6 +188,10 @@
 - Dream's authored 72×72 relief and custom meadow shader material now use the
   same explicit ownership boundary, preventing renderer auto-disposal from
   racing a scene remount while preserving prompt cleanup on real transitions.
+- Chapter II's procedural region now shares the deduplicating geometry/material
+  collector used by the environment lifecycle contract; twelve repeated
+  mount/release graphs prove shared resources stay alive through remounts and
+  dispose exactly once after the final release.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending

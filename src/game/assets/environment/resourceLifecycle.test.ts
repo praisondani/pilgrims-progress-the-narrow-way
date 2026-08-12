@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BoxGeometry, MeshStandardMaterial } from "three";
 import {
+  BoxGeometry,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+} from "three";
+import {
+  collectOwnedResources,
   deferOwnedGeometriesDisposal,
   deferOwnedResourcesDisposal,
   disposeOwnedGeometries,
@@ -10,6 +16,47 @@ import {
 } from "./resourceLifecycle";
 
 describe("environment resource lifecycle", () => {
+  it("collects each geometry and material once from a mounted scene graph", () => {
+    const group = new Group();
+    const geometry = new BoxGeometry(1, 1, 1);
+    const material = new MeshStandardMaterial();
+    const alternate = new MeshStandardMaterial();
+    group.add(new Mesh(geometry, material));
+    group.add(new Mesh(geometry, [material, alternate]));
+
+    expect(collectOwnedResources(group)).toEqual([
+      geometry,
+      material,
+      alternate,
+    ]);
+  });
+
+  it("disposes repeated procedural region graphs after each final release", async () => {
+    for (let transition = 0; transition < 12; transition += 1) {
+      const group = new Group();
+      const geometry = new BoxGeometry(1, 1, 1);
+      const material = new MeshStandardMaterial();
+      group.add(new Mesh(geometry, material));
+      const owned = collectOwnedResources(group);
+      const disposed = new Map(owned.map((resource) => [resource.uuid, 0]));
+      owned.forEach((resource) =>
+        resource.addEventListener("dispose", () => {
+          disposed.set(resource.uuid, (disposed.get(resource.uuid) ?? 0) + 1);
+        }),
+      );
+
+      retainOwnedResources(owned);
+      deferOwnedResourcesDisposal(owned);
+      retainOwnedResources(owned);
+      await Promise.resolve();
+      expect([...disposed.values()].every((count) => count === 0)).toBe(true);
+
+      deferOwnedResourcesDisposal(owned);
+      await Promise.resolve();
+      expect([...disposed.values()].every((count) => count === 1)).toBe(true);
+    }
+  });
+
   it("disposes each owned geometry once even when references repeat", () => {
     const first = new BoxGeometry(1, 1, 1);
     const second = new BoxGeometry(1, 1, 1);

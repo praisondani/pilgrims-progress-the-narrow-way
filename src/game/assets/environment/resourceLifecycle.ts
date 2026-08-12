@@ -1,6 +1,6 @@
-import type { BufferGeometry, Material } from "three";
+import type { BufferGeometry, Material, Object3D } from "three";
 
-type OwnedResource = BufferGeometry | Material;
+export type OwnedResource = BufferGeometry | Material;
 type DisposalToken = { cancelled: boolean };
 const disposedResources = new WeakSet<OwnedResource>();
 const pendingDisposals = new WeakMap<OwnedResource, DisposalToken>();
@@ -13,6 +13,27 @@ function uniqueResources(
     if (resource) owned.add(resource);
   }
   return owned;
+}
+
+/**
+ * Collect the geometry/material resources owned by an environment subtree.
+ * Scene kits intentionally opt out of renderer auto-disposal and hand this
+ * deduplicated list to the retain/defer lifecycle below. Shared resources are
+ * returned once even when several meshes reference the same identity.
+ */
+export function collectOwnedResources(root: Object3D): OwnedResource[] {
+  const resources: OwnedResource[] = [];
+  root.traverse((object) => {
+    const candidate = object as Object3D & {
+      geometry?: BufferGeometry;
+      material?: Material | Material[];
+    };
+    if (candidate.geometry) resources.push(candidate.geometry);
+    if (!candidate.material) return;
+    if (Array.isArray(candidate.material)) resources.push(...candidate.material);
+    else resources.push(candidate.material);
+  });
+  return [...uniqueResources(resources)];
 }
 
 /**
