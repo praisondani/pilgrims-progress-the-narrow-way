@@ -72,6 +72,21 @@ describe("story progression state machine", () => {
     expect(useGame.getState().dialogue?.length).toBeGreaterThan(0);
   });
 
+  it("ignores choice responses when the choice modal is not active", () => {
+    useGame.setState({ sceneIndex: 1, stepIndex: 2, choosing: false });
+    useGame.getState().choose(0);
+    expect(useGame.getState().dialogue).toBeUndefined();
+  });
+
+  it("does not complete a puzzle outside an active puzzle modal", () => {
+    useGame.setState({ sceneIndex: 0, stepIndex: 0, puzzleActive: false });
+    useGame.getState().completePuzzle();
+    expect(useGame.getState()).toMatchObject({
+      puzzleActive: false,
+      puzzleSolvedCurrent: false,
+    });
+  });
+
   it("gates scene transitions behind the final beat", () => {
     useGame.setState({
       sceneIndex: 0,

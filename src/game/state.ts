@@ -623,6 +623,7 @@ export const useGame = create<GameState>()(
         })),
       completePuzzle: () => {
         const s = get();
+        if (!s.puzzleActive) return;
         const step = storyScenes[s.sceneIndex].steps[s.stepIndex];
         const firstObjective = s.sceneIndex === 0 && s.stepIndex === 0;
         set({
@@ -664,6 +665,7 @@ export const useGame = create<GameState>()(
       },
       choose: (choiceIndex) => {
         const s = get();
+        if (!s.choosing) return;
         const choice =
           storyScenes[s.sceneIndex].steps[s.stepIndex].choices?.[choiceIndex];
         if (choice)
