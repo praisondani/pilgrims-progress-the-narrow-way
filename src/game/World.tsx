@@ -5,8 +5,8 @@ import {
   RigidBody,
 } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
-import { Color, Group, MeshStandardMaterial } from "three";
+import { useEffect, useMemo, useRef } from "react";
+import { Color, Group, MeshStandardMaterial, PlaneGeometry } from "three";
 import { useGame } from "./state";
 import { StepKind, storyScenes } from "./story";
 import { playerPosition } from "./Player";
@@ -34,22 +34,47 @@ const dreamTerrainCollisionDescriptors =
 
 function DreamGround({ color }: { color: Color }) {
   const material = useRef<MeshStandardMaterial>(null);
+  const geometry = useMemo(() => {
+    const relief = new PlaneGeometry(72, 72, 32, 32);
+    const position = relief.attributes.position;
+    for (let index = 0; index < position.count; index += 1) {
+      const x = position.getX(index);
+      // PlaneGeometry local Y maps to world -Z after this quarter-turn.
+      const z = -position.getY(index);
+      const rolling =
+        Math.sin(x * 0.31 + z * 0.17) * 0.045 +
+        Math.cos(z * 0.27 - x * 0.13) * 0.035;
+      const rearShelf =
+        Math.exp(-((z - 12.4) ** 2) / 26 - (x * x) / 72) * 0.14;
+      const eastRise =
+        Math.exp(-((x - 8.2) ** 2) / 24 - ((z - 4.5) ** 2) / 56) * 0.1;
+      const streamAxis = x - (z * 0.28 + 1.72);
+      const streamDip =
+        Math.exp(-(streamAxis * streamAxis) / 1.5 - (z * z) / 220) * 0.09;
+      position.setZ(
+        index,
+        rolling + rearShelf + eastRise - streamDip - 0.018,
+      );
+    }
+    relief.computeVertexNormals();
+    return relief;
+  }, []);
   useEffect(() => {
     if (!material.current) return;
     material.current.onBeforeCompile = (shader) => {
       shader.vertexShader = shader.vertexShader
         .replace(
           "#include <common>",
-          "#include <common>\nvarying vec3 vDreamGroundPosition;",
+          "#include <common>\nvarying vec3 vDreamGroundPosition;\nvarying float vDreamGroundHeight;",
         )
         .replace(
           "#include <begin_vertex>",
-          "#include <begin_vertex>\nvDreamGroundPosition = transformed;",
+          "#include <begin_vertex>\nvDreamGroundPosition = transformed;\nvDreamGroundHeight = transformed.z;",
         );
       shader.fragmentShader = shader.fragmentShader
         .replace(
           "#include <common>",
-          "#include <common>\nvarying vec3 vDreamGroundPosition;",
+          "#include <common>\nvarying vec3 vDreamGroundPosition;\nvarying float vDreamGroundHeight;",
         )
         .replace(
           "#include <color_fragment>",
@@ -91,15 +116,21 @@ function DreamGround({ color }: { color: Color }) {
             diffuseColor.rgb,
             diffuseColor.rgb * vec3(1.06, 1.025, 0.94),
             authoredClearings * 0.16
+          );
+          float reliefBand = smoothstep(-0.06, 0.18, vDreamGroundHeight);
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb * vec3(0.92, 0.98, 0.94),
+            diffuseColor.rgb * vec3(1.06, 1.04, 0.94),
+            reliefBand * 0.22
           );`,
         );
     };
-    material.current.customProgramCacheKey = () => "dream-ground-breakup-v3";
+    material.current.customProgramCacheKey = () => "dream-ground-breakup-v4-relief";
     material.current.needsUpdate = true;
   }, []);
   return (
     <mesh receiveShadow position={[0, -0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[72, 72, 32, 32]} />
+      <primitive object={geometry} attach="geometry" />
       <meshStandardMaterial
         ref={material}
         color={color}

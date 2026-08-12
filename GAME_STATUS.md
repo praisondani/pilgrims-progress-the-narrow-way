@@ -152,17 +152,24 @@
   marker remains an incremental readability win, not a visual-bar pass: fresh
   critics score 7.4–7.8 front, 6.6–6.8 rear, 6.4–7.0 for Christian, 6.3–7.5
   for composition, and 7.2–8.5 for artifact hygiene.
+- Dream v42 ground-relief pass: the existing 72×72 meadow mesh now carries
+  subtle authored rolling shelves, an east rise, and a shallow stream dip with
+  fresh normals; shader value response follows relief height. No route collider,
+  draw-call, or stream-endpoint changes. Fresh critics confirm relief reads as
+  deliberate low-poly meadow breakup, the walkable route stays safe, and no new
+  shard/slab/beam/wedge artifacts appear. Critics still fail the quality bar at
+  7.5–7.8 front, 6.8–6.9 rear, 6.4–7.0 for Christian, 6.4–7.1 for rear
+  composition, and 7.0–8.5 for artifact hygiene.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v41 remains below the visual bar after fresh independent critics scored
-  7.4–7.8/10 front, 6.6–6.8/10 rear, 6.4–7.0/10 for Christian, and 6.3–7.5/10
-  for composition; the waymarker improves rear navigation readability and
-  artifact hygiene, but still feels pasted onto a broad flat meadow. The next
-  gap is authored terrain/material depth: layered ground relief, distinctive
-  secondary landmarks, and believable lantern illumination versus
-  Kena/Pathless/RiME.
+- Dream v42 remains below the visual bar after fresh independent critics scored
+  7.5–7.8/10 front, 6.8–6.9/10 rear, 6.4–7.0/10 for Christian, and 6.4–7.1/10
+  for rear composition; relief improves local grounding, while the waymarker
+  improves rear navigation readability and artifact hygiene. The next gap is
+  layered atmospheric horizon/material depth: the broad field still reads flat
+  behind repeated tree/rock silhouettes versus Kena/Pathless/RiME.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -202,8 +209,8 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with layered terrain relief, richer material response, and a
-   production-quality lantern asset now that the artifact-safe orbit baseline is
-   stable; the v41 waymarker is only a readability increment
+5. Continue Dream with layered atmospheric horizon, richer material response,
+   and a production-quality lantern asset now that the artifact-safe orbit
+   baseline and v42 terrain relief are stable
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA
