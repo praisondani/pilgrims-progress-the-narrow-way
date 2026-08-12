@@ -20,6 +20,7 @@ import {
   deriveGateController,
   gatePlayerBounds,
 } from "./gate/GateController";
+import { clampPlayerPosition } from "./playerBounds";
 
 const keys = new Set<string>();
 export { mobileInput, resetMobileInput } from "./input";
@@ -274,12 +275,17 @@ export function Player() {
             minimumZ: -7.2,
             maximumZ: 7.2,
           };
-    const clampedX = Math.max(bounds.minimumX, Math.min(bounds.maximumX, p.x));
-    const clampedZ = Math.max(bounds.minimumZ, Math.min(bounds.maximumZ, p.z));
-    if (clampedX !== p.x || clampedZ !== p.z)
-      body.current.setTranslation({ x: clampedX, y: p.y, z: clampedZ }, true);
-    if (p.y < -3) body.current.setTranslation({ x: 0, y: 1.2, z: 7 }, true);
-    playerPosition.set(p.x, p.y, p.z);
+    const bounded = clampPlayerPosition(p, bounds);
+    if (bounded.x !== p.x || bounded.z !== p.z)
+      body.current.setTranslation(bounded, true);
+    if (p.y < -3) {
+      body.current.setTranslation(PLAYER_SPAWN, true);
+      body.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      playerMotion.moving = false;
+      playerPosition.set(PLAYER_SPAWN.x, PLAYER_SPAWN.y, PLAYER_SPAWN.z);
+    } else {
+      playerPosition.set(bounded.x, bounded.y, bounded.z);
+    }
   });
   return (
     <RigidBody

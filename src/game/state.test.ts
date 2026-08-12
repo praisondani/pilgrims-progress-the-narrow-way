@@ -205,6 +205,28 @@ describe("story progression state machine", () => {
     });
   });
 
+  it("allows replaying the chapter currently shown on its completion card", () => {
+    const finalStep = storyScenes[0].steps.length - 1;
+    useGame.setState({
+      sceneIndex: 0,
+      stepIndex: finalStep,
+      sceneComplete: true,
+    });
+
+    useGame.getState().replayScene(0);
+
+    expect(useGame.getState()).toMatchObject({
+      sceneIndex: 0,
+      stepIndex: 0,
+      sceneComplete: false,
+      replayCheckpoint: {
+        sceneIndex: 0,
+        stepIndex: finalStep,
+        sceneComplete: true,
+      },
+    });
+  });
+
   it("tracks the sealed roll through loss and recovery", () => {
     useGame.setState({
       sceneIndex: 11,

@@ -30,6 +30,9 @@
   Native fallback voices now enforce the same four-voice ceiling as the Web
   Audio graph, stopping the oldest HTML audio element before a new transient
   starts so Safari/WebKit cannot stack speaker-spiking bursts.
+- Muting now stops and removes both Web Audio and native ambience/SFX sources;
+  unmuting cannot resurrect stale loops or transient voices, with a native
+  fallback regression test covering the lifecycle.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.
@@ -86,6 +89,13 @@
   malformed local values arrive.
 - Replay requests now clamp non-finite step inputs before chapter lookup, so a
   malformed drawer/API request cannot write a `NaN` step into live state.
+- The replay drawer now accepts the chapter currently shown on its completion
+  card, so a player can replay a just-finished chapter before advancing to the
+  next one; the saved journey still restores through the existing checkpoint.
+- Published player coordinates now use the same corrected planar position as
+  the clamped Rapier body, and fall recovery resets the shared position and
+  velocity. Navigation cues, camera follow, and gate-arrow contact no longer
+  observe stale out-of-bounds coordinates.
 - Save and replay completion flags now require the chapter’s final beat; early
   or stale `sceneComplete` values are discarded before the handoff UI can open.
 - Persisted `puzzleActive` is now validated against the restored story beat;

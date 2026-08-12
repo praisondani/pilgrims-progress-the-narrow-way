@@ -574,9 +574,14 @@ export const useGame = create<GameState>()(
           sceneComplete: s.sceneComplete,
           gameComplete: s.gameComplete,
         };
+        // A chapter is replayable as soon as its final beat is complete,
+        // even when the player has not advanced through the completion card
+        // yet. In-progress saves still stop at the previous chapter.
         const maxReplayIndex = checkpoint.gameComplete
           ? storyScenes.length - 1
-          : checkpoint.sceneIndex - 1;
+          : checkpoint.sceneComplete
+            ? checkpoint.sceneIndex
+            : checkpoint.sceneIndex - 1;
         if (!Number.isInteger(requestedSceneIndex)) return;
         const scene = storyScenes[requestedSceneIndex];
         if (
