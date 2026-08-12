@@ -28,6 +28,7 @@ class FakeAudioElement {
   volume = 1;
   playing = false;
   removed = false;
+  playCalls = 0;
   private listeners = new Map<string, () => void>();
 
   constructor(src: string) {
@@ -48,6 +49,7 @@ class FakeAudioElement {
     this.playing = false;
   }
   async play() {
+    this.playCalls += 1;
     this.playing = true;
   }
 }
@@ -225,6 +227,37 @@ describe("safe local audio assets", () => {
     expect(FakeAudioElement.instances[0].volume).toBe(
       audioMix.nativeAmbienceVolume,
     );
+  });
+
+  it("restarts an existing native ambience element after a visibility return", async () => {
+    const listeners = new Map<string, () => void>();
+    const documentStub = {
+      visibilityState: "visible",
+      documentElement: { dataset: {} as Record<string, string> },
+      addEventListener(name: string, listener: () => void) {
+        listeners.set(name, listener);
+      },
+    } as unknown as Document;
+    vi.stubGlobal("document", documentStub);
+    vi.stubGlobal("Audio", FakeAudioElement);
+    const audio = new GameAudio();
+    audio.setEnabled(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const ambience = FakeAudioElement.instances[0];
+    expect(ambience.playCalls).toBe(1);
+    ambience.pause();
+    (documentStub as unknown as { visibilityState: DocumentVisibilityState }).visibilityState =
+      "hidden";
+    listeners.get("visibilitychange")?.();
+    expect(ambience.playing).toBe(false);
+
+    (documentStub as unknown as { visibilityState: DocumentVisibilityState }).visibilityState =
+      "visible";
+    listeners.get("visibilitychange")?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(ambience.playing).toBe(true);
+    expect(ambience.playCalls).toBe(2);
   });
 
   it("keeps native fallback footsteps available without an AudioContext", async () => {

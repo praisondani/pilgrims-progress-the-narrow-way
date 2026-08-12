@@ -38,6 +38,11 @@
   fails. Quiet ambience beds receive a conservative +12 dB lift and SFX a +3
   dB lift; browsers without AudioContext retain the lower raw-element volume.
   Scene switches tear down the previous fallback before starting a new bed.
+- Audio now binds a visibility lifecycle even when Web Audio is unavailable:
+  hidden documents pause native ambience and discard transient voices, while a
+  visible return resumes the existing scene element through a fresh trusted
+  playback call. This prevents silent “playing” state after mobile background
+  suspension and avoids delayed SFX bursts on return.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.

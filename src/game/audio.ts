@@ -223,6 +223,8 @@ export class GameAudio {
   private nativeSfx = new Set<HTMLAudioElement>();
   private nativeSfxRoutes = new Map<HTMLAudioElement, NativeAudioRoute>();
   private calibratedGains = new Map<string, number>();
+  private pageHidden = false;
+  private visibilityBound = false;
 
   getSnapshot = () => this.playbackState;
 
@@ -250,6 +252,11 @@ export class GameAudio {
       this.markState("muted", this.pendingScene);
       return;
     }
+    if (this.pageHidden) {
+      this.markState("blocked", this.pendingScene);
+      return;
+    }
+    this.bindVisibilityLifecycle();
     if (!this.ctx) this.buildGraph();
     if (!this.ctx) {
       void this.playNativeAmbience(this.pendingScene, this.sceneRequest);
@@ -260,7 +267,7 @@ export class GameAudio {
 
   private async resumeAndPlay() {
     if (!this.ctx) this.buildGraph();
-    if (!this.enabled) return false;
+    if (!this.enabled || this.pageHidden) return false;
     if (!this.ctx)
       return this.playNativeAmbience(this.pendingScene, this.sceneRequest);
     const context = this.ctx;
@@ -420,6 +427,28 @@ export class GameAudio {
     element.remove();
   }
 
+  /** Pause output while the document is hidden without losing the scene bed. */
+  private pauseForVisibility() {
+    if (this.ctx?.state === "running") void this.ctx.suspend().catch(() => {});
+    this.nativeAmbience?.element.pause();
+    // Transient voices should not resume seconds later after a background tab
+    // returns. The looping ambience is retained and restarted on visibility.
+    for (const element of [...this.nativeSfx])
+      this.stopNativeSfxElement(element);
+    if (this.enabled) this.markState("blocked", this.pendingScene);
+  }
+
+  private bindVisibilityLifecycle() {
+    if (this.visibilityBound || typeof document === "undefined") return;
+    this.visibilityBound = true;
+    this.pageHidden = document.visibilityState === "hidden";
+    document.addEventListener("visibilitychange", () => {
+      this.pageHidden = document.visibilityState === "hidden";
+      if (this.pageHidden) this.pauseForVisibility();
+      else if (this.enabled) void this.resumeAndPlay();
+    });
+  }
+
   private buildGraph() {
     if (typeof window === "undefined") return;
     const AudioContextConstructor =
@@ -482,9 +511,6 @@ export class GameAudio {
       passive: true,
     });
     window.addEventListener("keydown", unlock, { capture: true });
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") unlock();
-    });
   }
 
   private async load(url: string) {
@@ -522,12 +548,23 @@ export class GameAudio {
    * recoverable decode failure into a permanently silent game.
    */
   private async playNativeAmbience(id: string, request: number) {
-    if (!this.enabled || id !== this.pendingScene || request !== this.sceneRequest)
+    if (
+      !this.enabled ||
+      this.pageHidden ||
+      id !== this.pendingScene ||
+      request !== this.sceneRequest
+    )
       return false;
     if (typeof Audio === "undefined") return false;
     if (this.nativeAmbience?.scene === id) {
-      this.markState("playing", id);
-      return true;
+      try {
+        await this.nativeAmbience.element.play();
+        this.markState("playing", id);
+        return true;
+      } catch {
+        this.markState("blocked", id);
+        return false;
+      }
     }
     this.markState("loading", id);
     this.stopWebAudioAmbience();
@@ -557,6 +594,7 @@ export class GameAudio {
     }
     if (
       !this.enabled ||
+      this.pageHidden ||
       id !== this.pendingScene ||
       request !== this.sceneRequest ||
       this.nativeAmbience?.element !== element
@@ -577,7 +615,8 @@ export class GameAudio {
   }
 
   private async playNativeSfx(name: string) {
-    if (!this.enabled || typeof Audio === "undefined") return false;
+    if (!this.enabled || this.pageHidden || typeof Audio === "undefined")
+      return false;
     // HTMLAudioElement has no shared compressor or bus. Stop the oldest
     // fallback voice before adding another one so a burst of footsteps,
     // focus ticks, or impact callbacks cannot pile up and spike the speaker.
@@ -618,6 +657,7 @@ export class GameAudio {
       !this.ctx ||
       !this.ambienceBus ||
       !this.enabled ||
+      this.pageHidden ||
       this.ctx.state !== "running"
     )
       return;
@@ -692,7 +732,7 @@ export class GameAudio {
   }
 
   private async playSfx(name: string) {
-    if (!this.enabled) return;
+    if (!this.enabled || this.pageHidden) return;
     if (!(await this.resumeAndPlay())) {
       await this.playNativeSfx(name);
       return;
@@ -773,7 +813,7 @@ export class GameAudio {
   }
 
   walking(moving: boolean, mud = false) {
-    if (!moving || !this.enabled) return;
+    if (!moving || !this.enabled || this.pageHidden) return;
     // Native fallback has no AudioContext clock. Keep footsteps available on
     // WebKit/decode-failure paths by using the same monotonic wall clock.
     const now = this.ctx?.currentTime ?? performance.now() / 1000;
