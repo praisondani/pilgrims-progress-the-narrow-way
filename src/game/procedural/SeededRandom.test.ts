@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Vector2 } from "three";
 import { countrysideBiome } from "./BiomeSystem";
 import { createCountrysideDefinition } from "./countrysideDefinition";
+import { distanceToPath } from "./PathMaskGenerator";
 import { scatterPoints } from "./ScatterSystem";
 import { SeededRandom } from "./SeededRandom";
 import { terrainSlope } from "./TerrainGenerator";
@@ -84,5 +85,53 @@ describe("procedural generation", () => {
     expect(
       first.every((point) => terrainSlope(definition, point.x, point.z) <= rule.maxSlope),
     ).toBe(true);
+  });
+
+  it("keeps every Chapter II scatter rule safe across alternate seeds", () => {
+    const rules = [
+      ...Object.entries(countrysideBiome.vegetationRules).map(
+        ([label, rule]) => ({ label, rule, kind: "vegetation" as const }),
+      ),
+      ...countrysideBiome.rockRules.map((rule, index) => ({
+        label: `rocks-${index}`,
+        rule,
+        kind: "rocks" as const,
+      })),
+    ];
+
+    for (const seed of ["field-v1-1678", "field-alt-2001"]) {
+      const seededDefinition = createCountrysideDefinition(seed);
+      for (const { label, rule, kind } of rules) {
+        const boundedRule = { ...rule, count: Math.min(rule.count, 36) };
+        const first = scatterPoints(seededDefinition, boundedRule, label, kind);
+        const second = scatterPoints(seededDefinition, boundedRule, label, kind);
+        expect(first).toEqual(second);
+        expect(first.length).toBeGreaterThan(0);
+        for (const point of first) {
+          expect(Number.isFinite(point.x)).toBe(true);
+          expect(Number.isFinite(point.y)).toBe(true);
+          expect(Number.isFinite(point.z)).toBe(true);
+          expect(distanceToPath(new Vector2(point.x, point.z), seededDefinition.path)).toBeGreaterThanOrEqual(
+            boundedRule.pathClearance,
+          );
+          expect(terrainSlope(seededDefinition, point.x, point.z)).toBeLessThanOrEqual(
+            boundedRule.maxSlope + 1e-9,
+          );
+          for (const landmark of seededDefinition.landmarks) {
+            const excluded =
+              kind === "vegetation"
+                ? landmark.excludeVegetation
+                : landmark.excludeRocks;
+            if (!excluded) continue;
+            expect(
+              Math.hypot(
+                point.x - landmark.position[0],
+                point.z - landmark.position[1],
+              ),
+            ).toBeGreaterThan(landmark.radius);
+          }
+        }
+      }
+    }
   });
 });

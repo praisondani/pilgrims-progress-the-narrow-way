@@ -195,7 +195,9 @@ export class GameAudio {
   private current?: PlayingAmbience;
   private pendingScene = "dream";
   private sceneRequest = 0;
-  private lastStep = 0;
+  // Allow the first movement cue immediately, including on native fallback
+  // paths where performance.now() can still be below the cadence threshold.
+  private lastStep = Number.NEGATIVE_INFINITY;
   private lastFocus = 0;
   private enabled = false;
   private playbackState: AudioPlaybackState = "muted";

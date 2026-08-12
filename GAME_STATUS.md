@@ -24,7 +24,8 @@
   spikes.
 - Native fallback now preserves movement footsteps when `AudioContext` is
   unavailable by switching cadence to a monotonic wall clock; audio tests cover
-  the fallback SFX path.
+  the fallback SFX path, including an immediate first-step cue before the
+  cadence timer has elapsed.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.
@@ -81,7 +82,9 @@
 - Chapter II’s procedural definition now lives in a pure seedable factory that
   derives all six landmark pads from the authored story beats; tests lock the
   route endpoints, marsh clearance radius, stable biome/path contract, and
-  alternate-seed behavior.
+  alternate-seed behavior. Every vegetation and rock rule is also exercised
+  across canonical and alternate seeds for finite placement, path clearance,
+  landmark exclusion, slope limits, and deterministic output.
 - City environment mounts now sweep and dispose every owned geometry under the
   root on unmount while leaving shared palette materials alive; the lifecycle
   helper deduplicates repeated references across child and root cleanup and has
