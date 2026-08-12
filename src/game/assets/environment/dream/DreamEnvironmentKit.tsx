@@ -338,11 +338,12 @@ function DreamLanternLandmark({
       light.current.intensity = (lit ? 10 : 2.2) + pulse;
       light.current.distance = lit ? 12.5 : 7;
     }
-    if (resources.materials.lanternPool) {
+    const poolStrength =
+      resources.materials.lanternPool?.uniforms?.poolStrength;
+    if (poolStrength) {
       const poolPulse =
         lit && !reducedMotion ? Math.sin(clock.elapsedTime * 1.6) * 0.012 : 0;
-      resources.materials.lanternPool.uniforms.poolStrength.value =
-        (lit ? 0.14 : 0.028) + poolPulse;
+      poolStrength.value = (lit ? 0.14 : 0.028) + poolPulse;
     }
     if (!lit || reducedMotion) return;
     const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.09;
