@@ -82,6 +82,9 @@
   derives all six landmark pads from the authored story beats; tests lock the
   route endpoints, marsh clearance radius, stable biome/path contract, and
   alternate-seed behavior.
+- City environment mounts now explicitly dispose their owned geometry batches
+  on unmount while leaving shared palette materials alive; the lifecycle helper
+  deduplicates repeated geometry references and has direct disposal coverage.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending

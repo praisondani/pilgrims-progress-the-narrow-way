@@ -42,6 +42,7 @@ import {
   type CityQualityPreset,
   type CityPoint2,
 } from "./composition";
+import { disposeOwnedGeometries } from "../resourceLifecycle";
 
 type LocalTransform = {
   local: [x: number, y: number, z: number];
@@ -908,6 +909,11 @@ function CityBuildingBatches({
     [],
   );
 
+  useEffect(
+    () => () => disposeOwnedGeometries(Object.values(geometries)),
+    [geometries],
+  );
+
   const detailTransforms = useMemo(() => {
     const beamTransforms: LocalTransform[] = [];
     const windowTransforms: LocalTransform[] = [];
@@ -1210,6 +1216,16 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
   );
   const roadWearMesh = useRef<InstancedMesh>(null);
   const roadWearGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
+  useEffect(
+    () => () =>
+      disposeOwnedGeometries([
+        roadGeometry,
+        crossStreetGeometry,
+        stoneGeometry,
+        roadWearGeometry,
+      ]),
+    [crossStreetGeometry, roadGeometry, roadWearGeometry, stoneGeometry],
+  );
   useLayoutEffect(() => {
     if (!stoneMesh.current) return;
     const dummy = new Object3D();
@@ -1409,6 +1425,10 @@ function CityPlanters({ quality }: { quality: CityQualityPreset }) {
     }),
     [],
   );
+  useEffect(
+    () => () => disposeOwnedGeometries(Object.values(geometries)),
+    [geometries],
+  );
   useLayoutEffect(() => {
     const dummy = new Object3D();
     [pot.current, soil.current, foliage.current].forEach((mesh) =>
@@ -1470,6 +1490,10 @@ function CityMarketCitizens({
       arm: new CapsuleGeometry(0.06, 0.28, 5, 7),
     }),
     [],
+  );
+  useEffect(
+    () => () => disposeOwnedGeometries(Object.values(geometries)),
+    [geometries],
   );
   useFrame(({ clock }) => {
     if (!root.current || reducedMotion) return;
@@ -1539,6 +1563,10 @@ function MarketStall({ position, rotation = 0 }: { position: CityPoint2; rotatio
     addMaterialBreakup(geometry, 0.055, "#6b4a3d");
     return geometry;
   }, []);
+  useEffect(
+    () => () => disposeOwnedGeometries([counterGeometry, shelfGeometry]),
+    [counterGeometry, shelfGeometry],
+  );
   return (
     <group position={[position[0], 0, position[1]]} rotation={[0, rotation, 0]}>
       <mesh position={[-0.68, 0.72, 0]} castShadow>
@@ -1634,6 +1662,10 @@ function CityThresholdLandmark({
     addMaterialBreakup(geometry, 0.04, "#46302d");
     return geometry;
   }, []);
+  useEffect(
+    () => () => disposeOwnedGeometries([thresholdGeometry, doorGeometry]),
+    [doorGeometry, thresholdGeometry],
+  );
   return (
     <group
       position={[CITY_LANDMARK_ANCHORS.threshold[0], 0, CITY_LANDMARK_ANCHORS.threshold[1]]}
