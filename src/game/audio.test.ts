@@ -167,6 +167,22 @@ describe("safe local audio assets", () => {
     expect(FakeAudioElement.instances.at(-1)?.playing).toBe(true);
   });
 
+  it("caps concurrent native fallback SFX voices", async () => {
+    vi.stubGlobal("Audio", FakeAudioElement);
+    const audio = new GameAudio();
+    audio.setEnabled(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    for (let index = 0; index < audioMix.maxConcurrentSfx + 3; index += 1)
+      audio.interact();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const activeSfx = FakeAudioElement.instances.filter(
+      (element) => element.src.includes("/audio/sfx/") && element.playing,
+    );
+    expect(activeSfx).toHaveLength(audioMix.maxConcurrentSfx);
+  });
+
   it("keeps fallback scene trims bounded before they reach the graph", () => {
     expect(ambienceSourceGainDb("arbor")).toBeLessThanOrEqual(
       4,

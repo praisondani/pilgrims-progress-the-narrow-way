@@ -27,6 +27,9 @@
   the fallback SFX path, including an immediate first-step cue before the
   cadence timer has elapsed. Focus-puzzle cues now use the same explicit
   unplayed state so the first slider interaction cannot be silently dropped.
+  Native fallback voices now enforce the same four-voice ceiling as the Web
+  Audio graph, stopping the oldest HTML audio element before a new transient
+  starts so Safari/WebKit cannot stack speaker-spiking bursts.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.

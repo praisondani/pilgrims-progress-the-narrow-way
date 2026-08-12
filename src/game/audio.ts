@@ -462,6 +462,18 @@ export class GameAudio {
 
   private async playNativeSfx(name: string) {
     if (!this.enabled || typeof Audio === "undefined") return false;
+    // HTMLAudioElement has no shared compressor or bus. Stop the oldest
+    // fallback voice before adding another one so a burst of footsteps,
+    // focus ticks, or impact callbacks cannot pile up and spike the speaker.
+    while (this.nativeSfx.size >= audioMix.maxConcurrentSfx) {
+      const oldest = this.nativeSfx.values().next().value as
+        | HTMLAudioElement
+        | undefined;
+      if (!oldest) break;
+      oldest.pause();
+      oldest.remove();
+      this.nativeSfx.delete(oldest);
+    }
     const element = new Audio(sfxUrl(name));
     element.preload = "auto";
     element.volume = audioMix.nativeSfxVolume;
