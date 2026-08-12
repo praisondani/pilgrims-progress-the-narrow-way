@@ -514,16 +514,16 @@ export const useGame = create<GameState>()(
           : checkpoint.sceneIndex - 1;
         if (!Number.isInteger(requestedSceneIndex)) return;
         const scene = storyScenes[requestedSceneIndex];
-        const stepIndex = Math.max(
-          0,
-          Math.min(requestedStepIndex, (scene?.steps.length ?? 1) - 1),
-        );
         if (
           requestedSceneIndex < 0 ||
           requestedSceneIndex > maxReplayIndex ||
           requestedSceneIndex >= storyScenes.length
         )
           return;
+        const stepIndex = clampStepIndex(
+          requestedSceneIndex,
+          requestedStepIndex,
+        );
         const chapterState = chapterStartState(requestedSceneIndex, stepIndex);
         set({
           ...chapterState,

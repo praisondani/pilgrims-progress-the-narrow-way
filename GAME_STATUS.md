@@ -66,6 +66,8 @@
 - Persisted numeric fields now reject null/empty corruption instead of
   coercing it to zero; merges preserve the live chapter, step, and burden when
   malformed local values arrive.
+- Replay requests now clamp non-finite step inputs before chapter lookup, so a
+  malformed drawer/API request cannot write a `NaN` step into live state.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases

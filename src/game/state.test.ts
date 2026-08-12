@@ -244,6 +244,16 @@ describe("persisted replay safety", () => {
     expect(useGame.getState().replayCheckpoint).toBeUndefined();
   });
 
+  it("clamps non-finite replay step requests before chapter lookup", () => {
+    useGame.setState({ sceneIndex: 4, stepIndex: 1 });
+    useGame.getState().replayScene(2, Number.NaN);
+    expect(useGame.getState()).toMatchObject({
+      sceneIndex: 2,
+      stepIndex: 0,
+    });
+    expect(Number.isFinite(useGame.getState().stepIndex)).toBe(true);
+  });
+
   it("does not treat string completion flags as completed chapters", () => {
     const migrated = migratePersistedState(
       { sceneIndex: 13, stepIndex: 4, gameComplete: "false" },
