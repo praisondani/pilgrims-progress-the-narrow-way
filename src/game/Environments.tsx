@@ -1,6 +1,10 @@
-import { Float, Sparkles, Stars } from "@react-three/drei";
+import {
+  Float as DreiFloat,
+  Sparkles as DreiSparkles,
+  Stars,
+} from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
 import { DoubleSide, Group, Shape } from "three";
 import {
   Bush,
@@ -25,6 +29,7 @@ import { useGame } from "./state";
 import { gameAudio } from "./audio";
 import { DreamEnvironmentKit } from "./assets/environment/dream";
 import { CityEnvironmentKit } from "./assets/environment/city";
+import { comfortMotionSpeed } from "./motion";
 import {
   GATE_ARROW_LANES,
   GATE_COVER_CENTERS,
@@ -40,6 +45,34 @@ type Target = [number, number];
 const clearsTarget = (position: number[], target: Target, radius = 2.35) =>
   Math.hypot(position[0] - target[0], position[2] - target[1]) > radius;
 
+export function ComfortFloat({
+  children,
+  ...props
+}: ComponentProps<typeof DreiFloat>) {
+  const reducedMotion = useGame((state) => state.reducedMotion);
+  return (
+    <DreiFloat {...props} enabled={!reducedMotion}>
+      {children}
+    </DreiFloat>
+  );
+}
+
+export function ComfortSparkles(props: ComponentProps<typeof DreiSparkles>) {
+  const reducedMotion = useGame((state) => state.reducedMotion);
+  const speed =
+    typeof props.speed === "number"
+      ? comfortMotionSpeed(props.speed, reducedMotion)
+      : reducedMotion
+        ? 0
+        : props.speed;
+  return <DreiSparkles {...props} speed={speed} />;
+}
+
+// Keep the authored scene markup readable while routing every Float/Sparkles
+// instance through the shared reduced-motion gates above.
+const Float = ComfortFloat;
+const Sparkles = ComfortSparkles;
+
 function StoryCloud({
   position,
   scale = [1, 1, 1],
@@ -52,10 +85,12 @@ function StoryCloud({
   speed?: number;
 }) {
   const cloud = useRef<Group>(null);
+  const reducedMotion = useGame((state) => state.reducedMotion);
   useFrame(({ clock }) => {
     if (!cloud.current) return;
-    cloud.current.position.x = Math.sin(clock.elapsedTime * speed) * 0.45;
-    cloud.current.position.y = Math.cos(clock.elapsedTime * speed * 0.7) * 0.08;
+    const motionSpeed = comfortMotionSpeed(speed, reducedMotion);
+    cloud.current.position.x = Math.sin(clock.elapsedTime * motionSpeed) * 0.45;
+    cloud.current.position.y = Math.cos(clock.elapsedTime * motionSpeed * 0.7) * 0.08;
   });
   return (
     <group position={position} scale={scale}>

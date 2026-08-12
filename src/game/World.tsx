@@ -1,4 +1,3 @@
-import { Float, Sparkles } from "@react-three/drei";
 import {
   CapsuleCollider,
   CuboidCollider,
@@ -17,7 +16,7 @@ import {
   CrossMonument,
   StoneArch,
 } from "./Visuals";
-import { SceneEnvironment } from "./Environments";
+import { ComfortFloat, ComfortSparkles, SceneEnvironment } from "./Environments";
 import { renderingFeatureFlags } from "./rendering/capabilities";
 import {
   buildDreamTerrainCollisionDescriptors,
@@ -663,8 +662,15 @@ function TargetShape({
 function ActiveTarget() {
   const group = useRef<Group>(null);
   const beacon = useRef<Group>(null);
-  const { sceneIndex, stepIndex, nearby, setNearby, interact, setMessage } =
-    useGame();
+  const {
+    sceneIndex,
+    stepIndex,
+    nearby,
+    setNearby,
+    interact,
+    setMessage,
+    reducedMotion,
+  } = useGame();
   const scene = storyScenes[sceneIndex];
   const step = scene.steps[stepIndex];
   const usesAuthoredDreamLandmark =
@@ -672,7 +678,7 @@ function ActiveTarget() {
   const usesAuthoredGateLandmark = scene.id === "gate";
   useFrame((_, delta) => {
     if (!group.current) return;
-    if (beacon.current) beacon.current.rotation.y += delta * 0.8;
+    if (beacon.current && !reducedMotion) beacon.current.rotation.y += delta * 0.8;
     const isNear = playerPosition.distanceTo(group.current.position) < 2.3;
     if (isNear !== nearby) setNearby(isNear);
   });
@@ -687,16 +693,16 @@ function ActiveTarget() {
       {!usesAuthoredDreamLandmark && (
         <>
           {!usesAuthoredGateLandmark && (
-            <Float speed={1.25} floatIntensity={0.12}>
+            <ComfortFloat speed={1.25} floatIntensity={0.12}>
               <TargetShape
                 kind={step.kind}
                 light={scene.palette.light}
                 id={step.id}
                 sceneId={scene.id}
               />
-            </Float>
+            </ComfortFloat>
           )}
-          <Sparkles
+          <ComfortSparkles
             count={22}
             scale={[1.8, 2.5, 1.8]}
             color={scene.palette.light}

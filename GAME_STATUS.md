@@ -62,6 +62,10 @@
   setting: enabling it removes both their rotation and lateral drift while
   preserving the authored motion when comfort mode is off, with pure-function
   regression coverage.
+- The same comfort contract now wraps every authored `Float` and `Sparkles`
+  effect across the scene families, and disables cloud drift plus active-target
+  beacon rotation when reduced motion is on. Enabled-motion tuning is unchanged;
+  the shared speed gate has focused regression coverage.
 - Shared mobile movement input now resets on pointer release, scene remount,
   modal pause, and player unmount, preventing a held touch direction from
   leaking into the next chapter.
