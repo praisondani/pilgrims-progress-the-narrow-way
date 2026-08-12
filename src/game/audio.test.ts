@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";

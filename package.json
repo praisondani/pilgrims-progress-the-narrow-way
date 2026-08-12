@@ -25,10 +25,11 @@
     "zustand": "5.0.14"
   },
   "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "@types/node": "26.1.2",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@types/three": "latest",
-    "@playwright/test": "1.61.1",
     "@vitejs/plugin-react": "5.2.0",
     "typescript": "latest",
     "vite": "7.3.6",
