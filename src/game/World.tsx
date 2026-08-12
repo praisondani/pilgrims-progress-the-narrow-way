@@ -62,6 +62,21 @@ function DreamGround({ color }: { color: Color }) {
           // now reaches into fog instead of exposing a straight cut at orbit
           // distance.
           float distanceBand = smoothstep(0.0, 28.0, abs(vDreamGroundPosition.y));
+          // Hand-authored clearings keep the wide meadow from reading as one
+          // procedural green sheet when the camera turns away from landmarks.
+          float lanternClearing = exp(-length(
+            vDreamGroundPosition.xy - vec2(-4.0, -4.0)
+          ) * 0.42);
+          float northClearing = exp(-length(
+            vDreamGroundPosition.xy - vec2(-4.0, 5.0)
+          ) * 0.34);
+          float rearClearing = exp(-length(
+            vDreamGroundPosition.xy - vec2(0.0, 9.5)
+          ) * 0.26);
+          float authoredClearings = max(
+            lanternClearing,
+            max(northClearing * 0.76, rearClearing * 0.62)
+          );
           diffuseColor.rgb = mix(
             diffuseColor.rgb * 0.84,
             diffuseColor.rgb * 1.08,
@@ -71,6 +86,11 @@ function DreamGround({ color }: { color: Color }) {
             diffuseColor.rgb,
             diffuseColor.rgb * 0.78 + vec3(0.018, 0.045, 0.052),
             distanceBand * 0.34
+          );
+          diffuseColor.rgb = mix(
+            diffuseColor.rgb,
+            diffuseColor.rgb * vec3(1.06, 1.025, 0.94),
+            authoredClearings * 0.16
           );`,
         );
     };

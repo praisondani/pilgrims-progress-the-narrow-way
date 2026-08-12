@@ -304,6 +304,7 @@ function DreamLanternLandmark({
 }) {
   const base = useRef<InstancedMesh>(null);
   const flame = useRef<Mesh>(null);
+  const aura = useRef<Mesh>(null);
   const light = useRef<PointLight>(null);
   useLayoutEffect(() => {
     if (!base.current) return;
@@ -331,12 +332,19 @@ function DreamLanternLandmark({
     if (light.current) {
       const pulse =
         lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.5 : 0;
-      light.current.intensity = (lit ? 7.8 : 1.8) + pulse;
-      light.current.distance = lit ? 9.4 : 6;
+      // Let the flame light the nearby meadow, not only the glass mesh. The
+      // longer falloff stays bounded while making the lantern's warm pool
+      // visible during a normal third-person approach.
+      light.current.intensity = (lit ? 10 : 2.2) + pulse;
+      light.current.distance = lit ? 12.5 : 7;
     }
     if (!lit || reducedMotion) return;
     const flamePulse = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.09;
     if (flame.current) flame.current.scale.set(1.12, flamePulse * 1.12, 1.12);
+    if (aura.current) {
+      const auraPulse = 1 + Math.sin(clock.elapsedTime * 1.7) * 0.045;
+      aura.current.scale.set(auraPulse, auraPulse * 1.14, auraPulse);
+    }
   });
 
   return (
@@ -365,6 +373,13 @@ function DreamLanternLandmark({
         castShadow
       />
       <mesh
+        ref={aura}
+        name="dream-lantern-aura"
+        geometry={resources.geometries.lanternAura}
+        material={resources.materials.lanternAura}
+        renderOrder={1}
+      />
+      <mesh
         geometry={resources.geometries.lanternGlass}
         material={resources.materials.lanternGlass}
         renderOrder={2}
@@ -379,11 +394,11 @@ function DreamLanternLandmark({
       )}
       <pointLight
         ref={light}
-        position={[0, 1.5, 0]}
+        position={[0, 1.62, 0]}
         color="#ffb565"
-        intensity={lit ? 7.8 : 1.8}
-        distance={lit ? 9.4 : 6}
-        decay={2}
+        intensity={lit ? 10 : 2.2}
+        distance={lit ? 12.5 : 7}
+        decay={1.7}
       />
     </group>
   );

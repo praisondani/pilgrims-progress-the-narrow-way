@@ -432,7 +432,7 @@ export const DREAM_COMPOSITION_ANCHORS: readonly DreamCompositionAnchor[] = [
     // enriches the view without introducing another collision wall or trunk
     // through the arrival route.
     id: "rear-meadow",
-    position: [0, 13.2],
+    position: [0, 10.8],
     rotation: 0.04,
     role: "frame-north",
     slots: [

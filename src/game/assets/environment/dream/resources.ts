@@ -54,6 +54,7 @@ export interface DreamEnvironmentGeometries {
   lanternFrame: BufferGeometry;
   lanternGlass: BufferGeometry;
   lanternFlame: BufferGeometry;
+  lanternAura: BufferGeometry;
 }
 
 export interface DreamEnvironmentMaterials {
@@ -75,6 +76,7 @@ export interface DreamEnvironmentMaterials {
   lanternFrame: Material;
   lanternGlass: Material;
   lanternFlame: Material;
+  lanternAura: Material;
 }
 
 export interface DreamEnvironmentResources {
@@ -622,6 +624,8 @@ export function createDreamEnvironmentResources(
   const lanternFlame = new OctahedronGeometry(0.125, 0);
   lanternFlame.scale(0.72, 1.35, 0.72);
   lanternFlame.translate(0, 1.49, 0);
+  const lanternAura = new SphereGeometry(0.34, 12, 8);
+  lanternAura.translate(0, 1.5, 0);
 
   const geometries: DreamEnvironmentGeometries = {
     treeNear: createNearTreeGeometry(),
@@ -643,6 +647,7 @@ export function createDreamEnvironmentResources(
     lanternFrame: createLanternFrameGeometry(),
     lanternGlass,
     lanternFlame,
+    lanternAura,
   };
 
   addDreamMaterialBreakup(geometries.treeNear, 0.075);
@@ -905,6 +910,14 @@ export function createDreamEnvironmentResources(
       color: palette.lanternFlame,
       transparent: true,
       opacity: 0.98,
+      blending: AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+    }),
+    lanternAura: new MeshBasicMaterial({
+      color: palette.lanternFlame,
+      transparent: true,
+      opacity: 0.14,
       blending: AdditiveBlending,
       depthWrite: false,
       toneMapped: false,
