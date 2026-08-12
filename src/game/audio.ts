@@ -76,6 +76,13 @@ export const audioMix = {
   // Keep it below full scale because HTMLAudioElement has no shared limiter.
   nativeAmbienceVolume: 0.24,
   nativeSfxVolume: 0.18,
+  // When an AudioContext exists but an MP3 cannot be decoded into a buffer,
+  // native media elements can still use the existing compressor/limiter. These
+  // small bounded lifts restore audibility for quiet beds without creating a
+  // second unbounded speaker path. Browsers with no AudioContext retain the
+  // conservative raw-element fallback above.
+  nativeAmbienceBoostDb: 12,
+  nativeSfxBoostDb: 3,
   // Source calibration values are intentionally bounded before they reach
   // the shared limiter. A few legacy scenes were calibrated with very large
   // positive offsets; those can become speaker spikes when voices overlap.
@@ -152,9 +159,17 @@ type PlayingAmbience = {
   gain: GainNode;
 };
 
+type NativeAudioRoute = {
+  element: HTMLAudioElement;
+  mediaSource?: MediaElementAudioSourceNode;
+  gain?: GainNode;
+};
+
 type PlayingNativeAmbience = {
   element: HTMLAudioElement;
   scene: string;
+  mediaSource?: MediaElementAudioSourceNode;
+  gain?: GainNode;
 };
 
 type AudioBufferStats = { rms: number; peak: number };
@@ -206,6 +221,7 @@ export class GameAudio {
   private activeSfx: AudioBufferSourceNode[] = [];
   private nativeAmbience?: PlayingNativeAmbience;
   private nativeSfx = new Set<HTMLAudioElement>();
+  private nativeSfxRoutes = new Map<HTMLAudioElement, NativeAudioRoute>();
   private calibratedGains = new Map<string, number>();
 
   getSnapshot = () => this.playbackState;
@@ -314,15 +330,7 @@ export class GameAudio {
   }
 
   private stopWebAudioPlayback() {
-    const current = this.current;
-    this.current = undefined;
-    if (current) {
-      try {
-        current.source.stop();
-      } catch {
-        // An already-ended AudioBufferSourceNode throws when stopped twice.
-      }
-    }
+    this.stopWebAudioAmbience();
 
     const activeSfx = this.activeSfx;
     this.activeSfx = [];
@@ -335,11 +343,61 @@ export class GameAudio {
     }
   }
 
+  private stopWebAudioAmbience() {
+    const current = this.current;
+    this.current = undefined;
+    if (!current) return;
+    try {
+      current.source.stop();
+    } catch {
+      // An already-ended AudioBufferSourceNode throws when stopped twice.
+    }
+  }
+
+  private disconnectNativeRoute(route: NativeAudioRoute | undefined) {
+    if (!route) return;
+    try {
+      route.mediaSource?.disconnect();
+    } catch {
+      // Some browser/test implementations reject repeated disconnect calls.
+    }
+    try {
+      route.gain?.disconnect();
+    } catch {
+      // GainNode teardown is otherwise idempotent.
+    }
+  }
+
+  private connectNativeRoute(
+    element: HTMLAudioElement,
+    bus: GainNode | undefined,
+    boostDb: number,
+  ): NativeAudioRoute {
+    const route: NativeAudioRoute = { element };
+    if (!this.ctx || !bus) return route;
+    try {
+      const mediaSource = this.ctx.createMediaElementSource(element);
+      const gain = this.ctx.createGain();
+      gain.gain.value = dbToGain(
+        clampSourceGainDb(boostDb, Math.max(boostDb, 18)),
+      );
+      mediaSource.connect(gain).connect(bus);
+      route.mediaSource = mediaSource;
+      route.gain = gain;
+    } catch {
+      // Keep the bounded HTMLAudioElement path if media routing is rejected.
+    }
+    return route;
+  }
+
   private stopNativeAmbience() {
     const ambience = this.nativeAmbience;
     this.nativeAmbience = undefined;
+    if (typeof document !== "undefined")
+      delete document.documentElement.dataset.audioNativeRoute;
     if (!ambience) return;
     ambience.element.pause();
+    this.disconnectNativeRoute(ambience);
     ambience.element.removeAttribute("src");
     ambience.element.load();
     ambience.element.remove();
@@ -348,10 +406,18 @@ export class GameAudio {
   private stopNativePlayback() {
     this.stopNativeAmbience();
     for (const element of this.nativeSfx) {
-      element.pause();
-      element.remove();
+      this.stopNativeSfxElement(element);
     }
     this.nativeSfx.clear();
+    this.nativeSfxRoutes.clear();
+  }
+
+  private stopNativeSfxElement(element: HTMLAudioElement) {
+    element.pause();
+    this.disconnectNativeRoute(this.nativeSfxRoutes.get(element));
+    this.nativeSfxRoutes.delete(element);
+    this.nativeSfx.delete(element);
+    element.remove();
   }
 
   private buildGraph() {
@@ -464,17 +530,26 @@ export class GameAudio {
       return true;
     }
     this.markState("loading", id);
+    this.stopWebAudioAmbience();
     this.stopNativeAmbience();
     const element = new Audio(ambienceUrl(id));
     element.loop = true;
     element.preload = "auto";
     element.volume = audioMix.nativeAmbienceVolume;
     element.setAttribute("playsinline", "true");
-    this.nativeAmbience = { element, scene: id };
+    const route = this.connectNativeRoute(
+      element,
+      this.ambienceBus,
+      audioMix.nativeAmbienceBoostDb,
+    );
+    this.nativeAmbience = { ...route, scene: id };
     try {
       await element.play();
     } catch {
-      if (this.nativeAmbience?.element === element) this.nativeAmbience = undefined;
+      if (this.nativeAmbience?.element === element) {
+        this.nativeAmbience = undefined;
+      }
+      this.disconnectNativeRoute(route);
       element.remove();
       if (this.enabled && id === this.pendingScene)
         this.markState("blocked", id);
@@ -487,11 +562,16 @@ export class GameAudio {
       this.nativeAmbience?.element !== element
     ) {
       element.pause();
+      this.disconnectNativeRoute(route);
       element.remove();
       return false;
     }
-    if (typeof document !== "undefined")
+    if (typeof document !== "undefined") {
       document.documentElement.dataset.audioContext = "native";
+      document.documentElement.dataset.audioNativeRoute = route.mediaSource
+        ? "web-audio"
+        : "element";
+    }
     this.markState("playing", id);
     return true;
   }
@@ -506,17 +586,21 @@ export class GameAudio {
         | HTMLAudioElement
         | undefined;
       if (!oldest) break;
-      oldest.pause();
-      oldest.remove();
-      this.nativeSfx.delete(oldest);
+      this.stopNativeSfxElement(oldest);
     }
     const element = new Audio(sfxUrl(name));
     element.preload = "auto";
     element.volume = audioMix.nativeSfxVolume;
     element.setAttribute("playsinline", "true");
     this.nativeSfx.add(element);
+    this.nativeSfxRoutes.set(
+      element,
+      this.connectNativeRoute(element, this.sfxBus, audioMix.nativeSfxBoostDb),
+    );
     const cleanup = () => {
       this.nativeSfx.delete(element);
+      this.disconnectNativeRoute(this.nativeSfxRoutes.get(element));
+      this.nativeSfxRoutes.delete(element);
       element.remove();
     };
     element.addEventListener("ended", cleanup, { once: true });
@@ -586,6 +670,12 @@ export class GameAudio {
     gain.gain.exponentialRampToValueAtTime(dbToGain(gainDb), now + 1.4);
     source.connect(gain).connect(this.ambienceBus);
     source.start();
+    // A decode-failure fallback may still be playing the previous scene.
+    // Remove it before the calibrated Web Audio bed enters the crossfade so
+    // the two paths cannot stack and surprise the listener.
+    this.stopNativeAmbience();
+    if (typeof document !== "undefined")
+      delete document.documentElement.dataset.audioNativeRoute;
     this.markState("playing", id);
 
     const previous = this.current;

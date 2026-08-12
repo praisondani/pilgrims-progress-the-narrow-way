@@ -33,6 +33,11 @@
 - Muting now stops and removes both Web Audio and native ambience/SFX sources;
   unmuting cannot resurrect stale loops or transient voices, with a native
   fallback regression test covering the lifecycle.
+- Native HTML-audio fallback elements now route through the existing bounded
+  Web Audio bus/compressor when an AudioContext exists but MP3 buffer decoding
+  fails. Quiet ambience beds receive a conservative +12 dB lift and SFX a +3
+  dB lift; browsers without AudioContext retain the lower raw-element volume.
+  Scene switches tear down the previous fallback before starting a new bed.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.

@@ -204,6 +204,10 @@ describe("safe local audio assets", () => {
     expect(audioMix.nativeAmbienceVolume).toBeLessThanOrEqual(0.3);
     expect(audioMix.nativeSfxVolume).toBeGreaterThan(0);
     expect(audioMix.nativeSfxVolume).toBeLessThanOrEqual(0.25);
+    expect(audioMix.nativeAmbienceBoostDb).toBeGreaterThan(0);
+    expect(audioMix.nativeAmbienceBoostDb).toBeLessThanOrEqual(18);
+    expect(audioMix.nativeSfxBoostDb).toBeGreaterThan(0);
+    expect(audioMix.nativeSfxBoostDb).toBeLessThanOrEqual(6);
   });
 
   it("plays ambience through native fallback when AudioContext is unavailable", async () => {
