@@ -10,46 +10,23 @@ import {
   InstancedMesh,
   Object3D,
   Uint32BufferAttribute,
-  Vector2,
   Vector3,
 } from "three";
-import { storyScenes } from "../story";
 import { detectRenderingCapabilities, renderingFeatureFlags } from "../rendering/capabilities";
-import { countrysideBiome } from "./BiomeSystem";
+import {
+  COUNTRYSIDE_DEFAULT_SEED,
+  createCountrysideDefinition,
+} from "./countrysideDefinition";
 import { scatterPoints } from "./ScatterSystem";
 import { generateTerrain, terrainHeight } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition, ScatterPoint, ScatterRule } from "./types";
 
-const defaultPath = [
-  new Vector2(0, 7.4),
-  new Vector2(-0.5, 4.5),
-  new Vector2(0.65, 1.5),
-  new Vector2(-0.5, -1.8),
-  new Vector2(0, -5.8),
-];
-
 function currentSeed() {
-  if (typeof location === "undefined") return "field-v1-1678";
-  return new URLSearchParams(location.search).get("seed") || "field-v1-1678";
-}
-
-function sceneDefinition(): ProceduralSceneDefinition {
-  const scene = storyScenes.find((candidate) => candidate.id === "field")!;
-  return {
-    id: "field-countryside",
-    seed: currentSeed(),
-    radius: 10.65,
-    path: defaultPath,
-    biome: countrysideBiome,
-    landmarks: scene.steps.map((step) => ({
-      id: step.id,
-      position: step.position,
-      radius: step.id === "marsh-edge" ? 2.15 : 1.75,
-      flattenStrength: 1,
-      excludeVegetation: true,
-      excludeRocks: true,
-    })),
-  };
+  if (typeof location === "undefined") return COUNTRYSIDE_DEFAULT_SEED;
+  return (
+    new URLSearchParams(location.search).get("seed") ||
+    COUNTRYSIDE_DEFAULT_SEED
+  );
 }
 
 function scaledRule(rule: ScatterRule, factor: number): ScatterRule {
@@ -279,7 +256,10 @@ export function ProceduralCountryside() {
   const capabilities = detectRenderingCapabilities();
   const mobile = typeof innerWidth !== "undefined" && innerWidth < 700;
   const density = mobile || capabilities.recommendedPreset === "low" ? 0.48 : capabilities.recommendedPreset === "high" ? 1 : 0.72;
-  const definition = useMemo(sceneDefinition, []);
+  const definition = useMemo(
+    () => createCountrysideDefinition(currentSeed()),
+    [],
+  );
   const terrain = useMemo(() => generateTerrain(definition, mobile ? 14 : 20, mobile ? 56 : 72), [definition, mobile]);
   const pathGeometry = useMemo(() => createPathGeometry(definition), [definition]);
   if (!flags.advancedTerrain) return null;

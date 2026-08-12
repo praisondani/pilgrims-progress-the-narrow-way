@@ -78,6 +78,10 @@
 - Procedural scatter now enforces each biome rule’s `maxSlope` through shared
   central-difference terrain gradients, preventing props from floating on steep
   faces; seed tests cover the slope exclusion.
+- Chapter II’s procedural definition now lives in a pure seedable factory that
+  derives all six landmark pads from the authored story beats; tests lock the
+  route endpoints, marsh clearance radius, stable biome/path contract, and
+  alternate-seed behavior.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending
