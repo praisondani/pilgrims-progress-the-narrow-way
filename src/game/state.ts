@@ -164,6 +164,12 @@ function textSizeValue(
     : fallback;
 }
 
+function persistedCandidate(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
 /** Normalize untrusted replay data before it can drive a chapter lookup. */
 export function normalizeReplayCheckpoint(
   value: unknown,
@@ -181,6 +187,125 @@ export function normalizeReplayCheckpoint(
     onboarding: onboardingValue(candidate.onboarding),
     sceneComplete: booleanValue(candidate.sceneComplete),
     gameComplete: booleanValue(candidate.gameComplete),
+  };
+}
+
+/**
+ * Migrate the versioned local snapshot before it is merged into live state.
+ * Local storage is user-controlled input: only literal booleans are allowed
+ * to unlock a later chapter or restore a completion flag.
+ */
+export function migratePersistedState(persisted: unknown, version: number) {
+  const saved = persistedCandidate(persisted);
+  const priorSceneIndex = Number(saved.sceneIndex) || 0;
+  const priorStepIndex = Number(saved.stepIndex) || 0;
+  const wasComplete = booleanValue(saved.gameComplete);
+  const palaceWasComplete =
+    version === 4 && priorSceneIndex === 13 && wasComplete;
+  const hopefulWasComplete =
+    version === 5 && priorSceneIndex === 20 && wasComplete;
+  const doubtingWasComplete =
+    version < 10 && priorSceneIndex === 24 && wasComplete;
+  const migratedSceneIndex = hopefulWasComplete
+    ? 21
+    : palaceWasComplete
+      ? 14
+      : doubtingWasComplete
+        ? 25
+        : priorSceneIndex;
+  const migratedStepIndex =
+    palaceWasComplete || hopefulWasComplete || doubtingWasComplete
+      ? 0
+      : priorStepIndex;
+  const sceneIndex = clampSceneIndex(migratedSceneIndex);
+  const stepIndex = clampStepIndex(sceneIndex, migratedStepIndex);
+  const passedFirstObjective = sceneIndex > 0 || stepIndex > 0;
+  const onboarding =
+    version < 8
+      ? {
+          moved: passedFirstObjective,
+          looked: passedFirstObjective,
+          interacted: passedFirstObjective,
+          firstObjectiveCompleted: passedFirstObjective,
+        }
+      : onboardingValue(saved.onboarding);
+  return {
+    started: booleanValue(saved.started),
+    sceneIndex,
+    stepIndex,
+    burden: burdenValue(saved.burden),
+    hasRoll:
+      version < 4
+        ? sceneIndex > 7 || (sceneIndex === 7 && stepIndex >= 5)
+        : booleanValue(saved.hasRoll),
+    hasKeyOfPromise:
+      version < 6 ? false : booleanValue(saved.hasKeyOfPromise),
+    equipment:
+      version < 4 || !Array.isArray(saved.equipment)
+        ? []
+        : stringList(saved.equipment),
+    journal: stringList(saved.journal),
+    gameComplete:
+      version < 6 || doubtingWasComplete
+        ? false
+        : booleanValue(saved.gameComplete),
+    soundEnabled: version < 7 ? false : booleanValue(saved.soundEnabled),
+    visibility: visibilityValue(saved.visibility),
+    textSize: textSizeValue(saved.textSize),
+    reducedMotion: booleanValue(saved.reducedMotion),
+    cinematicCamera: booleanValue(saved.cinematicCamera, true),
+    puzzleActive: booleanValue(saved.puzzleActive),
+    onboarding,
+    replayCheckpoint:
+      version < 9
+        ? undefined
+        : normalizeReplayCheckpoint(saved.replayCheckpoint),
+  };
+}
+
+/** Merge a sanitized snapshot without letting missing fields erase live state. */
+export function mergePersistedState(
+  persisted: unknown,
+  current: GameState,
+): GameState {
+  const saved = persistedCandidate(persisted);
+  const sceneIndex = clampSceneIndex(saved.sceneIndex ?? current.sceneIndex);
+  const stepIndex = clampStepIndex(
+    sceneIndex,
+    saved.stepIndex ?? current.stepIndex,
+  );
+  return {
+    ...current,
+    started: booleanValue(saved.started, current.started),
+    sceneIndex,
+    stepIndex,
+    burden: burdenValue(saved.burden, current.burden),
+    hasRoll: booleanValue(saved.hasRoll, current.hasRoll),
+    hasKeyOfPromise: booleanValue(
+      saved.hasKeyOfPromise,
+      current.hasKeyOfPromise,
+    ),
+    equipment:
+      saved.equipment === undefined
+        ? current.equipment
+        : stringList(saved.equipment),
+    journal:
+      saved.journal === undefined ? current.journal : stringList(saved.journal),
+    gameComplete: booleanValue(saved.gameComplete, current.gameComplete),
+    soundEnabled: booleanValue(saved.soundEnabled, current.soundEnabled),
+    visibility: visibilityValue(saved.visibility, current.visibility),
+    textSize: textSizeValue(saved.textSize, current.textSize),
+    reducedMotion: booleanValue(saved.reducedMotion, current.reducedMotion),
+    cinematicCamera: booleanValue(
+      saved.cinematicCamera,
+      current.cinematicCamera,
+    ),
+    puzzleActive: booleanValue(saved.puzzleActive, current.puzzleActive),
+    onboarding: onboardingValue(saved.onboarding, current.onboarding),
+    replayCheckpoint:
+      saved.replayCheckpoint === undefined
+        ? current.replayCheckpoint
+        : normalizeReplayCheckpoint(saved.replayCheckpoint),
   };
 }
 
@@ -535,114 +660,8 @@ export const useGame = create<GameState>()(
         onboarding: state.onboarding,
         replayCheckpoint: state.replayCheckpoint,
       }),
-      migrate: (persisted, version) => {
-        const saved =
-          persisted && typeof persisted === "object"
-            ? (persisted as Partial<GameState>)
-            : {};
-        const priorSceneIndex = Number(saved.sceneIndex) || 0;
-        const priorStepIndex = Number(saved.stepIndex) || 0;
-        const palaceWasComplete =
-          version === 4 && priorSceneIndex === 13 && saved.gameComplete;
-        const hopefulWasComplete =
-          version === 5 && priorSceneIndex === 20 && saved.gameComplete;
-        const doubtingWasComplete =
-          version < 10 && priorSceneIndex === 24 && saved.gameComplete;
-        const migratedSceneIndex = hopefulWasComplete
-          ? 21
-          : palaceWasComplete
-            ? 14
-            : doubtingWasComplete
-              ? 25
-              : priorSceneIndex;
-        const migratedStepIndex =
-          palaceWasComplete || hopefulWasComplete || doubtingWasComplete
-            ? 0
-            : priorStepIndex;
-        const sceneIndex = clampSceneIndex(migratedSceneIndex);
-        const stepIndex = clampStepIndex(sceneIndex, migratedStepIndex);
-        const passedFirstObjective = sceneIndex > 0 || stepIndex > 0;
-        const onboarding =
-          version < 8
-            ? {
-                moved: passedFirstObjective,
-                looked: passedFirstObjective,
-                interacted: passedFirstObjective,
-                firstObjectiveCompleted: passedFirstObjective,
-              }
-            : onboardingValue(saved.onboarding);
-        return {
-          started: booleanValue(saved.started),
-          sceneIndex,
-          stepIndex,
-          burden: burdenValue(saved.burden),
-          hasRoll:
-            version < 4
-              ? sceneIndex > 7 || (sceneIndex === 7 && stepIndex >= 5)
-              : booleanValue(saved.hasRoll),
-          hasKeyOfPromise:
-            version < 6 ? false : booleanValue(saved.hasKeyOfPromise),
-          equipment:
-            version < 4 || !Array.isArray(saved.equipment)
-              ? []
-              : stringList(saved.equipment),
-          journal: stringList(saved.journal),
-          gameComplete:
-            version < 6 || doubtingWasComplete
-              ? false
-              : booleanValue(saved.gameComplete),
-          soundEnabled:
-            version < 7 ? false : booleanValue(saved.soundEnabled),
-          visibility: visibilityValue(saved.visibility),
-          textSize: textSizeValue(saved.textSize),
-          reducedMotion: booleanValue(saved.reducedMotion),
-          cinematicCamera: booleanValue(saved.cinematicCamera, true),
-          puzzleActive: booleanValue(saved.puzzleActive),
-          onboarding,
-          replayCheckpoint:
-            version < 9
-              ? undefined
-              : normalizeReplayCheckpoint(saved.replayCheckpoint),
-        };
-      },
-      merge: (persisted, current) => {
-        const saved =
-          persisted && typeof persisted === "object"
-            ? (persisted as Partial<GameState>)
-            : {};
-        const sceneIndex = clampSceneIndex(saved.sceneIndex);
-        const stepIndex = clampStepIndex(sceneIndex, saved.stepIndex);
-        return {
-          ...current,
-          started: booleanValue(saved.started, current.started),
-          sceneIndex,
-          stepIndex,
-          burden: burdenValue(saved.burden, current.burden),
-          hasRoll: booleanValue(saved.hasRoll, current.hasRoll),
-          hasKeyOfPromise: booleanValue(
-            saved.hasKeyOfPromise,
-            current.hasKeyOfPromise,
-          ),
-          equipment:
-            saved.equipment === undefined
-              ? current.equipment
-              : stringList(saved.equipment),
-          journal:
-            saved.journal === undefined ? current.journal : stringList(saved.journal),
-          gameComplete: booleanValue(saved.gameComplete, current.gameComplete),
-          soundEnabled: booleanValue(saved.soundEnabled, current.soundEnabled),
-          visibility: visibilityValue(saved.visibility, current.visibility),
-          textSize: textSizeValue(saved.textSize, current.textSize),
-          reducedMotion: booleanValue(saved.reducedMotion, current.reducedMotion),
-          cinematicCamera: booleanValue(
-            saved.cinematicCamera,
-            current.cinematicCamera,
-          ),
-          puzzleActive: booleanValue(saved.puzzleActive, current.puzzleActive),
-          onboarding: onboardingValue(saved.onboarding, current.onboarding),
-          replayCheckpoint: normalizeReplayCheckpoint(saved.replayCheckpoint),
-        };
-      },
+      migrate: migratePersistedState,
+      merge: mergePersistedState,
     },
   ),
 );

@@ -54,6 +54,10 @@
 - Persisted payloads now sanitize replay scene/step indices, booleans, arrays,
   settings, and onboarding flags; fractional replay requests are ignored before
   chapter lookup, with malformed-save regression coverage.
+- Persisted-state migration is now an exported, directly tested boundary:
+  legacy completion flags require literal booleans, partial snapshots preserve
+  live chapter indices, and migration/merge tests cover the save contract
+  without mounting the renderer.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases

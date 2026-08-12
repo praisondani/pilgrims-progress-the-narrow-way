@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { normalizeReplayCheckpoint, useGame } from "./state";
+import {
+  mergePersistedState,
+  migratePersistedState,
+  normalizeReplayCheckpoint,
+  useGame,
+} from "./state";
 import { storyScenes } from "./story";
 
 describe("story progression state machine", () => {
@@ -237,5 +242,43 @@ describe("persisted replay safety", () => {
     useGame.getState().replayScene(2.5);
     expect(useGame.getState().sceneIndex).toBe(4);
     expect(useGame.getState().replayCheckpoint).toBeUndefined();
+  });
+
+  it("does not treat string completion flags as completed chapters", () => {
+    const migrated = migratePersistedState(
+      { sceneIndex: 13, stepIndex: 4, gameComplete: "false" },
+      4,
+    );
+    expect(migrated.sceneIndex).toBe(13);
+    expect(migrated.stepIndex).toBe(4);
+    expect(migrated.gameComplete).toBe(false);
+  });
+
+  it("applies only literal legacy completion flags during chapter migration", () => {
+    expect(
+      migratePersistedState(
+        { sceneIndex: 13, stepIndex: 4, gameComplete: true },
+        4,
+      ),
+    ).toMatchObject({ sceneIndex: 14, stepIndex: 0 });
+    expect(
+      migratePersistedState(
+        { sceneIndex: 20, stepIndex: 3, gameComplete: true },
+        5,
+      ),
+    ).toMatchObject({ sceneIndex: 21, stepIndex: 0 });
+  });
+
+  it("keeps live progress when a partial snapshot omits chapter indices", () => {
+    useGame.setState({ sceneIndex: 6, stepIndex: 2, soundEnabled: false });
+    const merged = mergePersistedState(
+      { soundEnabled: true },
+      useGame.getState(),
+    );
+    expect(merged).toMatchObject({
+      sceneIndex: 6,
+      stepIndex: 2,
+      soundEnabled: true,
+    });
   });
 });
