@@ -539,10 +539,10 @@ function createHorizonRidgeGeometry() {
   // while giving light and fog real volume to work across.
   return merged(
     [
-      [-7.6, 0.9, 19.0, 1.45, 1.05, 0.62, -0.12],
-      [-1.2, 1.1, 19.6, 1.7, 1.2, 0.72, 0.08],
-      [5.6, 1.05, 19.2, 1.55, 1.1, 0.66, -0.1],
-      [10.8, 0.8, 19.8, 1.25, 0.95, 0.56, 0.16],
+      [-7.6, 1.25, 19.0, 1.6, 1.35, 0.68, -0.12],
+      [-1.2, 1.45, 19.6, 1.9, 1.5, 0.78, 0.08],
+      [5.6, 1.35, 19.2, 1.75, 1.4, 0.72, -0.1],
+      [10.8, 1.1, 19.8, 1.4, 1.2, 0.62, 0.16],
     ].map(([x, y, z, sx, sy, sz, rotation]) => {
       const mound = new DodecahedronGeometry(1, 0);
       mound.scale(sx, sy, sz);
@@ -790,17 +790,17 @@ export function createDreamEnvironmentResources(
         "#include <color_fragment>",
         `#include <color_fragment>
         float stoneBand = smoothstep(0.2, 8.2, vDreamDepthPosition.y);
-        float rearHaze = smoothstep(8.0, 18.0, vDreamDepthPosition.z);
+        float rearHaze = smoothstep(9.0, 21.0, vDreamDepthPosition.z);
         diffuseColor.rgb *= mix(0.78, 1.08, stoneBand);
         diffuseColor.rgb = mix(
           diffuseColor.rgb,
           mix(diffuseColor.rgb * 0.76, dreamHazeColor * 0.9, 0.45),
-          rearHaze * 0.58
+          rearHaze * 0.42
         );`,
       );
   };
   depthMassesMaterial.customProgramCacheKey = () =>
-    "dream-depth-atmosphere-v2";
+    "dream-depth-atmosphere-v3-horizon";
   const materials: DreamEnvironmentMaterials = {
     treeNear: new MeshPhysicalMaterial({
       color: palette.silhouette,

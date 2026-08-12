@@ -160,16 +160,23 @@
   shard/slab/beam/wedge artifacts appear. Critics still fail the quality bar at
   7.5–7.8 front, 6.8–6.9 rear, 6.4–7.0 for Christian, 6.4–7.1 for rear
   composition, and 7.0–8.5 for artifact hygiene.
+- Dream v43 horizon-continuity pass: distant ridge mounds now share a softened
+  meadow/fog twilight value, with delayed rear haze preserving their silhouette
+  instead of washing the whole band blue. Fresh front/rear orbit captures show a
+  continuous horizon seam, grounded waymarker, safe stream, and no shard/slab/
+  beam/wedge artifacts. Critics score 7.5–7.8 front, 6.9–7.0 rear, 6.4–7.0
+  for Christian, 6.5–7.2 for composition, and 7.1–8.5 for artifact hygiene;
+  this is a continuity fix, not a visual-bar pass.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v42 remains below the visual bar after fresh independent critics scored
-  7.5–7.8/10 front, 6.8–6.9/10 rear, 6.4–7.0/10 for Christian, and 6.4–7.1/10
-  for rear composition; relief improves local grounding, while the waymarker
-  improves rear navigation readability and artifact hygiene. The next gap is
-  layered atmospheric horizon/material depth: the broad field still reads flat
-  behind repeated tree/rock silhouettes versus Kena/Pathless/RiME.
+- Dream v43 remains below the visual bar after fresh independent critics scored
+  7.5–7.8/10 front, 6.9–7.0/10 rear, 6.4–7.0/10 for Christian, and 6.5–7.2/10
+  for composition; v42 relief grounds local areas and v43 removes the hard
+  horizon seam. The next gap is varied authored rear space: the broad field
+  still resolves as one ridge band behind repeated tree/rock silhouettes versus
+  Kena/Pathless/RiME.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -209,8 +216,8 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with layered atmospheric horizon, richer material response,
-   and a production-quality lantern asset now that the artifact-safe orbit
-   baseline and v42 terrain relief are stable
+5. Continue Dream with varied authored rear landforms, richer material response,
+   and a production-quality lantern asset now that the artifact-safe orbit,
+   v42 relief, and v43 horizon continuity are stable
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

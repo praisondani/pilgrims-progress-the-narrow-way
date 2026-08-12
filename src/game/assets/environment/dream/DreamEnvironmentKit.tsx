@@ -488,7 +488,13 @@ export function DreamAtmosphere({
   const palette = resolveDreamPalette(paletteOverrides);
   const fog = dreamFogRange(palette, quality);
   if (mode === "none" && !includeBackground) return null;
-  const horizonColor = new Color(palette.fog);
+  // Blend fog toward meadow green at eye-line. A pure blue fog band leaves a
+  // hard horizontal seam where the rear ground meets the dusk dome during a
+  // full orbit; this keeps distant terrain and sky in one twilight family.
+  const horizonColor = new Color(palette.fog).lerp(
+    new Color(palette.groundMid),
+    0.28,
+  );
   const zenithColor = new Color(palette.background).multiplyScalar(0.88);
   return (
     <>
