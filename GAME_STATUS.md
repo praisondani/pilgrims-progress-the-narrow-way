@@ -36,6 +36,9 @@
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.
+- The audio contract now parses MPEG frame chains and rejects truncated or
+  silent-looking payloads by checking frame count, duration, and non-zero frame
+  data for every ambience bed and SFX file.
 - Forty-seven symbolic trials using ordered-action and focus mechanics
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets

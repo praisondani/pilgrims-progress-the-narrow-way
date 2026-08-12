@@ -52,6 +52,60 @@ class FakeAudioElement {
   }
 }
 
+type Mp3Stats = {
+  frames: number;
+  durationSeconds: number;
+  nonZeroFrameBytes: number;
+};
+
+function inspectMp3(bytes: Buffer): Mp3Stats {
+  const id3Size =
+    ((bytes[6] & 0x7f) << 21) |
+    ((bytes[7] & 0x7f) << 14) |
+    ((bytes[8] & 0x7f) << 7) |
+    (bytes[9] & 0x7f);
+  const mpeg1Bitrates = [
+    0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0,
+  ];
+  const mpeg2Bitrates = [
+    0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0,
+  ];
+  const sampleRates = {
+    3: [44_100, 48_000, 32_000],
+    2: [22_050, 24_000, 16_000],
+    0: [11_025, 12_000, 8_000],
+  } as const;
+  let offset = 10 + id3Size;
+  let frames = 0;
+  let durationSeconds = 0;
+  let nonZeroFrameBytes = 0;
+  while (offset + 4 <= bytes.length) {
+    if (bytes[offset] !== 0xff || (bytes[offset + 1] & 0xe0) !== 0xe0)
+      break;
+    const version = (bytes[offset + 1] >> 3) & 0x03;
+    const layer = (bytes[offset + 1] >> 1) & 0x03;
+    const bitrateIndex = (bytes[offset + 2] >> 4) & 0x0f;
+    const sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
+    const padding = (bytes[offset + 2] >> 1) & 0x01;
+    if (layer !== 1 || sampleRateIndex === 3) break;
+    const bitrate = (version === 3 ? mpeg1Bitrates : mpeg2Bitrates)[bitrateIndex];
+    const sampleRate = sampleRates[version as keyof typeof sampleRates]?.[
+      sampleRateIndex
+    ];
+    if (!bitrate || !sampleRate) break;
+    const frameLength = Math.floor(
+      (version === 3 ? 144 : 72) * (bitrate * 1000) / sampleRate,
+    ) + padding;
+    if (frameLength < 5 || offset + frameLength > bytes.length) break;
+    for (let index = offset + 4; index < offset + frameLength; index += 1)
+      if (bytes[index] !== 0) nonZeroFrameBytes += 1;
+    frames += 1;
+    durationSeconds += (version === 3 ? 1_152 : 576) / sampleRate;
+    offset += frameLength;
+  }
+  return { frames, durationSeconds, nonZeroFrameBytes };
+}
+
 afterEach(() => {
   FakeAudioElement.instances = [];
   vi.unstubAllGlobals();
@@ -98,6 +152,39 @@ describe("safe local audio assets", () => {
       const path = assetPath(sfxUrl(name));
       expect(existsSync(path), `${name} SFX missing`).toBe(true);
       expect(hasMpegFrame(path), `${name} SFX has no MP3 frame`).toBe(true);
+    }
+  });
+
+  it("rejects truncated or silent-looking local audio payloads", () => {
+    const assetPath = (url: string) =>
+      resolve(process.cwd(), "public", url.replace(/^\//, ""));
+    const inspect = (url: string) => inspectMp3(readFileSync(assetPath(url)));
+    for (const sceneId of audioSceneIds) {
+      const stats = inspect(ambienceUrl(sceneId));
+      expect(stats.frames, `${sceneId} frame count`).toBeGreaterThanOrEqual(8);
+      expect(stats.durationSeconds, `${sceneId} duration`).toBeGreaterThan(2);
+      expect(
+        stats.nonZeroFrameBytes,
+        `${sceneId} encoded payload`,
+      ).toBeGreaterThan(stats.frames * 8);
+    }
+    for (const name of [
+      "chapter",
+      "dialogue",
+      "error",
+      "focus",
+      "interact",
+      "step-earth",
+      "step-mud",
+      "success",
+    ]) {
+      const stats = inspect(sfxUrl(name));
+      expect(stats.frames, `${name} frame count`).toBeGreaterThanOrEqual(4);
+      expect(stats.durationSeconds, `${name} duration`).toBeGreaterThan(0.2);
+      expect(
+        stats.nonZeroFrameBytes,
+        `${name} encoded payload`,
+      ).toBeGreaterThan(stats.frames * 8);
     }
   });
 
