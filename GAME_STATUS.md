@@ -176,16 +176,23 @@
   7.3–8.5 for artifact hygiene. The pass improves rear integration but remains
   below the visual bar because distant material depth and meadow variation are
   still shallow.
+- Dream v51 distant-material pass: horizon vertex tint and depth-mass shading
+  now converge distant stone toward fog/blue twilight at a stronger, bounded
+  gradient. Fresh critics confirm no route or artifact regression and a modest
+  haze improvement in one blind review; the second sees no meaningful edge gain.
+  Scores remain 7.5–7.8 front, 7.2–7.3 rear, 6.4–7.0 for Christian, 6.9–7.5
+  for composition, and 7.3–8.4 for artifact hygiene. This is a safe material
+  increment, not a visual-bar pass.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v50 remains below the visual bar after fresh independent critics scored
-  7.5–7.8/10 front, 7.2–7.3/10 rear, 6.4–7.0/10 for Christian, and 6.9–7.3/10
+- Dream v51 remains below the visual bar after fresh independent critics scored
+  7.5–7.8/10 front, 7.2–7.3/10 rear, 6.4–7.0/10 for Christian, and 6.9–7.5/10
   for composition; v42 relief grounds local areas, v43 removes the hard horizon
-  seam, and v50 connects distant outcrops behind the ridge. The next gap is
-  softer atmospheric/material integration plus richer meadow variation versus
-  Kena/Pathless/RiME.
+  seam, v50 connects distant outcrops behind the ridge, and v51 adds bounded
+  haze convergence. The next gap is visible meadow material variation and
+  genuinely layered distant terrain versus Kena/Pathless/RiME.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -225,9 +232,9 @@
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test
-5. Continue Dream with softer distant material response, richer meadow
-   variation, and a production-quality lantern asset now that the artifact-safe
-   orbit, v42 relief, v43 horizon continuity, and v50 rear outcrop integration
-   are stable
+5. Continue Dream with visible meadow material variation, richer secondary
+   terrain, and a production-quality lantern asset now that the artifact-safe
+   orbit, v42 relief, v43 horizon continuity, v50 rear outcrop integration, and
+   v51 haze convergence are stable
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA

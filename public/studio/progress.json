@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T09:38:00-05:00",
+  "updatedAt": "2026-08-12T09:44:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "Dream v50 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, warm meadow falloff, bounded point-light pool, one merged broken waymarker on the rear axis, subtle authored ground relief, softened ridge/fog continuity, and distant outcrops occluded behind the ridge. Fresh critics score 7.5–7.8/10 front and 7.2–7.3/10 rear, with artifact checks passing; rear integration improves but distant material depth and meadow variation remain below the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
+    "resumeNote": "Dream v51 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, warm meadow falloff, bounded point-light pool, one merged broken waymarker on the rear axis, subtle authored ground relief, softened ridge/fog continuity, distant outcrops occluded behind the ridge, and bounded haze convergence on distant stone. Fresh critics score 7.5–7.8/10 front and 7.2–7.3/10 rear, with artifact checks passing; haze is a safe modest increment, while visible meadow material variation remains below the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
     "workstreams": [
       {
         "id": "baseline",
@@ -33,10 +33,10 @@
       {
         "id": "dream",
         "name": "The Dreamer environment",
-        "status": "iteration-50-critic-failed-atmospheric-material-pass",
+        "status": "iteration-51-critic-failed-meadow-material-pass",
         "builder": "ultracode environment builder",
-        "critic": "fresh runtime critics — fail, v50 front 7.5–7.8/10, rear 7.2–7.3/10, Christian 6.4–7.0/10, composition 6.9–7.3/10, artifact hygiene 7.3–8.5/10; outcrops integrate behind ridge and no major artifacts remain",
-        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane with authored rolling shelves/east rise/stream dip, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, lantern combines tapered glass, additive aura, warm ground falloff, and bounded 10-intensity / 12.5-distance point light, v41 adds one merged broken waymarker, v43 harmonizes ridge/fog values, and v50 integrates two distant outcrops behind the ridge. Remaining gap: softer distant material response and richer meadow variation so rear space does not remain a flat low-poly field versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — fail, v51 front 7.5–7.8/10, rear 7.2–7.3/10, Christian 6.4–7.0/10, composition 6.9–7.5/10, artifact hygiene 7.3–8.4/10; haze is modest and artifact-safe, but one critic sees no meaningful edge gain",
+        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane with authored rolling shelves/east rise/stream dip, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, lantern combines tapered glass, additive aura, warm ground falloff, and bounded 10-intensity / 12.5-distance point light, v41 adds one merged broken waymarker, v43 harmonizes ridge/fog values, v50 integrates two distant outcrops behind the ridge, and v51 adds bounded far-stone haze convergence. Remaining gap: visible meadow material variation and genuinely layered secondary terrain so rear space does not remain a flat low-poly field versus Kena/Pathless/RiME."
       },
       {
         "id": "city",
@@ -660,6 +660,10 @@
     {
       "label": "Dream v50 runtime — integrated rear outcrops",
       "path": "/studio-evidence/vertical-slice-01/dream-v50-runtime-desktop-rear.png"
+    },
+    {
+      "label": "Dream v51 runtime — distant material haze",
+      "path": "/studio-evidence/vertical-slice-01/dream-v51-runtime-desktop-rear.png"
     }
   ],
   "gates": {

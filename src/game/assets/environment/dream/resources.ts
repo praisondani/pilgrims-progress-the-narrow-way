@@ -142,7 +142,7 @@ function tintDreamHorizonBands(geometry: BufferGeometry) {
         : position.getY(index) < 2.5
           ? 0.88
           : 0.98;
-    const haze = depth * 0.28;
+    const haze = depth * 0.38;
     color.setXYZ(
       index,
       color.getX(index) * band * (0.88 - haze * 0.2) + haze * 0.1,
@@ -832,16 +832,22 @@ export function createDreamEnvironmentResources(
         `#include <color_fragment>
         float stoneBand = smoothstep(0.2, 8.2, vDreamDepthPosition.y);
         float rearHaze = smoothstep(9.0, 21.0, vDreamDepthPosition.z);
+        float distantBlue = smoothstep(14.0, 23.0, vDreamDepthPosition.z);
         diffuseColor.rgb *= mix(0.78, 1.08, stoneBand);
         diffuseColor.rgb = mix(
           diffuseColor.rgb,
-          mix(diffuseColor.rgb * 0.76, dreamHazeColor * 0.9, 0.45),
-          rearHaze * 0.42
+          mix(diffuseColor.rgb * 0.72, dreamHazeColor * 0.94, 0.55),
+          rearHaze * 0.58
+        );
+        diffuseColor.rgb = mix(
+          diffuseColor.rgb,
+          diffuseColor.rgb * vec3(0.9, 0.96, 1.04),
+          distantBlue * 0.18
         );`,
       );
   };
   depthMassesMaterial.customProgramCacheKey = () =>
-    "dream-depth-atmosphere-v3-horizon";
+    "dream-depth-atmosphere-v4-haze";
   const materials: DreamEnvironmentMaterials = {
     treeNear: new MeshPhysicalMaterial({
       color: palette.silhouette,
