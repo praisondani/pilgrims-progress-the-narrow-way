@@ -120,30 +120,65 @@ function booleanValue(value: unknown, fallback = false) {
   return typeof value === "boolean" ? value : fallback;
 }
 
+function burdenValue(value: unknown, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number)
+    ? Math.max(0, Math.min(1, number))
+    : fallback;
+}
+
+function onboardingValue(
+  value: unknown,
+  fallback: OnboardingProgress = initialOnboarding,
+) {
+  const candidate =
+    value && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : {};
+  return {
+    moved: booleanValue(candidate.moved, fallback.moved),
+    looked: booleanValue(candidate.looked, fallback.looked),
+    interacted: booleanValue(candidate.interacted, fallback.interacted),
+    firstObjectiveCompleted: booleanValue(
+      candidate.firstObjectiveCompleted,
+      fallback.firstObjectiveCompleted,
+    ),
+  };
+}
+
+function visibilityValue(
+  value: unknown,
+  fallback: GameState["visibility"] = "bright",
+): GameState["visibility"] {
+  return value === "standard" || value === "bright" || value === "highContrast"
+    ? value
+    : fallback;
+}
+
+function textSizeValue(
+  value: unknown,
+  fallback: GameState["textSize"] = "normal",
+): GameState["textSize"] {
+  return value === "normal" || value === "large" || value === "largest"
+    ? value
+    : fallback;
+}
+
 /** Normalize untrusted replay data before it can drive a chapter lookup. */
 export function normalizeReplayCheckpoint(
   value: unknown,
 ): ReplayCheckpoint | undefined {
   if (!value || typeof value !== "object") return undefined;
   const candidate = value as Record<string, unknown>;
-  const onboarding =
-    candidate.onboarding && typeof candidate.onboarding === "object"
-      ? (candidate.onboarding as Record<string, unknown>)
-      : {};
   const sceneIndex = clampSceneIndex(candidate.sceneIndex);
   return {
     sceneIndex,
     stepIndex: clampStepIndex(sceneIndex, candidate.stepIndex),
-    burden: Number(candidate.burden) > 0 ? 1 : 0,
+    burden: burdenValue(candidate.burden),
     hasRoll: booleanValue(candidate.hasRoll),
     hasKeyOfPromise: booleanValue(candidate.hasKeyOfPromise),
     equipment: stringList(candidate.equipment),
-    onboarding: {
-      moved: booleanValue(onboarding.moved),
-      looked: booleanValue(onboarding.looked),
-      interacted: booleanValue(onboarding.interacted),
-      firstObjectiveCompleted: booleanValue(onboarding.firstObjectiveCompleted),
-    },
+    onboarding: onboardingValue(candidate.onboarding),
     sceneComplete: booleanValue(candidate.sceneComplete),
     gameComplete: booleanValue(candidate.gameComplete),
   };
@@ -501,7 +536,10 @@ export const useGame = create<GameState>()(
         replayCheckpoint: state.replayCheckpoint,
       }),
       migrate: (persisted, version) => {
-        const saved = persisted as Partial<GameState>;
+        const saved =
+          persisted && typeof persisted === "object"
+            ? (persisted as Partial<GameState>)
+            : {};
         const priorSceneIndex = Number(saved.sceneIndex) || 0;
         const priorStepIndex = Number(saved.stepIndex) || 0;
         const palaceWasComplete =
@@ -532,34 +570,34 @@ export const useGame = create<GameState>()(
                 interacted: passedFirstObjective,
                 firstObjectiveCompleted: passedFirstObjective,
               }
-            : { ...initialOnboarding, ...saved.onboarding };
+            : onboardingValue(saved.onboarding);
         return {
-          started: saved.started ?? false,
+          started: booleanValue(saved.started),
           sceneIndex,
           stepIndex,
-          burden: Number(saved.burden) || 0,
+          burden: burdenValue(saved.burden),
           hasRoll:
             version < 4
               ? sceneIndex > 7 || (sceneIndex === 7 && stepIndex >= 5)
-              : (saved.hasRoll ?? false),
+              : booleanValue(saved.hasRoll),
           hasKeyOfPromise:
-            version < 6 ? false : (saved.hasKeyOfPromise ?? false),
+            version < 6 ? false : booleanValue(saved.hasKeyOfPromise),
           equipment:
             version < 4 || !Array.isArray(saved.equipment)
               ? []
-              : saved.equipment,
-          journal: Array.isArray(saved.journal) ? saved.journal : [],
+              : stringList(saved.equipment),
+          journal: stringList(saved.journal),
           gameComplete:
             version < 6 || doubtingWasComplete
               ? false
-              : (saved.gameComplete ?? false),
+              : booleanValue(saved.gameComplete),
           soundEnabled:
-            version < 7 ? false : (saved.soundEnabled ?? false),
-          visibility: saved.visibility ?? "bright",
-          textSize: saved.textSize ?? "normal",
-          reducedMotion: saved.reducedMotion ?? false,
-          cinematicCamera: saved.cinematicCamera ?? true,
-          puzzleActive: saved.puzzleActive ?? false,
+            version < 7 ? false : booleanValue(saved.soundEnabled),
+          visibility: visibilityValue(saved.visibility),
+          textSize: textSizeValue(saved.textSize),
+          reducedMotion: booleanValue(saved.reducedMotion),
+          cinematicCamera: booleanValue(saved.cinematicCamera, true),
+          puzzleActive: booleanValue(saved.puzzleActive),
           onboarding,
           replayCheckpoint:
             version < 9
@@ -568,15 +606,40 @@ export const useGame = create<GameState>()(
         };
       },
       merge: (persisted, current) => {
-        const saved = persisted as Partial<GameState>;
+        const saved =
+          persisted && typeof persisted === "object"
+            ? (persisted as Partial<GameState>)
+            : {};
         const sceneIndex = clampSceneIndex(saved.sceneIndex);
         const stepIndex = clampStepIndex(sceneIndex, saved.stepIndex);
         return {
           ...current,
-          ...saved,
+          started: booleanValue(saved.started, current.started),
           sceneIndex,
           stepIndex,
-          onboarding: { ...initialOnboarding, ...saved.onboarding },
+          burden: burdenValue(saved.burden, current.burden),
+          hasRoll: booleanValue(saved.hasRoll, current.hasRoll),
+          hasKeyOfPromise: booleanValue(
+            saved.hasKeyOfPromise,
+            current.hasKeyOfPromise,
+          ),
+          equipment:
+            saved.equipment === undefined
+              ? current.equipment
+              : stringList(saved.equipment),
+          journal:
+            saved.journal === undefined ? current.journal : stringList(saved.journal),
+          gameComplete: booleanValue(saved.gameComplete, current.gameComplete),
+          soundEnabled: booleanValue(saved.soundEnabled, current.soundEnabled),
+          visibility: visibilityValue(saved.visibility, current.visibility),
+          textSize: textSizeValue(saved.textSize, current.textSize),
+          reducedMotion: booleanValue(saved.reducedMotion, current.reducedMotion),
+          cinematicCamera: booleanValue(
+            saved.cinematicCamera,
+            current.cinematicCamera,
+          ),
+          puzzleActive: booleanValue(saved.puzzleActive, current.puzzleActive),
+          onboarding: onboardingValue(saved.onboarding, current.onboarding),
           replayCheckpoint: normalizeReplayCheckpoint(saved.replayCheckpoint),
         };
       },
