@@ -58,6 +58,10 @@
   and `M` toggles the story map. Repeated or modified keys are ignored, paused
   state is restored after journal/map use, and the HUD/pause reference exposes
   the shortcuts through `aria-keyshortcuts`.
+- Chapter II's procedural atmospheric motes now honor the global reduced-motion
+  setting: enabling it removes both their rotation and lateral drift while
+  preserving the authored motion when comfort mode is off, with pure-function
+  regression coverage.
 - Shared mobile movement input now resets on pointer release, scene remount,
   modal pause, and player unmount, preventing a held touch direction from
   leaking into the next chapter.

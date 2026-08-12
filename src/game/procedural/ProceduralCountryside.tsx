@@ -20,6 +20,8 @@ import {
 import { scatterPoints } from "./ScatterSystem";
 import { generateTerrain, terrainHeight } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition, ScatterPoint, ScatterRule } from "./types";
+import { useGame } from "../state";
+import { atmosphericLifeOffset, atmosphericLifeRotation } from "./motion";
 
 function currentSeed() {
   if (typeof location === "undefined") return COUNTRYSIDE_DEFAULT_SEED;
@@ -206,7 +208,7 @@ function DistantLandscape() {
   );
 }
 
-function AtmosphericLife({ density }: { density: number }) {
+function AtmosphericLife({ density, reducedMotion }: { density: number; reducedMotion: boolean }) {
   const root = useRef<Group>(null);
   const count = Math.max(24, Math.round(90 * density));
   const positions = useMemo(() => {
@@ -222,8 +224,14 @@ function AtmosphericLife({ density }: { density: number }) {
   }, [count]);
   useFrame(({ clock }) => {
     if (!root.current) return;
-    root.current.rotation.y = clock.elapsedTime * 0.012;
-    root.current.position.x = Math.sin(clock.elapsedTime * 0.08) * 0.4;
+    root.current.rotation.y = atmosphericLifeRotation(
+      clock.elapsedTime,
+      reducedMotion,
+    );
+    root.current.position.x = atmosphericLifeOffset(
+      clock.elapsedTime,
+      reducedMotion,
+    );
   });
   return (
     <group ref={root}>
@@ -252,6 +260,7 @@ function AtmosphericLife({ density }: { density: number }) {
 }
 
 export function ProceduralCountryside() {
+  const reducedMotion = useGame((state) => state.reducedMotion);
   const flags = renderingFeatureFlags();
   const capabilities = detectRenderingCapabilities();
   const mobile = typeof innerWidth !== "undefined" && innerWidth < 700;
@@ -274,7 +283,7 @@ export function ProceduralCountryside() {
       </mesh>
       <InstancedLandscape definition={definition} density={density} />
       <DistantLandscape />
-      <AtmosphericLife density={density} />
+      <AtmosphericLife density={density} reducedMotion={reducedMotion} />
       <pointLight position={[0, 4, -7]} color="#ffe7a0" intensity={5.5} distance={15} />
     </group>
   );
