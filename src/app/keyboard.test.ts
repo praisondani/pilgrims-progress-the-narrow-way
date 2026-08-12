@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isDialogueAdvanceKey, uiShortcutFor } from "./keyboard";
+import {
+  focusableSelector,
+  isDialogueAdvanceKey,
+  uiShortcutFor,
+  wrappedFocusIndex,
+} from "./keyboard";
 
 describe("dialogue keyboard controls", () => {
   it("accepts Enter, Return, and the numeric keypad Enter key", () => {
@@ -47,5 +52,19 @@ describe("dialogue keyboard controls", () => {
         metaKey: false,
       }),
     ).toBeUndefined();
+  });
+
+  it("defines a focusable selector for keyboard controls", () => {
+    expect(focusableSelector).toContain("button:not([disabled])");
+    expect(focusableSelector).toContain("input:not([disabled])");
+    expect(focusableSelector).toContain("[tabindex=\"-1\"]");
+  });
+
+  it("wraps modal focus in both directions", () => {
+    expect(wrappedFocusIndex(-1, 3, false)).toBe(0);
+    expect(wrappedFocusIndex(-1, 3, true)).toBe(2);
+    expect(wrappedFocusIndex(2, 3, false)).toBe(0);
+    expect(wrappedFocusIndex(0, 3, true)).toBe(2);
+    expect(wrappedFocusIndex(0, 0, false)).toBe(-1);
   });
 });

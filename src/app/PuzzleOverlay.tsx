@@ -40,7 +40,12 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
   };
 
   return (
-    <div className="puzzle-shell">
+    <div
+      className="puzzle-shell"
+      role="dialog"
+      aria-modal="true"
+      aria-label={puzzle.title}
+    >
       <section
         onKeyDown={(event) => {
           if (

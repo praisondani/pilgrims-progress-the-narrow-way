@@ -58,6 +58,10 @@
   and `M` toggles the story map. Repeated or modified keys are ignored, paused
   state is restored after journal/map use, and the HUD/pause reference exposes
   the shortcuts through `aria-keyshortcuts`.
+- Dialogue, choices, symbolic puzzles, chapter/ending cards, journal, pause,
+  and story-map surfaces now expose modal semantics and trap Tab/Shift+Tab
+  focus within the active surface, with wraparound behavior covered by pure
+  keyboard regression tests.
 - Chapter II's procedural atmospheric motes now honor the global reduced-motion
   setting: enabling it removes both their rotation and lateral drift while
   preserving the authored motion when comfort mode is off, with pure-function

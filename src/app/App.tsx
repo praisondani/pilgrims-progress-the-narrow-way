@@ -14,7 +14,12 @@ import { gameAudio } from "../game/audio";
 import { puzzleFor, totalPuzzles } from "../game/puzzles";
 import { PuzzleOverlay } from "./PuzzleOverlay";
 import { playerPosition } from "../game/Player";
-import { isDialogueAdvanceKey, uiShortcutFor } from "./keyboard";
+import {
+  focusableElements,
+  isDialogueAdvanceKey,
+  uiShortcutFor,
+  wrappedFocusIndex,
+} from "./keyboard";
 
 // Keep title/about content lightweight. Three.js, Rapier, and authored scene
 // kits load only after the player starts the journey, reducing first-paint
@@ -403,6 +408,16 @@ function Overlay() {
       .reduce((n, s) => n + s.steps.length, 0) + progressStepIndex;
   const replayDrawerChapter =
     replayDrawerIndex == null ? null : storyScenes[replayDrawerIndex];
+  const modalOpen = Boolean(
+    storyMapOpen ||
+      game.dialogue ||
+      game.choosing ||
+      game.puzzleActive ||
+      game.sceneComplete ||
+      game.gameComplete ||
+      game.journalOpen ||
+      (game.paused && !game.journalOpen && !game.gameComplete),
+  );
   useEffect(() => {
     const advanceDialogueFromKeyboard = (event: KeyboardEvent) => {
       if (!isDialogueAdvanceKey(event)) return;
@@ -517,6 +532,45 @@ function Overlay() {
     const t = setTimeout(() => game.setMessage(), 2600);
     return () => clearTimeout(t);
   }, [game.message]);
+  useEffect(() => {
+    if (!modalOpen) return;
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const surfaces = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '[role="dialog"], .dialogue, .puzzle-shell',
+        ),
+      );
+      const active = document.activeElement;
+      const surface =
+        surfaces.find((candidate) => candidate.contains(active)) ??
+        surfaces.at(-1);
+      if (!surface) return;
+      const controls = focusableElements(surface);
+      if (controls.length === 0) {
+        event.preventDefault();
+        surface.focus();
+        return;
+      }
+      const currentIndex = controls.indexOf(active as HTMLElement);
+      const nextIndex = wrappedFocusIndex(
+        currentIndex,
+        controls.length,
+        event.shiftKey,
+      );
+      // Allow normal Tab traversal inside the surface except when focus is
+      // entering it or would leave it at either edge.
+      const atForwardEdge =
+        !event.shiftKey && currentIndex === controls.length - 1;
+      const atBackwardEdge = event.shiftKey && currentIndex === 0;
+      if (currentIndex < 0 || atForwardEdge || atBackwardEdge) {
+        event.preventDefault();
+        controls[nextIndex].focus();
+      }
+    };
+    window.addEventListener("keydown", trapFocus, true);
+    return () => window.removeEventListener("keydown", trapFocus, true);
+  }, [modalOpen]);
   useEffect(() => {
     gameAudio.setEnabled(game.soundEnabled);
     gameAudio.scene(scene.id);
@@ -663,7 +717,7 @@ function Overlay() {
         )}
       {game.message && <div className="toast">{game.message}</div>}
       {game.choosing && (
-        <div className="dialogue choice">
+        <div className="dialogue choice" role="dialog" aria-modal="true" aria-label="Choose a response">
           <p>How will Christian respond?</p>
           {step.choices?.map((choice, i) => (
             <button
@@ -681,6 +735,7 @@ function Overlay() {
         <button
           className="dialogue spoken"
           autoFocus
+          aria-live="polite"
           aria-keyshortcuts="Enter"
           onClick={game.advanceDialogue}
         >
@@ -700,7 +755,7 @@ function Overlay() {
       )}
       <Controls />
       {game.sceneComplete && (
-        <div className="modal chapter-card">
+        <div className="modal chapter-card" role="dialog" aria-modal="true" aria-label="Chapter complete">
           <section>
             <p className="eyebrow">{scene.number} COMPLETE</p>
             <h2>{scene.title}</h2>
@@ -728,7 +783,7 @@ function Overlay() {
         </div>
       )}
       {game.gameComplete && (
-        <div className="modal ending">
+        <div className="modal ending" role="dialog" aria-modal="true" aria-label="Journey complete">
           <section>
             <p className="eyebrow">PROMISE KEPT · THE CITY RECEIVED</p>
             <h2>The road ends in welcome.</h2>
@@ -943,7 +998,7 @@ function Overlay() {
         </div>
       )}
       {game.journalOpen && (
-        <div className="modal journal">
+        <div className="modal journal" role="dialog" aria-modal="true" aria-label="Pilgrim's journal">
           <section>
             <p className="eyebrow">PILGRIM’S JOURNAL</p>
             <h2>Things seen on the way</h2>
@@ -977,7 +1032,12 @@ function Overlay() {
         !storyMapOpen &&
         !game.journalOpen &&
         !game.gameComplete && (
-        <div className="modal">
+        <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Journey paused"
+        >
           <section>
             <p className="eyebrow">JOURNEY PAUSED</p>
             <h2>Rest by the way.</h2>
