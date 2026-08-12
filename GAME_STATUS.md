@@ -66,6 +66,8 @@
 - Opt-in lazy-loaded `WebGPURenderer` prototype with verified WebGL 2 default/fallback
 - Deterministic Chapter II countryside seed, authored route/landmark masks, generated terrain collider, instanced vegetation/rocks, distant landscape, and atmospheric life
 - Automated procedural determinism and path/landmark exclusion tests
+- Procedural terrain tests now lock deterministic ring topology, finite collider
+  vertices, path flattening, and authored landmark pads.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending
