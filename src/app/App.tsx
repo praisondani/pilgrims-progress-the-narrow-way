@@ -14,7 +14,7 @@ import { gameAudio } from "../game/audio";
 import { puzzleFor, totalPuzzles } from "../game/puzzles";
 import { PuzzleOverlay } from "./PuzzleOverlay";
 import { playerPosition } from "../game/Player";
-import { isDialogueAdvanceKey } from "./keyboard";
+import { isDialogueAdvanceKey, uiShortcutFor } from "./keyboard";
 
 // Keep title/about content lightweight. Three.js, Rapier, and authored scene
 // kits load only after the player starts the journey, reducing first-paint
@@ -381,6 +381,7 @@ function Overlay() {
   );
   const [replayBeatIndex, setReplayBeatIndex] = useState(0);
   const storyMapWasPaused = useRef(false);
+  const journalWasPaused = useRef(false);
   const chapterAction = useRef<HTMLButtonElement>(null);
   const endingAction = useRef<HTMLButtonElement>(null);
   const journalAction = useRef<HTMLButtonElement>(null);
@@ -419,12 +420,13 @@ function Overlay() {
       window.removeEventListener("keydown", advanceDialogueFromKeyboard, true);
   }, []);
   const openStoryMap = () => {
-    storyMapWasPaused.current = game.paused;
+    const state = useGame.getState();
+    storyMapWasPaused.current = state.paused;
     useGame.setState({ paused: true });
     setStoryMapOpen(true);
-    if (game.replayCheckpoint) {
-      setReplayDrawerIndex(game.sceneIndex);
-      setReplayBeatIndex(game.stepIndex);
+    if (state.replayCheckpoint) {
+      setReplayDrawerIndex(state.sceneIndex);
+      setReplayBeatIndex(state.stepIndex);
     } else {
       setReplayDrawerIndex(null);
       setReplayBeatIndex(0);
@@ -438,6 +440,15 @@ function Overlay() {
     setStoryMapOpen(false);
     closeReplayDrawer();
     useGame.setState({ paused: storyMapWasPaused.current });
+  };
+  const toggleJournalModal = () => {
+    const state = useGame.getState();
+    if (state.journalOpen) {
+      useGame.setState({ journalOpen: false, paused: journalWasPaused.current });
+      return;
+    }
+    journalWasPaused.current = state.paused;
+    useGame.setState({ journalOpen: true, paused: true });
   };
   const openReplayDrawer = (chapterIndex: number) => {
     setReplayDrawerIndex(chapterIndex);
@@ -462,18 +473,45 @@ function Overlay() {
     closeReplayDrawer();
   };
   useEffect(() => {
-    if (!storyMapOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      if (replayDrawerIndex != null) {
-        closeReplayDrawer();
+    const handleUiShortcut = (event: KeyboardEvent) => {
+      const shortcut = uiShortcutFor(event);
+      if (!shortcut) return;
+      const state = useGame.getState();
+      if (shortcut === "pause") {
+        event.preventDefault();
+        if (storyMapOpen) {
+          if (replayDrawerIndex != null) closeReplayDrawer();
+          else closeStoryMap();
+        } else if (state.journalOpen) {
+          toggleJournalModal();
+        } else {
+          state.togglePause();
+        }
         return;
       }
-      closeStoryMap();
+      if (
+        state.dialogue ||
+        state.choosing ||
+        state.puzzleActive ||
+        state.sceneComplete ||
+        state.gameComplete
+      )
+        return;
+      event.preventDefault();
+      if (shortcut === "journal") {
+        if (storyMapOpen) closeStoryMap();
+        else toggleJournalModal();
+        return;
+      }
+      if (storyMapOpen) closeStoryMap();
+      else {
+        if (state.journalOpen) toggleJournalModal();
+        openStoryMap();
+      }
     };
-    addEventListener("keydown", closeOnEscape);
-    return () => removeEventListener("keydown", closeOnEscape);
-  }, [storyMapOpen, replayDrawerIndex]);
+    window.addEventListener("keydown", handleUiShortcut);
+    return () => window.removeEventListener("keydown", handleUiShortcut);
+  }, [replayDrawerIndex, storyMapOpen]);
   useEffect(() => {
     if (!game.message) return;
     const t = setTimeout(() => game.setMessage(), 2600);
@@ -564,11 +602,14 @@ function Overlay() {
                     ? "Sound on"
                     : "Starting sound…"}
           </button>
-          <button onClick={openStoryMap}>Story map</button>
-          <button onClick={game.toggleJournal}>
+          <button aria-keyshortcuts="M" onClick={openStoryMap}>Story map</button>
+          <button
+            aria-keyshortcuts="J"
+            onClick={toggleJournalModal}
+          >
             Journal <b>{game.journal.length}</b>
           </button>
-          <button onClick={game.togglePause}>
+          <button aria-keyshortcuts="Escape" onClick={game.togglePause}>
             {game.paused && !game.journalOpen ? "Resume" : "Pause"}
           </button>
         </div>
@@ -943,7 +984,8 @@ function Overlay() {
             <p>Progress saves automatically after each story beat.</p>
             <p className="controls-reference">
               Move: WASD or arrow keys · Look: drag · Zoom: scroll · Recenter: R
-              · Interact: E · Jog: Shift · Jump: Space
+              · Interact: E · Jog: Shift · Jump: Space · Pause: Esc · Journal: J
+              · Story map: M
             </p>
             <div className="settings-grid">
               <button onClick={game.cycleVisibility}>
