@@ -14,6 +14,7 @@ import { gameAudio } from "../game/audio";
 import { puzzleFor, totalPuzzles } from "../game/puzzles";
 import { PuzzleOverlay } from "./PuzzleOverlay";
 import { playerPosition } from "../game/Player";
+import { isDialogueAdvanceKey } from "./keyboard";
 
 // Keep title/about content lightweight. Three.js, Rapier, and authored scene
 // kits load only after the player starts the journey, reducing first-paint
@@ -402,6 +403,22 @@ function Overlay() {
       .reduce((n, s) => n + s.steps.length, 0) + progressStepIndex;
   const replayDrawerChapter =
     replayDrawerIndex == null ? null : storyScenes[replayDrawerIndex];
+  useEffect(() => {
+    const advanceDialogueFromKeyboard = (event: KeyboardEvent) => {
+      if (!isDialogueAdvanceKey(event)) return;
+      const state = useGame.getState();
+      if (!state.dialogue) return;
+      // Narration is a keyboard-first modal. Capture the key before the
+      // focused button's native click synthesis or the Player listener can
+      // advance twice / apply a jump while the line is open.
+      event.preventDefault();
+      event.stopPropagation();
+      state.advanceDialogue();
+    };
+    window.addEventListener("keydown", advanceDialogueFromKeyboard, true);
+    return () =>
+      window.removeEventListener("keydown", advanceDialogueFromKeyboard, true);
+  }, []);
   const openStoryMap = () => {
     storyMapWasPaused.current = game.paused;
     useGame.setState({ paused: true });

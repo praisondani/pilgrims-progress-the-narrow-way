@@ -37,6 +37,11 @@
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets
 - WASD and arrow-key movement documented and browser-tested
+- Enter/Return/Numpad Enter now advances narration from any focused surface
+  without double-advancing; modal input clears held movement and blocks jump
+  impulses while dialogue, choices, puzzles, or pause are open. Focus trials
+  place keyboard focus on their slider so Enter can confirm without reaching
+  for the mouse.
 - Bounded scene-loader fallback and wall-clock camera-flight settling for slow or
   backgrounded render loops
 - Guided travel snaps across low-FPS target crossings instead of oscillating

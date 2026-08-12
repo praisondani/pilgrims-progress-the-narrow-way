@@ -78,6 +78,7 @@ export function PuzzleOverlay({ puzzle }: { puzzle: Puzzle }) {
             </div>
             <input
               aria-label="Focus"
+              autoFocus
               type="range"
               min="0"
               max="100"

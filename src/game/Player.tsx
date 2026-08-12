@@ -100,14 +100,29 @@ export function Player() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       keys.add(e.code);
+      const state = useGame.getState();
       if (e.code === "KeyE") {
-        const state = useGame.getState();
-        if (state.nearby && !state.dialogue && !state.sceneComplete)
+        if (
+          state.nearby &&
+          !state.dialogue &&
+          !state.choosing &&
+          !state.puzzleActive &&
+          !state.sceneComplete &&
+          !state.paused
+        )
           gameAudio.interact();
         state.interact();
       }
       if (e.code === "KeyR") cameraControl.resetRequested = true;
-      if (e.code === "Space")
+      if (
+        e.code === "Space" &&
+        !e.repeat &&
+        !state.paused &&
+        !state.dialogue &&
+        !state.choosing &&
+        !state.puzzleActive &&
+        !state.sceneComplete
+      )
         body.current?.applyImpulse({ x: 0, y: 3.8, z: 0 }, true);
     };
     const up = (e: KeyboardEvent) => keys.delete(e.code);
@@ -121,7 +136,14 @@ export function Player() {
   }, []);
   useFrame(({ camera }, delta) => {
     if (!body.current || paused || puzzleActive || dialogue || choosing) {
+      keys.clear();
+      mobileInput.x = 0;
+      mobileInput.z = 0;
       playerMotion.moving = false;
+      if (walkingRef.current) {
+        walkingRef.current = false;
+        setWalking(false);
+      }
       if (body.current)
         body.current.setLinvel(
           { x: 0, y: body.current.linvel().y, z: 0 },
