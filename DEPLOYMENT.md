@@ -38,11 +38,12 @@ Do not replace `wasm-unsafe-eval` with the broader `unsafe-eval`. Keep runtime f
 
    ```bash
    npm ci
-   npm test
-   npm run build
-   npm run check:bundle
-   npm run check:secrets
+   npm run release:check
    ```
+
+   `release:check` runs the unit suite, 3D asset pipeline tests, production
+   build, bundle budget, secret/artifact audit, and whitespace check. It does
+   not launch Playwright or any browser.
 
 3. Audit `dist/` before upload. It must not contain `.env`, keys, certificates, or source maps.
 

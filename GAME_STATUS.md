@@ -58,6 +58,9 @@
 - GitHub Actions unit/build/bundle/asset/secret quality gates; Playwright browser
   suites remain available locally but are intentionally disabled in CI to conserve
   runner credits and avoid long pipelines
+- A single browser-free `npm run release:check` now composes the unit, 3D
+  asset, build, bundle, secret, and diff gates used for local and CI release
+  verification.
 - Verified dist-only release `b2e61d1` was pushed to `master` and deployed
   atomically to `https://pilgrims.biblequick.com`; the public endpoint returns
   HTTPS 200 with the expected CSP/security headers, and the server release

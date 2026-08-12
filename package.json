@@ -11,6 +11,7 @@
     "asset:3d:test": "node tools/img2threejs-pipeline.mjs test",
     "check:bundle": "node tools/check-bundle.mjs",
     "check:secrets": "node tools/check-secrets.mjs",
+    "release:check": "node tools/release-check.mjs",
     "e2e": "playwright test",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run"

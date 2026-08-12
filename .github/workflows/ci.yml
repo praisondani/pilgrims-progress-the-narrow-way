@@ -21,8 +21,4 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm test -- --run
-      - run: npm run asset:3d:test
-      - run: npm run build
-      - run: npm run check:bundle
-      - run: npm run check:secrets
+      - run: npm run release:check
