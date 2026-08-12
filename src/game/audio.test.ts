@@ -27,6 +27,7 @@ class FakeAudioElement {
   preload = "";
   volume = 1;
   playing = false;
+  removed = false;
   private listeners = new Map<string, () => void>();
 
   constructor(src: string) {
@@ -40,7 +41,9 @@ class FakeAudioElement {
   }
   removeAttribute() {}
   load() {}
-  remove() {}
+  remove() {
+    this.removed = true;
+  }
   pause() {
     this.playing = false;
   }
@@ -181,6 +184,26 @@ describe("safe local audio assets", () => {
       (element) => element.src.includes("/audio/sfx/") && element.playing,
     );
     expect(activeSfx).toHaveLength(audioMix.maxConcurrentSfx);
+  });
+
+  it("stops native ambience and SFX when muted", async () => {
+    vi.stubGlobal("Audio", FakeAudioElement);
+    const audio = new GameAudio();
+    audio.setEnabled(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    audio.interact();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const playing = FakeAudioElement.instances.filter(
+      (element) => element.playing,
+    );
+    expect(playing.length).toBeGreaterThanOrEqual(2);
+
+    audio.setEnabled(false);
+
+    expect(audio.getSnapshot()).toBe("muted");
+    expect(playing.every((element) => !element.playing)).toBe(true);
+    expect(playing.every((element) => element.removed)).toBe(true);
   });
 
   it("keeps fallback scene trims bounded before they reach the graph", () => {

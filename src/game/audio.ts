@@ -294,13 +294,11 @@ export class GameAudio {
       // Invalidate a pending decode so it cannot start an ambience source
       // after the user has muted audio while it was loading.
       this.sceneRequest += 1;
-      this.nativeAmbience?.element.pause();
-      this.nativeAmbience = undefined;
-      for (const element of this.nativeSfx) {
-        element.pause();
-        element.remove();
-      }
-      this.nativeSfx.clear();
+      // Muting must stop the sources, not only turn the master gain down. A
+      // hidden Web Audio source can otherwise keep looping behind the mute,
+      // and a later unmute can resurrect several stale SFX voices at once.
+      this.stopWebAudioPlayback();
+      this.stopNativePlayback();
       this.markState("muted", this.pendingScene);
     } else {
       this.markState("loading", this.pendingScene);
@@ -313,6 +311,47 @@ export class GameAudio {
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setTargetAtTime(value ? audioMix.masterGain : 0, now, 0.08);
     if (value) this.start();
+  }
+
+  private stopWebAudioPlayback() {
+    const current = this.current;
+    this.current = undefined;
+    if (current) {
+      try {
+        current.source.stop();
+      } catch {
+        // An already-ended AudioBufferSourceNode throws when stopped twice.
+      }
+    }
+
+    const activeSfx = this.activeSfx;
+    this.activeSfx = [];
+    for (const source of activeSfx) {
+      try {
+        source.stop();
+      } catch {
+        // SFX may have ended between the snapshot and the mute action.
+      }
+    }
+  }
+
+  private stopNativeAmbience() {
+    const ambience = this.nativeAmbience;
+    this.nativeAmbience = undefined;
+    if (!ambience) return;
+    ambience.element.pause();
+    ambience.element.removeAttribute("src");
+    ambience.element.load();
+    ambience.element.remove();
+  }
+
+  private stopNativePlayback() {
+    this.stopNativeAmbience();
+    for (const element of this.nativeSfx) {
+      element.pause();
+      element.remove();
+    }
+    this.nativeSfx.clear();
   }
 
   private buildGraph() {
@@ -425,10 +464,7 @@ export class GameAudio {
       return true;
     }
     this.markState("loading", id);
-    const previous = this.nativeAmbience;
-    previous?.element.pause();
-    previous?.element.removeAttribute("src");
-    previous?.element.load();
+    this.stopNativeAmbience();
     const element = new Audio(ambienceUrl(id));
     element.loop = true;
     element.preload = "auto";
