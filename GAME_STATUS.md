@@ -180,6 +180,9 @@
   deduplicated lifecycle. Its root opts out of renderer auto-disposal so real
   scene transitions dispose promptly while StrictMode remounts retain the
   resources; geometry and material cleanup are covered independently.
+- Dream's authored 72×72 relief and custom meadow shader material now use the
+  same explicit ownership boundary, preventing renderer auto-disposal from
+  racing a scene remount while preserving prompt cleanup on real transitions.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending

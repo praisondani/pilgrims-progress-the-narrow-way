@@ -4,7 +4,7 @@ import {
   RigidBody,
 } from "@react-three/rapier";
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Color, Group, MeshStandardMaterial, PlaneGeometry } from "three";
 import { useGame } from "./state";
 import { StepKind, storyScenes } from "./story";
@@ -18,6 +18,10 @@ import {
 } from "./Visuals";
 import { ComfortFloat, ComfortSparkles, SceneEnvironment } from "./Environments";
 import { renderingFeatureFlags } from "./rendering/capabilities";
+import {
+  deferOwnedResourcesDisposal,
+  retainOwnedResources,
+} from "./assets/environment/resourceLifecycle";
 import {
   buildDreamTerrainCollisionDescriptors,
   DREAM_SCENE_SEED,
@@ -74,6 +78,11 @@ function DreamGround({ color }: { color: Color }) {
     relief.computeVertexNormals();
     return relief;
   }, []);
+  useLayoutEffect(() => {
+    const owned = [geometry, material.current ?? undefined];
+    retainOwnedResources(owned);
+    return () => deferOwnedResourcesDisposal(owned);
+  }, [geometry]);
   useEffect(() => {
     if (!material.current) return;
     material.current.onBeforeCompile = (shader) => {
@@ -241,7 +250,12 @@ function DreamGround({ color }: { color: Color }) {
     material.current.needsUpdate = true;
   }, []);
   return (
-    <mesh receiveShadow position={[0, -0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh
+      dispose={null}
+      receiveShadow
+      position={[0, -0.03, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
       <primitive object={geometry} attach="geometry" />
       <meshStandardMaterial
         ref={material}
