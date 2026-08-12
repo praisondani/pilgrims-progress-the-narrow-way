@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T08:37:00-05:00",
+  "updatedAt": "2026-08-12T08:53:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -12,7 +12,7 @@
   "currentSprint": {
     "name": "Vertical Slice 01 — Christian and The Dreamer",
     "status": "building",
-    "resumeNote": "Dream v35/v36 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, and tapered lantern glass; fresh critics score 7.5–7.6/10 front and 6.5–6.7/10 rear, with artifact checks passing. The remaining gap is authored world-scale depth, material richness, and a lantern that reads as a luminous source versus the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
+    "resumeNote": "Dream v37/v38 is gameplay-verified with scene-level backdrop/fog, continuous dusk sky, rear middle-distance dressing, tapered lantern glass, additive aura, warm meadow falloff, and bounded point-light pool; fresh critics score 7.5–7.8/10 front and 7.0/10 rear, with artifact checks passing. The remaining gap is distinctive secondary landmarks plus richer material/lighting depth versus the Kena/Pathless/RiME bar. Decoded audio calibration is browser-verified; physical-device listening and performance QA remain open.",
     "workstreams": [
       {
         "id": "baseline",
@@ -33,10 +33,10 @@
       {
         "id": "dream",
         "name": "The Dreamer environment",
-        "status": "iteration-36-critic-failed-authored-depth-pass",
+        "status": "iteration-38-critic-failed-landmark-material-pass",
         "builder": "ultracode environment builder",
-        "critic": "fresh runtime critics — fail, v36 front 7.5–7.6/10, rear 6.5–6.7/10, Christian 6.3–7.0/10, composition 5.9–7.2/10, artifact hygiene 7.6–8.0/10; scene backdrop/fog and sky dome pass horizon/artifact checks",
-        "largestGap": "Scene-level backdrop/fog now owns the actual Three.js Scene, the Dream meadow uses a 72×72 plane, the dusk dome restores continuous 360-degree gradients, the rear meadow cluster adds instanced middle-distance dressing, and tapered lantern glass removes the flat-card profile. Remaining gap: authored world-scale depth, material richness, and a lantern that reads as a luminous source versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — fail, v38 front 7.5–7.8/10, rear 7.0/10, Christian 6.4–7.1/10, composition 6.5–7.5/10, artifact hygiene 7.5–8.5/10; aura and point-light falloff improve shrine read, artifact checks pass",
+        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, and lantern now combines tapered glass, additive aura, warm ground falloff, and bounded 10-intensity / 12.5-distance point light. Remaining gap: distinctive secondary landmarks plus richer material/lighting depth versus Kena/Pathless/RiME."
       },
       {
         "id": "city",
@@ -632,6 +632,18 @@
     {
       "label": "Dream v36 runtime — rear meadow density check",
       "path": "/studio-evidence/vertical-slice-01/dream-v36-runtime-desktop-rear.png"
+    },
+    {
+      "label": "Dream v38 runtime — unlit objective framing",
+      "path": "/studio-evidence/vertical-slice-01/dream-v38-runtime-desktop-objective.png"
+    },
+    {
+      "label": "Dream v38 runtime — lit lantern ground pool",
+      "path": "/studio-evidence/vertical-slice-01/dream-v38-runtime-desktop-lit.png"
+    },
+    {
+      "label": "Dream v38 runtime — lit reverse-orbit check",
+      "path": "/studio-evidence/vertical-slice-01/dream-v38-runtime-desktop-lit-rear.png"
     }
   ],
   "gates": {
@@ -641,7 +653,7 @@
     "browserRegression": "Local desktop Gate/procedural focused flows 4/4 pass; mobile WebKit 4/4 pass including autoplay-permission reload handling and forced AudioContext interruption recovery; camera and Doubting Castle focused flows 2/2 pass; exhaustive desktop 30-scene real-controls journey 1/1 pass in 25.3m; GitHub Actions Playwright job intentionally disabled to conserve runner credits, so browser suites are run locally/manual",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
     "fullJourney": "Exhaustive Dream → Celestial City real-controls journey 1/1 pass (25.3m) across all 30 scenes; it now includes the low-FPS guided-route and cross-scene spawn-reset hardening.",
-    "bundleBudget": "4.40 MB JavaScript + 2.16 MB audio — pass",
+    "bundleBudget": "4.41 MB JavaScript + 2.16 MB audio — pass",
     "secretAudit": "pass",
     "img2threejs": "Christian v38 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, and animated load settling; the prior fresh v37 runtime critic scored 7.4/10, while v38's focused critic loop remains paused; no production GLB is accepted yet",
     "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v28 runtime safety pass, but Dream v36, v38 hero, and City v28 critics fail the visual bar; Dream still needs richer authored 360-degree landmark/terrain/material depth and a more believable lantern source, City still needs richer surface material detail and connected outer-world landmarks, and a production Christian GLB remains outstanding"

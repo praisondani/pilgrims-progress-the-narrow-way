@@ -138,16 +138,22 @@
   card. Fresh front/rear captures show clean horizon continuity and no former
   stream/beam artifacts; the mobile headless profile is 20 draw calls / 29,818
   triangles p95 at 15.8 headless FPS.
+- Dream v37/v38 lantern-light pass: tapered glass, additive aura, warm meadow
+  clearing falloff, and a bounded 10-intensity / 12.5-distance point-light pool
+  make the lit shrine illuminate nearby ground instead of reading as a flat
+  card. Fresh objective/lit runtime captures show no shard, slab, beam, or black
+  wedge artifacts. The mobile headless sample is 21 draw calls / 29,986
+  triangles p95 at 12.7 headless FPS; environment contribution remains inside
+  its 15-call / 7,200-triangle medium contract.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v36 remains below the visual bar after fresh independent critics scored
-  7.5–7.6/10 front, 6.5–6.7/10 rear, 6.3–7.0/10 for Christian, and
-  5.9–7.2/10 for composition; scene-level backdrop/fog and the sky dome remove
-  the former horizon failure, while rear middle-distance dressing improves the
-  360 read. The remaining gap is authored world-scale depth, material richness,
-  and a lantern that reads as a luminous source rather than a bright card versus
+- Dream v38 remains below the visual bar after fresh independent critics scored
+  7.5–7.8/10 front, 7.0/10 rear, 6.4–7.1/10 for Christian, and 6.5–7.5/10
+  for composition; aura, point-light falloff, and rear middle-distance dressing
+  improve the shrine read and 360 layering. The remaining gap is distinctive
+  secondary landmarks plus richer material/lighting depth versus
   Kena/Pathless/RiME.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
