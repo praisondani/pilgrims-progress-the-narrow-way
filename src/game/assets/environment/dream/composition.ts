@@ -427,6 +427,25 @@ export const DREAM_COMPOSITION_ANCHORS: readonly DreamCompositionAnchor[] = [
     ],
   },
   {
+    // A second, quieter north layer gives the reverse orbit a middle distance
+    // between Christian and the horizon masses. Keep it shrub/stone-led so it
+    // enriches the view without introducing another collision wall or trunk
+    // through the arrival route.
+    id: "rear-meadow",
+    position: [0, 13.2],
+    rotation: 0.04,
+    role: "frame-north",
+    slots: [
+      slot("shrub", [-3.8, -0.8], 1.24, 1, -0.14, 0.1),
+      slot("shrub", [3.55, 0.65], 1.16, 1, 0.22, 0.1),
+      slot("rock", [-1.7, 0.45], 0.92, 1, 0.35, 0.08),
+      slot("rock", [1.55, 1.25], 0.84, 1, -0.24, 0.08),
+      slot("rock", [0.1, 2.45], 1.02, 1, 0.1, 0.08),
+      slot("grass", [-2.6, 1.15], 1.04, 1, 0.2, 0.08),
+      slot("grass", [2.55, -0.9], 0.98, 1, -0.18, 0.08),
+    ],
+  },
+  {
     id: "lantern-clearing",
     position: [-4, -4],
     rotation: 0.12,

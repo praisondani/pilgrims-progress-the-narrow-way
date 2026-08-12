@@ -23,6 +23,14 @@ test("starts a new journey and initializes WebGL gameplay", async ({
   await expect(page.getByTestId("game-hud")).toContainText("The Dreamer");
   await expect(page.locator("canvas")).toBeVisible();
   await expect(page.locator(".scene-loader")).toBeHidden({ timeout: 25_000 });
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-scene-background",
+    "1a2d3d",
+  );
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-scene-fog",
+    "2b4655",
+  );
   await expect(
     page.getByText("Find and light the abandoned lantern"),
   ).toBeVisible();

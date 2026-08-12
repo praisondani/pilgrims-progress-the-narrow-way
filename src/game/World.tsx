@@ -58,7 +58,10 @@ function DreamGround({ color }: { color: Color }) {
             sin(vDreamGroundPosition.x * 0.18 + vDreamGroundPosition.y * 0.11) * 0.5 +
             sin(vDreamGroundPosition.x * 0.47 - vDreamGroundPosition.y * 0.23) * 0.24;
           float meadowBand = smoothstep(-0.62, 0.62, meadowGrain);
-          float distanceBand = smoothstep(0.0, 18.0, abs(vDreamGroundPosition.y));
+          // Keep far meadow value changes gradual. The wider authored plane
+          // now reaches into fog instead of exposing a straight cut at orbit
+          // distance.
+          float distanceBand = smoothstep(0.0, 28.0, abs(vDreamGroundPosition.y));
           diffuseColor.rgb = mix(
             diffuseColor.rgb * 0.84,
             diffuseColor.rgb * 1.08,
@@ -71,12 +74,12 @@ function DreamGround({ color }: { color: Color }) {
           );`,
         );
     };
-    material.current.customProgramCacheKey = () => "dream-ground-breakup-v2";
+    material.current.customProgramCacheKey = () => "dream-ground-breakup-v3";
     material.current.needsUpdate = true;
   }, []);
   return (
     <mesh receiveShadow position={[0, -0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[44, 44, 32, 32]} />
+      <planeGeometry args={[72, 72, 32, 32]} />
       <meshStandardMaterial
         ref={material}
         color={color}
@@ -600,9 +603,9 @@ export function World() {
   const proceduralField =
     scene.id === "field" && renderingFeatureFlags().advancedTerrain;
   const authoredDream = scene.id === "dream";
-  const sceneSky = authoredDream ? new Color("#0d1a2a") : sky;
+  const sceneSky = authoredDream ? new Color("#1a2d3d") : sky;
   const sceneFog = authoredDream
-    ? new Color("#2c4050")
+    ? new Color("#2b4655")
     : sky.clone().lerp(new Color(scene.palette.fog), 0.45);
   const targetLightIntensity = authoredDream
     ? visibility === "highContrast"

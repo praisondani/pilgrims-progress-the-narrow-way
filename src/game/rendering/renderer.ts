@@ -19,6 +19,7 @@ export async function createGameRenderer(input: RendererInput) {
       const { WebGPURenderer } = await import("three/webgpu");
       const renderer = new WebGPURenderer({
         antialias: true,
+        alpha: false,
         canvas: input.canvas,
         powerPreference: "high-performance",
       });
@@ -33,6 +34,9 @@ export async function createGameRenderer(input: RendererInput) {
   const renderer = new WebGLRenderer({
     ...input,
     antialias: true,
+    // Game scenes own their sky/background. An alpha canvas falls through to
+    // root CSS and turns authored horizons into an unrelated near-black slab.
+    alpha: false,
     powerPreference: "high-performance",
   });
   document.documentElement.dataset.rendererBackend = "webgl2";

@@ -2,7 +2,13 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
-import { PerspectiveCamera as PerspectiveCameraType, Raycaster, Vector3 } from "three";
+import {
+  Color,
+  Fog,
+  PerspectiveCamera as PerspectiveCameraType,
+  Raycaster,
+  Vector3,
+} from "three";
 import type { OrbitControls as OrbitControlsType } from "three-stdlib";
 import { HopefulCompanion, Player, playerPosition } from "./Player";
 import { World } from "./World";
@@ -14,6 +20,48 @@ import { createGameRenderer } from "./rendering/renderer";
 
 function shortestAngle(from: number, to: number) {
   return Math.atan2(Math.sin(to - from), Math.cos(to - from));
+}
+
+/**
+ * World renders inside named Group for camera obstruction queries. Scene
+ * properties cannot attach there, so keep background/fog at actual Scene
+ * level. This prevents transparent-canvas CSS becoming every chapter's
+ * accidental black sky.
+ */
+function SceneBackdrop() {
+  const { scene } = useThree();
+  const { sceneIndex, visibility } = useGame();
+  const storyScene = storyScenes[sceneIndex];
+  const bright = visibility !== "standard";
+  const sky = new Color(storyScene.palette.sky).lerp(
+    new Color("#9ccbd8"),
+    bright ? 0.24 : 0.13,
+  );
+  const authoredDream = storyScene.id === "dream";
+  const sceneSky = authoredDream ? "#1a2d3d" : `#${sky.getHexString()}`;
+  const sceneFog = authoredDream
+    ? "#2b4655"
+    : `#${sky
+        .clone()
+        .lerp(new Color(storyScene.palette.fog), 0.45)
+        .getHexString()}`;
+  const fogNear = authoredDream ? 11 : bright ? 20 : 17;
+  const fogFar = authoredDream ? 35 : bright ? 52 : 44;
+
+  useEffect(() => {
+    const previousBackground = scene.background;
+    const previousFog = scene.fog;
+    scene.background = new Color(sceneSky);
+    scene.fog = new Fog(sceneFog, fogNear, fogFar);
+    document.documentElement.dataset.sceneBackground = sceneSky.slice(1);
+    document.documentElement.dataset.sceneFog = sceneFog.slice(1);
+    return () => {
+      scene.background = previousBackground;
+      scene.fog = previousFog;
+    };
+  }, [fogFar, fogNear, scene, sceneFog, sceneSky]);
+
+  return null;
 }
 
 function CameraRig() {
@@ -279,6 +327,7 @@ export function GameCanvas() {
         gl={createGameRenderer as never}
       >
         <Exposure />
+        <SceneBackdrop />
         <Physics gravity={[0, -12, 0]}>
           <group name="game-world">
             <World />

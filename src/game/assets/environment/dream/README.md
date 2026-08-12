@@ -46,8 +46,8 @@ cue uses the visible crossing rather than cutting directly through the set.
 | Preset | LOD checked | Instances max | Draw calls max | Triangles max | Point lights | Textures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | Low | far | 54 | 13 | 2,600 | 1 | 0 |
-| Medium | near | 96 | 15 | 6,500 | 1 | 0 |
-| High | near | 120 | 15 | 8,000 | 1 | 0 |
+| Medium | near | 96 | 15 | 7,000 | 1 | 0 |
+| High | near | 120 | 15 | 8,500 | 1 | 0 |
 
 Budget covers dressing, lantern, stream, and motes. It is an environment
 contribution below global scene limits in `docs/performance-budgets.md`, not a
@@ -56,8 +56,8 @@ Three.js geometries and rejects budget overruns.
 
 Integrated medium runtime uses far LOD at initial camera distance:
 61 visible instances, 12 draw calls, 3,234 triangles, one point light, and zero
-textures. Near LOD remains the budget worst case at 76 instances, 14 draw calls,
-and 6,210 triangles.
+textures. Near LOD remains the budget worst case at 83 instances, 14 draw calls,
+and 6,850 triangles.
 
 Resources are owned by one pool, retained by mounted kit, and explicitly
 disposed after final release. Deferred release survives React Strict Mode effect

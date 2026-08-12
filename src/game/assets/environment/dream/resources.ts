@@ -615,7 +615,9 @@ export function createDreamEnvironmentResources(
   const lanternBaseRock = new DodecahedronGeometry(0.28, 0);
   lanternBaseRock.scale(1.4, 0.68, 1.05);
   lanternBaseRock.translate(0, 0.13, 0);
-  const lanternGlass = new BoxGeometry(0.4, 0.5, 0.4);
+  // A tapered glass chamber catches the point light around its full profile;
+  // the old box read as a flat glowing card from side orbit angles.
+  const lanternGlass = new CylinderGeometry(0.23, 0.27, 0.52, 10, 1);
   lanternGlass.translate(0, 1.5, 0);
   const lanternFlame = new OctahedronGeometry(0.125, 0);
   lanternFlame.scale(0.72, 1.35, 0.72);
@@ -893,7 +895,7 @@ export function createDreamEnvironmentResources(
       // peak together with its point light.
       emissiveIntensity: 1.18,
       transparent: true,
-      opacity: 0.74,
+      opacity: 0.62,
       roughness: 0.34,
       vertexColors: true,
       depthWrite: false,

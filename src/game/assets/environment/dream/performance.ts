@@ -23,14 +23,14 @@ export const DREAM_PERFORMANCE_BUDGET: Readonly<
     maxVisibleDrawCalls: 15,
     // The grounded reverse-orbit mound pass adds a small authored silhouette
     // cost while remaining well below the runtime mobile benchmark.
-    maxTriangles: 6_500,
+    maxTriangles: 7_000,
     maxPointLights: 1,
     maxTextures: 0,
   },
   high: {
     maxInstances: 120,
     maxVisibleDrawCalls: 15,
-    maxTriangles: 8_000,
+    maxTriangles: 8_500,
     maxPointLights: 1,
     maxTextures: 0,
   },

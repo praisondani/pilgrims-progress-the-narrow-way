@@ -6,6 +6,7 @@ import {
   useRef,
 } from "react";
 import {
+  BackSide,
   BufferGeometry,
   Color,
   Group,
@@ -472,10 +473,46 @@ export function DreamAtmosphere({
   const palette = resolveDreamPalette(paletteOverrides);
   const fog = dreamFogRange(palette, quality);
   if (mode === "none" && !includeBackground) return null;
+  const horizonColor = new Color(palette.fog);
+  const zenithColor = new Color(palette.background).multiplyScalar(0.88);
   return (
     <>
       {includeBackground && (
-        <color attach="background" args={[palette.background]} />
+        <>
+          <color attach="background" args={[palette.background]} />
+          <mesh
+            name="dream-sky-dome"
+            renderOrder={-100}
+            frustumCulled={false}
+          >
+            <sphereGeometry args={[60, 24, 12]} />
+            <shaderMaterial
+              side={BackSide}
+              depthWrite={false}
+              depthTest={false}
+              uniforms={{
+                horizonColor: { value: horizonColor },
+                zenithColor: { value: zenithColor },
+              }}
+              vertexShader={`
+                varying float vSkyHeight;
+                void main() {
+                  vSkyHeight = normalize(position).y * 0.5 + 0.5;
+                  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+              `}
+              fragmentShader={`
+                uniform vec3 horizonColor;
+                uniform vec3 zenithColor;
+                varying float vSkyHeight;
+                void main() {
+                  float gradient = smoothstep(0.22, 0.94, vSkyHeight);
+                  gl_FragColor = vec4(mix(horizonColor, zenithColor, gradient), 1.0);
+                }
+              `}
+            />
+          </mesh>
+        </>
       )}
       {mode !== "none" && (
         <fog attach="fog" args={[palette.fog, fog.near, fog.far]} />

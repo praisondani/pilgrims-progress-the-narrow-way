@@ -4,8 +4,10 @@ import type {
 } from "./types";
 
 export const DREAM_DEFAULT_PALETTE: Readonly<DreamEnvironmentPalette> = {
-  background: "#0b1b2b",
-  fog: "#263e52",
+  // Deep blue dusk keeps rear silhouettes readable without a black horizon
+  // seam. Fog stays close in value so distant meadow blends into sky.
+  background: "#1a2d3d",
+  fog: "#2b4655",
   fogNear: 13,
   fogFar: 39,
   hemisphereSky: "#b9d4ee",
@@ -36,8 +38,8 @@ export const DREAM_ATMOSPHERE_PRESET = {
   mode: "fog" as const,
   includeBackground: true,
   palette: {
-    background: "#0b1b2b",
-    fog: "#263e52",
+    background: "#1a2d3d",
+    fog: "#2b4655",
     fogNear: 11,
     fogFar: 36,
   },
