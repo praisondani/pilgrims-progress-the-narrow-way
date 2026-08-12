@@ -1,15 +1,16 @@
-import type { BufferGeometry } from "three";
+import type { BufferGeometry, Material } from "three";
 
-const disposedGeometries = new WeakSet<BufferGeometry>();
+type OwnedResource = BufferGeometry | Material;
 type DisposalToken = { cancelled: boolean };
-const pendingDisposals = new WeakMap<BufferGeometry, DisposalToken>();
+const disposedResources = new WeakSet<OwnedResource>();
+const pendingDisposals = new WeakMap<OwnedResource, DisposalToken>();
 
-function uniqueGeometries(
-  geometries: Iterable<BufferGeometry | undefined | null>,
+function uniqueResources(
+  resources: Iterable<OwnedResource | undefined | null>,
 ) {
-  const owned = new Set<BufferGeometry>();
-  for (const geometry of geometries) {
-    if (geometry) owned.add(geometry);
+  const owned = new Set<OwnedResource>();
+  for (const resource of resources) {
+    if (resource) owned.add(resource);
   }
   return owned;
 }
@@ -19,14 +20,14 @@ function uniqueGeometries(
  * remounts effects synchronously; retaining before the microtask runs keeps
  * memoized geometry alive for that second mount.
  */
-export function retainOwnedGeometries(
-  geometries: Iterable<BufferGeometry | undefined | null>,
+export function retainOwnedResources(
+  resources: Iterable<OwnedResource | undefined | null>,
 ) {
-  uniqueGeometries(geometries).forEach((geometry) => {
-    const token = pendingDisposals.get(geometry);
+  uniqueResources(resources).forEach((resource) => {
+    const token = pendingDisposals.get(resource);
     if (!token) return;
     token.cancelled = true;
-    pendingDisposals.delete(geometry);
+    pendingDisposals.delete(resource);
   });
 }
 
@@ -35,33 +36,52 @@ export function retainOwnedGeometries(
  * subsequent retain call and therefore still disposes promptly; a StrictMode
  * cleanup/remount pair cancels the pending token before it can fire.
  */
-export function deferOwnedGeometriesDisposal(
-  geometries: Iterable<BufferGeometry | undefined | null>,
+export function deferOwnedResourcesDisposal(
+  resources: Iterable<OwnedResource | undefined | null>,
 ) {
-  uniqueGeometries(geometries).forEach((geometry) => {
+  uniqueResources(resources).forEach((resource) => {
     const token: DisposalToken = { cancelled: false };
-    pendingDisposals.set(geometry, token);
+    pendingDisposals.set(resource, token);
     queueMicrotask(() => {
-      if (token.cancelled || pendingDisposals.get(geometry) !== token) return;
-      pendingDisposals.delete(geometry);
-      disposeOwnedGeometries([geometry]);
+      if (token.cancelled || pendingDisposals.get(resource) !== token) return;
+      pendingDisposals.delete(resource);
+      disposeOwnedResources([resource]);
     });
   });
 }
 
-/** Dispose only geometry owned by one environment mount, once per identity. */
+/** Dispose resources owned by one environment mount, once per identity. */
+export function disposeOwnedResources(
+  resources: Iterable<OwnedResource | undefined | null>,
+) {
+  const owned = uniqueResources(resources);
+  owned.forEach((resource) => {
+    const token = pendingDisposals.get(resource);
+    if (token) {
+      token.cancelled = true;
+      pendingDisposals.delete(resource);
+    }
+    if (disposedResources.has(resource)) return;
+    disposedResources.add(resource);
+    resource.dispose();
+  });
+}
+
+/** Geometry-only aliases keep the environment kits' ownership contracts clear. */
+export function retainOwnedGeometries(
+  geometries: Iterable<BufferGeometry | undefined | null>,
+) {
+  retainOwnedResources(geometries);
+}
+
+export function deferOwnedGeometriesDisposal(
+  geometries: Iterable<BufferGeometry | undefined | null>,
+) {
+  deferOwnedResourcesDisposal(geometries);
+}
+
 export function disposeOwnedGeometries(
   geometries: Iterable<BufferGeometry | undefined | null>,
 ) {
-  const owned = uniqueGeometries(geometries);
-  owned.forEach((geometry) => {
-    const token = pendingDisposals.get(geometry);
-    if (token) {
-      token.cancelled = true;
-      pendingDisposals.delete(geometry);
-    }
-    if (disposedGeometries.has(geometry)) return;
-    disposedGeometries.add(geometry);
-    geometry.dispose();
-  });
+  disposeOwnedResources(geometries);
 }

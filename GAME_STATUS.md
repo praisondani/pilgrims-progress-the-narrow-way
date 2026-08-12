@@ -171,6 +171,11 @@
   retain-aware across React StrictMode's mount/cleanup/remount cycle, with
   focused regression coverage so development remounts cannot poison memoized
   meshes or produce an empty scene.
+- Chapter II's procedural countryside now owns its generated terrain, path,
+  instanced geometry, and declarative materials through the same deferred,
+  deduplicated lifecycle. Its root opts out of renderer auto-disposal so real
+  scene transitions dispose promptly while StrictMode remounts retain the
+  resources; geometry and material cleanup are covered independently.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending

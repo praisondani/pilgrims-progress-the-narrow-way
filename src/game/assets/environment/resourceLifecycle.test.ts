@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BoxGeometry } from "three";
+import { BoxGeometry, MeshStandardMaterial } from "three";
 import {
   deferOwnedGeometriesDisposal,
+  deferOwnedResourcesDisposal,
   disposeOwnedGeometries,
+  disposeOwnedResources,
   retainOwnedGeometries,
+  retainOwnedResources,
 } from "./resourceLifecycle";
 
 describe("environment resource lifecycle", () => {
@@ -42,6 +45,26 @@ describe("environment resource lifecycle", () => {
 
     deferOwnedGeometriesDisposal([geometry]);
     await Promise.resolve();
+    expect(disposeCount).toBe(1);
+  });
+
+  it("applies the same deferred ownership contract to materials", async () => {
+    const material = new MeshStandardMaterial();
+    let disposeCount = 0;
+    material.addEventListener("dispose", () => {
+      disposeCount += 1;
+    });
+
+    deferOwnedResourcesDisposal([material]);
+    retainOwnedResources([material]);
+    await Promise.resolve();
+    expect(disposeCount).toBe(0);
+
+    deferOwnedResourcesDisposal([material]);
+    await Promise.resolve();
+    expect(disposeCount).toBe(1);
+
+    disposeOwnedResources([material]);
     expect(disposeCount).toBe(1);
   });
 });

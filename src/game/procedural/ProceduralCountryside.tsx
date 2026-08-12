@@ -8,6 +8,7 @@ import {
   Float32BufferAttribute,
   Group,
   InstancedMesh,
+  Material,
   Object3D,
   Uint32BufferAttribute,
   Vector3,
@@ -22,6 +23,10 @@ import { generateTerrain, terrainHeight } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition, ScatterPoint, ScatterRule } from "./types";
 import { useGame } from "../state";
 import { atmosphericLifeOffset, atmosphericLifeRotation } from "./motion";
+import {
+  deferOwnedResourcesDisposal,
+  retainOwnedResources,
+} from "../assets/environment/resourceLifecycle";
 
 function currentSeed() {
   if (typeof location === "undefined") return COUNTRYSIDE_DEFAULT_SEED;
@@ -261,6 +266,7 @@ function AtmosphericLife({ density, reducedMotion }: { density: number; reducedM
 
 export function ProceduralCountryside() {
   const reducedMotion = useGame((state) => state.reducedMotion);
+  const root = useRef<Group>(null);
   const flags = renderingFeatureFlags();
   const capabilities = detectRenderingCapabilities();
   const mobile = typeof innerWidth !== "undefined" && innerWidth < 700;
@@ -271,9 +277,25 @@ export function ProceduralCountryside() {
   );
   const terrain = useMemo(() => generateTerrain(definition, mobile ? 14 : 20, mobile ? 56 : 72), [definition, mobile]);
   const pathGeometry = useMemo(() => createPathGeometry(definition), [definition]);
+  useLayoutEffect(() => {
+    const resources: Array<BufferGeometry | Material> = [];
+    root.current?.traverse((object) => {
+      const candidate = object as Object3D & {
+        geometry?: BufferGeometry;
+        material?: Material | Material[];
+      };
+      if (candidate.geometry) resources.push(candidate.geometry);
+      if (candidate.material) {
+        if (Array.isArray(candidate.material)) resources.push(...candidate.material);
+        else resources.push(candidate.material);
+      }
+    });
+    retainOwnedResources(resources);
+    return () => deferOwnedResourcesDisposal(resources);
+  }, []);
   if (!flags.advancedTerrain) return null;
   return (
-    <group>
+    <group ref={root} dispose={null}>
       <TrimeshCollider args={[terrain.vertices, terrain.indices]} />
       <mesh geometry={terrain.geometry} receiveShadow>
         <meshStandardMaterial color="#789350" roughness={0.98} />
