@@ -43,6 +43,25 @@ export function terrainHeight(definition: ProceduralSceneDefinition, x: number, 
   return height;
 }
 
+/** Estimate terrain gradient as rise/run for scatter placement and QA. */
+export function terrainSlope(
+  definition: ProceduralSceneDefinition,
+  x: number,
+  z: number,
+  sampleDistance = 0.18,
+) {
+  const sample = Math.max(0.04, sampleDistance);
+  const dx =
+    (terrainHeight(definition, x + sample, z) -
+      terrainHeight(definition, x - sample, z)) /
+    (2 * sample);
+  const dz =
+    (terrainHeight(definition, x, z + sample) -
+      terrainHeight(definition, x, z - sample)) /
+    (2 * sample);
+  return Math.hypot(dx, dz);
+}
+
 export interface TerrainData {
   geometry: BufferGeometry;
   vertices: Float32Array;

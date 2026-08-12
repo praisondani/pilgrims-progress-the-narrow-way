@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Vector2 } from "three";
 import { countrysideBiome } from "./BiomeSystem";
-import { generateTerrain, terrainHeight } from "./TerrainGenerator";
+import { generateTerrain, terrainHeight, terrainSlope } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition } from "./types";
 
 const definition: ProceduralSceneDefinition = {
@@ -44,5 +44,7 @@ describe("procedural terrain", () => {
     expect(Math.abs(terrainHeight(definition, 0, 8))).toBeLessThan(0.1);
     expect(Math.abs(terrainHeight(definition, 0, 0))).toBeLessThan(0.1);
     expect(Math.abs(terrainHeight(definition, 4, 2))).toBeLessThan(0.1);
+    expect(terrainSlope(definition, 0, 0)).toBeGreaterThanOrEqual(0);
+    expect(terrainSlope(definition, 0, 0)).toBeLessThan(2);
   });
 });

@@ -3,6 +3,7 @@ import { Vector2 } from "three";
 import { countrysideBiome } from "./BiomeSystem";
 import { scatterPoints } from "./ScatterSystem";
 import { SeededRandom } from "./SeededRandom";
+import { terrainSlope } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition } from "./types";
 
 const definition: ProceduralSceneDefinition = {
@@ -40,5 +41,8 @@ describe("procedural generation", () => {
     expect(first).toHaveLength(12);
     expect(first.every((point) => Math.abs(point.x) >= rule.pathClearance)).toBe(true);
     expect(first.every((point) => Math.hypot(point.x - 4, point.z - 2) > 1.5)).toBe(true);
+    expect(
+      first.every((point) => terrainSlope(definition, point.x, point.z) <= rule.maxSlope),
+    ).toBe(true);
   });
 });

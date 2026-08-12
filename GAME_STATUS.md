@@ -68,6 +68,9 @@
 - Automated procedural determinism and path/landmark exclusion tests
 - Procedural terrain tests now lock deterministic ring topology, finite collider
   vertices, path flattening, and authored landmark pads.
+- Procedural scatter now enforces each biome rule’s `maxSlope` through shared
+  central-difference terrain gradients, preventing props from floating on steep
+  faces; seed tests cover the slope exclusion.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending

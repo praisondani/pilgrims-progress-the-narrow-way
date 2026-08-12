@@ -1,7 +1,7 @@
 import { Vector2 } from "three";
 import { distanceToPath } from "./PathMaskGenerator";
 import { SeededRandom } from "./SeededRandom";
-import { terrainHeight } from "./TerrainGenerator";
+import { terrainHeight, terrainSlope } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition, ScatterPoint, ScatterRule } from "./types";
 
 function clearsLandmarks(
@@ -42,6 +42,7 @@ export function scatterPoints(
     if (point.length() > definition.radius - 0.28) continue;
     if (distanceToPath(point, definition.path) < rule.pathClearance) continue;
     if (!clearsLandmarks(point, definition, kind)) continue;
+    if (terrainSlope(definition, point.x, point.y) > rule.maxSlope) continue;
     if (points.some((other) => Math.hypot(point.x - other.x, point.y - other.z) < rule.minSpacing))
       continue;
     points.push({
