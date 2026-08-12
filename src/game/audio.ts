@@ -198,7 +198,7 @@ export class GameAudio {
   // Allow the first movement cue immediately, including on native fallback
   // paths where performance.now() can still be below the cadence threshold.
   private lastStep = Number.NEGATIVE_INFINITY;
-  private lastFocus = 0;
+  private lastFocus = Number.NEGATIVE_INFINITY;
   private enabled = false;
   private playbackState: AudioPlaybackState = "muted";
   private listeners = new Set<() => void>();

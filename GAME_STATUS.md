@@ -25,7 +25,8 @@
 - Native fallback now preserves movement footsteps when `AudioContext` is
   unavailable by switching cadence to a monotonic wall clock; audio tests cover
   the fallback SFX path, including an immediate first-step cue before the
-  cadence timer has elapsed.
+  cadence timer has elapsed. Focus-puzzle cues now use the same explicit
+  unplayed state so the first slider interaction cannot be silently dropped.
 - Audio tests now verify every scene’s resolved ambience alias and all eight SFX
   assets exist locally and contain an MPEG frame; finale scenes still reuse
   nearby mastered beds until dedicated compositions are authored.

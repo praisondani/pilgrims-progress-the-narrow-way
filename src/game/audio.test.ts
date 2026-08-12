@@ -150,6 +150,23 @@ describe("safe local audio assets", () => {
     expect(FakeAudioElement.instances.at(-1)?.playing).toBe(true);
   });
 
+  it("plays the first focus cue immediately on native fallback", async () => {
+    vi.stubGlobal("Audio", FakeAudioElement);
+    const audio = new GameAudio();
+    audio.setEnabled(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const ambienceCount = FakeAudioElement.instances.length;
+    audio.focus();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(FakeAudioElement.instances).toHaveLength(ambienceCount + 1);
+    expect(FakeAudioElement.instances.at(-1)?.src).toBe(
+      "/audio/sfx/focus.mp3",
+    );
+    expect(FakeAudioElement.instances.at(-1)?.playing).toBe(true);
+  });
+
   it("keeps fallback scene trims bounded before they reach the graph", () => {
     expect(ambienceSourceGainDb("arbor")).toBeLessThanOrEqual(
       4,
