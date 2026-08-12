@@ -294,18 +294,19 @@ describe("persisted replay safety", () => {
 
   it("restores a chapter-complete handoff after reload", () => {
     const current = useGame.getState();
+    const finalStep = storyScenes[4].steps.length - 1;
     const merged = mergePersistedState(
-      { sceneIndex: 4, stepIndex: 3, sceneComplete: true },
+      { sceneIndex: 4, stepIndex: finalStep, sceneComplete: true },
       current,
     );
     expect(merged).toMatchObject({
       sceneIndex: 4,
-      stepIndex: 3,
+      stepIndex: finalStep,
       sceneComplete: true,
     });
     expect(
       migratePersistedState(
-        { sceneIndex: 4, stepIndex: 3, sceneComplete: true },
+        { sceneIndex: 4, stepIndex: finalStep, sceneComplete: true },
         11,
       ),
     ).toMatchObject({ sceneComplete: true });
@@ -326,5 +327,20 @@ describe("persisted replay safety", () => {
       stepIndex: 2,
       burden: 1,
     });
+  });
+
+  it("rejects an early chapter-complete flag", () => {
+    const merged = mergePersistedState(
+      { sceneIndex: 4, stepIndex: 0, sceneComplete: true },
+      useGame.getState(),
+    );
+    expect(merged.sceneComplete).toBe(false);
+    expect(
+      normalizeReplayCheckpoint({
+        sceneIndex: 4,
+        stepIndex: 0,
+        sceneComplete: true,
+      })?.sceneComplete,
+    ).toBe(false);
   });
 });

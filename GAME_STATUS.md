@@ -68,6 +68,8 @@
   malformed local values arrive.
 - Replay requests now clamp non-finite step inputs before chapter lookup, so a
   malformed drawer/API request cannot write a `NaN` step into live state.
+- Save and replay completion flags now require the chapter’s final beat; early
+  or stale `sceneComplete` values are discarded before the handoff UI can open.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases

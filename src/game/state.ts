@@ -175,6 +175,18 @@ function textSizeValue(
     : fallback;
 }
 
+function completedStepValue(
+  sceneIndex: number,
+  stepIndex: number,
+  value: unknown,
+  fallback = false,
+) {
+  return (
+    booleanValue(value, fallback) &&
+    stepIndex === storyScenes[sceneIndex].steps.length - 1
+  );
+}
+
 function persistedCandidate(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
     ? (value as Record<string, unknown>)
@@ -188,16 +200,23 @@ export function normalizeReplayCheckpoint(
   if (!value || typeof value !== "object") return undefined;
   const candidate = value as Record<string, unknown>;
   const sceneIndex = clampSceneIndex(candidate.sceneIndex);
+  const stepIndex = clampStepIndex(sceneIndex, candidate.stepIndex);
   return {
     sceneIndex,
-    stepIndex: clampStepIndex(sceneIndex, candidate.stepIndex),
+    stepIndex,
     burden: burdenValue(candidate.burden),
     hasRoll: booleanValue(candidate.hasRoll),
     hasKeyOfPromise: booleanValue(candidate.hasKeyOfPromise),
     equipment: stringList(candidate.equipment),
     onboarding: onboardingValue(candidate.onboarding),
-    sceneComplete: booleanValue(candidate.sceneComplete),
-    gameComplete: booleanValue(candidate.gameComplete),
+    sceneComplete: completedStepValue(
+      sceneIndex,
+      stepIndex,
+      candidate.sceneComplete,
+    ),
+    gameComplete:
+      sceneIndex === storyScenes.length - 1 &&
+      booleanValue(candidate.gameComplete),
   };
 }
 
@@ -256,7 +275,11 @@ export function migratePersistedState(persisted: unknown, version: number) {
         ? []
         : stringList(saved.equipment),
     journal: stringList(saved.journal),
-    sceneComplete: booleanValue(saved.sceneComplete),
+    sceneComplete: completedStepValue(
+      sceneIndex,
+      stepIndex,
+      saved.sceneComplete,
+    ),
     gameComplete:
       version < 6 || doubtingWasComplete
         ? false
@@ -287,6 +310,12 @@ export function mergePersistedState(
     saved.stepIndex,
     current.stepIndex,
   );
+  const sceneComplete = completedStepValue(
+    sceneIndex,
+    stepIndex,
+    saved.sceneComplete,
+    current.sceneComplete,
+  );
   return {
     ...current,
     started: booleanValue(saved.started, current.started),
@@ -304,7 +333,7 @@ export function mergePersistedState(
         : stringList(saved.equipment),
     journal:
       saved.journal === undefined ? current.journal : stringList(saved.journal),
-    sceneComplete: booleanValue(saved.sceneComplete, current.sceneComplete),
+    sceneComplete,
     gameComplete: booleanValue(saved.gameComplete, current.gameComplete),
     soundEnabled: booleanValue(saved.soundEnabled, current.soundEnabled),
     visibility: visibilityValue(saved.visibility, current.visibility),
