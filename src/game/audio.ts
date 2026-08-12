@@ -452,7 +452,8 @@ export class GameAudio {
       element.remove();
       return false;
     }
-    document.documentElement.dataset.audioContext = "native";
+    if (typeof document !== "undefined")
+      document.documentElement.dataset.audioContext = "native";
     this.markState("playing", id);
     return true;
   }

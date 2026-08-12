@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { storyScenes } from "./story";
 import {
   ambienceUrl,
@@ -9,11 +9,46 @@ import {
   audioSceneIds,
   clampSourceGainDb,
   dbToGain,
+  GameAudio,
   normalizedAmbienceOutputDb,
   sfxSourceGain,
   sfxSourceGainDb,
   sfxUrl,
 } from "./audio";
+
+class FakeAudioElement {
+  static instances: FakeAudioElement[] = [];
+  readonly src: string;
+  loop = false;
+  preload = "";
+  volume = 1;
+  playing = false;
+  private listeners = new Map<string, () => void>();
+
+  constructor(src: string) {
+    this.src = src;
+    FakeAudioElement.instances.push(this);
+  }
+
+  setAttribute() {}
+  addEventListener(name: string, listener: () => void) {
+    this.listeners.set(name, listener);
+  }
+  removeAttribute() {}
+  load() {}
+  remove() {}
+  pause() {
+    this.playing = false;
+  }
+  async play() {
+    this.playing = true;
+  }
+}
+
+afterEach(() => {
+  FakeAudioElement.instances = [];
+  vi.unstubAllGlobals();
+});
 
 describe("safe local audio assets", () => {
   it("covers every playable scene", () => {
@@ -41,6 +76,23 @@ describe("safe local audio assets", () => {
     expect(audioMix.nativeAmbienceVolume).toBeLessThanOrEqual(0.3);
     expect(audioMix.nativeSfxVolume).toBeGreaterThan(0);
     expect(audioMix.nativeSfxVolume).toBeLessThanOrEqual(0.25);
+  });
+
+  it("plays ambience through native fallback when AudioContext is unavailable", async () => {
+    vi.stubGlobal("Audio", FakeAudioElement);
+    const audio = new GameAudio();
+    audio.setEnabled(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(audio.getSnapshot()).toBe("playing");
+    expect(FakeAudioElement.instances).toHaveLength(1);
+    expect(FakeAudioElement.instances[0].src).toBe(
+      "/audio/ambience/dream.mp3",
+    );
+    expect(FakeAudioElement.instances[0].playing).toBe(true);
+    expect(FakeAudioElement.instances[0].volume).toBe(
+      audioMix.nativeAmbienceVolume,
+    );
   });
 
   it("keeps fallback scene trims bounded before they reach the graph", () => {
