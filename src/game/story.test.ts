@@ -59,6 +59,44 @@ describe("Part One story journey", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("keeps every puzzle bound to a valid beat with safe parameters", () => {
+    const steps = new Map(
+      storyScenes.flatMap((scene) =>
+        scene.steps.map((step) => [`${scene.id}:${step.id}`, step]),
+      ),
+    );
+    for (const [key, puzzle] of Object.entries(puzzles)) {
+      expect(steps.has(key), `${key} has no story beat`).toBe(true);
+      expect(puzzle.title.length).toBeGreaterThan(3);
+      expect(puzzle.instruction.length).toBeGreaterThan(8);
+      if (puzzle.type === "sequence") {
+        expect(puzzle.options.length).toBeGreaterThan(1);
+        expect(puzzle.solution.length).toBeGreaterThan(0);
+        expect(
+          puzzle.solution.every(
+            (index) => Number.isInteger(index) && index >= 0 && index < puzzle.options.length,
+          ),
+        ).toBe(true);
+      } else {
+        expect(Number.isFinite(puzzle.target)).toBe(true);
+        expect(puzzle.target).toBeGreaterThanOrEqual(0);
+        expect(puzzle.target).toBeLessThanOrEqual(100);
+        expect(puzzle.tolerance).toBeGreaterThan(0);
+        expect(puzzle.tolerance).toBeLessThanOrEqual(50);
+        expect(puzzle.low.length).toBeGreaterThan(1);
+        expect(puzzle.high.length).toBeGreaterThan(1);
+      }
+    }
+  });
+
+  it("keeps every interaction target finite for physics and navigation", () => {
+    for (const scene of storyScenes)
+      for (const step of scene.steps) {
+        expect(step.position).toHaveLength(2);
+        expect(step.position.every(Number.isFinite)).toBe(true);
+      }
+  });
+
   it("routes every Wicket Gate beat through the authored Gate anchors", () => {
     const gate = storyScenes.find((scene) => scene.id === "gate")!;
     expect(Object.fromEntries(gate.steps.map((step) => [step.id, step.position])))
