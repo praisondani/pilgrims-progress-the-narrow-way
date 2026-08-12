@@ -110,6 +110,12 @@
   `#5b4652` 18/43 desktop and 17/41 mobile. The official mobile benchmark is
   96 draw calls p95 / 32,596 triangles p95; foreground contacts remain readable
   and the distant skyline recovers contrast after the v27 washout.
+- City v29 authored landmark/road-detail pass: integrated one asymmetrical
+  civic bell tower with inward-facing warm slit windows into the existing
+  merged horizon geometry, and added ten low-profile raised paving insets to
+  the existing road draw. No new material group, light, route collider, or
+  draw call is introduced; the final triangle/performance profile is pending
+  the next non-browser benchmark.
 - Dream v9 camera-safe horizon pass: expanded authored ground, shallow rear ridge,
   dynamic orbit obstruction avoidance, ground/depth material breakup, and a
   persistent lantern guide light, with fresh desktop/mobile/rear runtime evidence
@@ -246,6 +252,10 @@
   front, 7.0–7.9 rear, and 6.3–7.4 mobile; fog balance recovers skyline
   contrast, but low-poly repetition and sparse outer world still fail the
   Kena/Pathless/RiME bar.
+- City v29 is the next visual checkpoint: a single landmark silhouette and
+  raised road insets are implemented inside existing merged geometry, but a
+  fresh static/runtime critic comparison is still required before claiming a
+  visual-bar improvement.
 
 ## Blocked
 
@@ -255,10 +265,9 @@
 
 ## Next
 
-1. Give City v28 a denser authored foreground and outer world—readable surface
-   texture, stronger material richness, and connected silhouette/landmark variety
-   beyond the ring—without increasing the 96-call mobile p95 profile or
-   reintroducing shell artifacts, then re-run blind runtime critique
+1. Review City v29's landmark and paving pass against front/rear/mobile captures
+   without increasing the 96-call mobile p95 profile or reintroducing shell
+   artifacts, then re-run blind runtime critique when browser review resumes
 2. Validate every Chapter II objective and seed exclusion on desktop/mobile
 3. Move terrain/scatter array generation to a worker after profiling proves need
 4. Add region lifecycle/disposal and repeated-transition memory test

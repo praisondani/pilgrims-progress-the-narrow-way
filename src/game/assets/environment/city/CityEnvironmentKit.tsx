@@ -607,6 +607,77 @@ function makeGroundedCityHorizonGeometry(segmentCount: number) {
     parts.push(terraceTop);
   }
 
+  // A single civic landmark gives the outer ring a readable authored identity
+  // instead of a repeated wall of anonymous blocks. It is deliberately built
+  // into the existing merged horizon draw: the bell tower sits behind the
+  // berm, its foot is hidden by the same haze band, and the warm slits face
+  // the playable island without introducing a new light or material group.
+  {
+    const angle = (112 * Math.PI) / 180;
+    const radius = 21.9;
+    const rotation = Math.PI / 2 - angle;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    const [bodyColor, roofColor] = ["#5b4658", "#76576b"] as const;
+
+    const plinth = new BoxGeometry(2.8, 0.36, 1.82);
+    plinth.translate(0, 0.18, 0);
+    plinth.rotateY(rotation);
+    plinth.translate(x, 0, z);
+    setGeometryVerticalRamp(
+      plinth,
+      shiftedCityColor(bodyColor, -0.06, 0.004),
+      shiftedCityColor(bodyColor, 0.05, -0.006),
+    );
+    parts.push(plinth);
+
+    const body = new BoxGeometry(1.48, 3.42, 1.18);
+    body.translate(0, 2.07, 0);
+    body.rotateY(rotation);
+    body.translate(x, 0, z);
+    setGeometryVerticalRamp(
+      body,
+      shiftedCityColor(bodyColor, -0.045, 0.006),
+      shiftedCityColor(bodyColor, 0.13, -0.01),
+    );
+    parts.push(body);
+
+    for (const side of [-1, 1]) {
+      const buttress = new BoxGeometry(0.34, 2.34, 0.84);
+      buttress.translate(side * 0.86, 1.45, 0.02);
+      buttress.rotateY(rotation);
+      buttress.translate(x, 0, z);
+      setGeometryVerticalRamp(
+        buttress,
+        shiftedCityColor(bodyColor, -0.075, 0.008),
+        shiftedCityColor(bodyColor, 0.08, -0.004),
+      );
+      parts.push(buttress);
+    }
+
+    const roof = new ConeGeometry(1.14, 0.86, 6, 1, true);
+    roof.rotateY(rotation + Math.PI / 6);
+    roof.translate(x, 3.98, z);
+    setGeometryVerticalRamp(
+      roof,
+      shiftedCityColor(roofColor, -0.05, 0.008),
+      shiftedCityColor(roofColor, 0.14, -0.008),
+    );
+    parts.push(roof);
+
+    // Two narrow, inward-facing windows create a tiny warm story cue at
+    // distance. Their compact footprint keeps the silhouette legible on low
+    // quality while avoiding a new emissive light budget.
+    for (const lateral of [-0.32, 0.32]) {
+      const slit = new BoxGeometry(0.16, 0.58, 0.055);
+      slit.translate(lateral, 2.18, -0.615);
+      slit.rotateY(rotation);
+      slit.translate(x, 0, z);
+      setGeometryColor(slit, lateral < 0 ? "#d68a59" : "#efb66d");
+      parts.push(slit);
+    }
+  }
+
   // Blend only the farthest radial vertices toward the dusk horizon. This
   // softens toy-like contrast while preserving the saturated front path and
   // the authored color ramps on the playable island.
@@ -1067,8 +1138,8 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
   const count = CITY_QUALITY_COUNTS[quality].streetStones;
   const stones = useMemo(() => CITY_STREET_STONES.slice(0, count), [count]);
   const roadGeometry = useMemo(() => {
-    const geometry = new BoxGeometry(2.45, 0.055, 15.7, 2, 1, 14);
-    addMaterialBreakup(geometry, 0.045, "#4e4b54", {
+    const base = new BoxGeometry(2.45, 0.055, 15.7, 2, 1, 14);
+    addMaterialBreakup(base, 0.045, "#4e4b54", {
       edgeDarken: 0.08,
       edgeStart: 0.86,
       edgeEnd: 1.18,
@@ -1079,6 +1150,42 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
         [1.02, 5.7, 0.2, 0.64, 0.1],
       ],
     });
+    const insetLayout = [
+      [-0.58, -6.2, 0.42, 0.52, 0.02],
+      [0.54, -5.12, 0.5, 0.44, -0.03],
+      [-0.42, -3.82, 0.54, 0.48, 0.04],
+      [0.6, -2.52, 0.46, 0.58, -0.02],
+      [-0.54, -1.16, 0.48, 0.42, 0.035],
+      [0.5, 0.22, 0.44, 0.56, -0.025],
+      [-0.46, 1.5, 0.5, 0.45, 0.02],
+      [0.58, 2.72, 0.44, 0.52, -0.03],
+      [-0.5, 4.04, 0.52, 0.46, 0.025],
+      [0.45, 5.35, 0.42, 0.5, -0.02],
+    ] as const;
+    const parts: BufferGeometry[] = [base];
+    insetLayout.forEach(([x, z, width, depth, yaw], index) => {
+      const inset = new BoxGeometry(width, 0.044, depth);
+      inset.rotateY(yaw);
+      inset.translate(x, 0.047, z);
+      addMaterialBreakup(
+        inset,
+        0.018,
+        index % 3 === 0 ? "#75666a" : index % 3 === 1 ? "#62565e" : "#81716e",
+      );
+      parts.push(inset);
+    });
+    const compatible = parts.map((part) => {
+      const geometry = part.toNonIndexed();
+      part.dispose();
+      geometry.deleteAttribute("uv");
+      geometry.deleteAttribute("tangent");
+      return geometry;
+    });
+    const geometry = mergeGeometries(compatible, false);
+    compatible.forEach((part) => part.dispose());
+    if (!geometry) throw new Error("City road geometry merge failed");
+    geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
     return geometry;
   }, []);
   const crossStreetGeometry = useMemo(() => {
