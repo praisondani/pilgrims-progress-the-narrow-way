@@ -169,4 +169,36 @@ describe("Dream environment performance contract", () => {
     resources.dispose();
     expect([...disposed.values()].every((count) => count === 1)).toBe(true);
   });
+
+  it("disposes every remounted resource set after repeated scene transitions", async () => {
+    for (let transition = 0; transition < 12; transition += 1) {
+      const resources = createDreamEnvironmentResources(
+        resolveDreamPalette(),
+        "low",
+        "ink",
+      );
+      const owned = [
+        ...Object.values(resources.geometries),
+        ...Object.values(resources.materials).filter(
+          (material): material is NonNullable<typeof material> =>
+            material !== null,
+        ),
+      ];
+      const disposed = new Map(owned.map((resource) => [resource.uuid, 0]));
+      owned.forEach((resource) =>
+        resource.addEventListener("dispose", () => {
+          disposed.set(resource.uuid, (disposed.get(resource.uuid) ?? 0) + 1);
+        }),
+      );
+
+      resources.retain();
+      resources.release();
+      resources.retain();
+      resources.release();
+      await Promise.resolve();
+
+      expect(resources.disposed).toBe(true);
+      expect([...disposed.values()].every((count) => count === 1)).toBe(true);
+    }
+  });
 });

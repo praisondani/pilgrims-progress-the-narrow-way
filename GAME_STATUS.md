@@ -37,6 +37,9 @@
 - Guided travel snaps across low-FPS target crossings instead of oscillating
   outside interaction range
 - Split production chunks with enforced bundle budget
+- Dream environment resources now pass repeated remount/release coverage across
+  twelve low-quality transition cycles; each owned geometry/material disposes
+  exactly once after final release.
 - Title loading pass: `GameCanvas` now lazy-loads after the trusted Begin
   gesture, keeping Three.js/Rapier out of the title entry. The current
   production entry is 252 KB and the deferred `GameCanvas` chunk is 113 KB;
