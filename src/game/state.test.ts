@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { useGame } from "./state";
+import { normalizeReplayCheckpoint, useGame } from "./state";
 import { storyScenes } from "./story";
 
 describe("story progression state machine", () => {
@@ -189,5 +189,53 @@ describe("story progression state machine", () => {
       "breastplate",
       "shoes",
     ]);
+  });
+});
+
+describe("persisted replay safety", () => {
+  beforeEach(() => useGame.getState().reset());
+
+  it("clamps malformed checkpoint indices and strips untrusted arrays", () => {
+    const checkpoint = normalizeReplayCheckpoint({
+      sceneIndex: 999.7,
+      stepIndex: 999.4,
+      burden: "1",
+      hasRoll: "yes",
+      hasKeyOfPromise: true,
+      equipment: ["sword", 42, "sword", null],
+      onboarding: {
+        moved: true,
+        looked: "yes",
+        interacted: false,
+        firstObjectiveCompleted: 1,
+      },
+      sceneComplete: "true",
+      gameComplete: true,
+    });
+
+    expect(checkpoint).toEqual({
+      sceneIndex: storyScenes.length - 1,
+      stepIndex: storyScenes.at(-1)!.steps.length - 1,
+      burden: 1,
+      hasRoll: false,
+      hasKeyOfPromise: true,
+      equipment: ["sword"],
+      onboarding: {
+        moved: true,
+        looked: false,
+        interacted: false,
+        firstObjectiveCompleted: false,
+      },
+      sceneComplete: false,
+      gameComplete: true,
+    });
+    expect(normalizeReplayCheckpoint(null)).toBeUndefined();
+  });
+
+  it("ignores fractional replay scene requests", () => {
+    useGame.setState({ sceneIndex: 4, stepIndex: 1 });
+    useGame.getState().replayScene(2.5);
+    expect(useGame.getState().sceneIndex).toBe(4);
+    expect(useGame.getState().replayCheckpoint).toBeUndefined();
   });
 });

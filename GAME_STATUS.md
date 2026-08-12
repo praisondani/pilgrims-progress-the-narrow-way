@@ -51,6 +51,9 @@
 - Persistent normal/large/largest text settings
 - Reduced-motion and cinematic-camera comfort controls
 - Recover-current-checkpoint action and persisted-save index clamping
+- Persisted replay checkpoints now sanitize scene/step indices, booleans, and
+  equipment arrays; fractional replay requests are ignored before chapter
+  lookup, with malformed-save regression coverage.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases

@@ -84,6 +84,71 @@ type GameState = {
   returnFromReplay: () => void;
 };
 
+function asFiniteInteger(value: unknown, fallback: number) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.trunc(number) : fallback;
+}
+
+function clampSceneIndex(value: unknown) {
+  return Math.max(
+    0,
+    Math.min(storyScenes.length - 1, asFiniteInteger(value, 0)),
+  );
+}
+
+function clampStepIndex(sceneIndex: number, value: unknown) {
+  return Math.max(
+    0,
+    Math.min(
+      storyScenes[sceneIndex].steps.length - 1,
+      asFiniteInteger(value, 0),
+    ),
+  );
+}
+
+function stringList(value: unknown) {
+  return Array.isArray(value)
+    ? [
+        ...new Set(
+          value.filter((item): item is string => typeof item === "string"),
+        ),
+      ]
+    : [];
+}
+
+function booleanValue(value: unknown, fallback = false) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+/** Normalize untrusted replay data before it can drive a chapter lookup. */
+export function normalizeReplayCheckpoint(
+  value: unknown,
+): ReplayCheckpoint | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Record<string, unknown>;
+  const onboarding =
+    candidate.onboarding && typeof candidate.onboarding === "object"
+      ? (candidate.onboarding as Record<string, unknown>)
+      : {};
+  const sceneIndex = clampSceneIndex(candidate.sceneIndex);
+  return {
+    sceneIndex,
+    stepIndex: clampStepIndex(sceneIndex, candidate.stepIndex),
+    burden: Number(candidate.burden) > 0 ? 1 : 0,
+    hasRoll: booleanValue(candidate.hasRoll),
+    hasKeyOfPromise: booleanValue(candidate.hasKeyOfPromise),
+    equipment: stringList(candidate.equipment),
+    onboarding: {
+      moved: booleanValue(onboarding.moved),
+      looked: booleanValue(onboarding.looked),
+      interacted: booleanValue(onboarding.interacted),
+      firstObjectiveCompleted: booleanValue(onboarding.firstObjectiveCompleted),
+    },
+    sceneComplete: booleanValue(candidate.sceneComplete),
+    gameComplete: booleanValue(candidate.gameComplete),
+  };
+}
+
 function chapterStartState(sceneIndex: number, stepIndex = 0) {
   let burden = 0;
   let hasRoll = false;
@@ -273,6 +338,7 @@ export const useGame = create<GameState>()(
         const maxReplayIndex = checkpoint.gameComplete
           ? storyScenes.length - 1
           : checkpoint.sceneIndex - 1;
+        if (!Number.isInteger(requestedSceneIndex)) return;
         const scene = storyScenes[requestedSceneIndex];
         const stepIndex = Math.max(
           0,
@@ -444,17 +510,19 @@ export const useGame = create<GameState>()(
           version === 5 && priorSceneIndex === 20 && saved.gameComplete;
         const doubtingWasComplete =
           version < 10 && priorSceneIndex === 24 && saved.gameComplete;
-        const sceneIndex = hopefulWasComplete
+        const migratedSceneIndex = hopefulWasComplete
           ? 21
           : palaceWasComplete
             ? 14
             : doubtingWasComplete
               ? 25
               : priorSceneIndex;
-        const stepIndex =
+        const migratedStepIndex =
           palaceWasComplete || hopefulWasComplete || doubtingWasComplete
             ? 0
             : priorStepIndex;
+        const sceneIndex = clampSceneIndex(migratedSceneIndex);
+        const stepIndex = clampStepIndex(sceneIndex, migratedStepIndex);
         const passedFirstObjective = sceneIndex > 0 || stepIndex > 0;
         const onboarding =
           version < 8
@@ -494,29 +562,22 @@ export const useGame = create<GameState>()(
           puzzleActive: saved.puzzleActive ?? false,
           onboarding,
           replayCheckpoint:
-            version < 9 ? undefined : saved.replayCheckpoint,
+            version < 9
+              ? undefined
+              : normalizeReplayCheckpoint(saved.replayCheckpoint),
         };
       },
       merge: (persisted, current) => {
         const saved = persisted as Partial<GameState>;
-        const sceneIndex = Math.max(
-          0,
-          Math.min(storyScenes.length - 1, Number(saved.sceneIndex) || 0),
-        );
-        const stepIndex = Math.max(
-          0,
-          Math.min(
-            storyScenes[sceneIndex].steps.length - 1,
-            Number(saved.stepIndex) || 0,
-          ),
-        );
+        const sceneIndex = clampSceneIndex(saved.sceneIndex);
+        const stepIndex = clampStepIndex(sceneIndex, saved.stepIndex);
         return {
           ...current,
           ...saved,
           sceneIndex,
           stepIndex,
           onboarding: { ...initialOnboarding, ...saved.onboarding },
-          replayCheckpoint: saved.replayCheckpoint,
+          replayCheckpoint: normalizeReplayCheckpoint(saved.replayCheckpoint),
         };
       },
     },
