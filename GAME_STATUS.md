@@ -42,6 +42,9 @@
   impulses while dialogue, choices, puzzles, or pause are open. Focus trials
   place keyboard focus on their slider so Enter can confirm without reaching
   for the mouse.
+- Shared mobile movement input now resets on pointer release, scene remount,
+  modal pause, and player unmount, preventing a held touch direction from
+  leaking into the next chapter.
 - Bounded scene-loader fallback and wall-clock camera-flight settling for slow or
   backgrounded render loops
 - Guided travel snaps across low-FPS target crossings instead of oscillating

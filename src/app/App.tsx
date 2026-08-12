@@ -7,7 +7,7 @@ import {
   useSyncExternalStore,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { mobileInput } from "../game/Player";
+import { mobileInput, resetMobileInput } from "../game/input";
 import { useGame } from "../game/state";
 import { storyScenes, totalStoryBeats } from "../game/story";
 import { gameAudio } from "../game/audio";
@@ -239,8 +239,7 @@ function Controls() {
     mobileInput.z = z;
   };
   const release = () => {
-    mobileInput.x = 0;
-    mobileInput.z = 0;
+    resetMobileInput();
   };
   const buttonProps = (x: number, z: number, label: string) => ({
     type: "button" as const,

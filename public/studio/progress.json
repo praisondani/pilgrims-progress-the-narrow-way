@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T13:23:00-05:00",
+  "updatedAt": "2026-08-12T13:41:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -68,7 +68,7 @@
         "status": "hardened",
         "builder": "main integration",
         "critic": "mobile accessibility smoke",
-        "largestGap": "Directional controls now capture the pointer and release on up, cancel, or lost capture; physical-device Safari gesture validation remains outstanding."
+        "largestGap": "Directional controls now capture the pointer and reset shared movement on up, cancel, lost capture, scene remount, modal pause, and player unmount; physical-device Safari gesture validation remains outstanding."
       },
       {
         "id": "audio",

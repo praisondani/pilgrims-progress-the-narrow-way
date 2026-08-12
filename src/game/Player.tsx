@@ -12,6 +12,7 @@ import { Character } from "./Visuals";
 import { PilgrimHero } from "./assets/hero";
 import { gameAudio } from "./audio";
 import { cameraControl, playerImpact, playerMotion } from "./camera";
+import { mobileInput, resetMobileInput } from "./input";
 import {
   dreamGuidedWaypoint,
 } from "./assets/environment/dream";
@@ -21,7 +22,7 @@ import {
 } from "./gate/GateController";
 
 const keys = new Set<string>();
-export const mobileInput = { x: 0, z: 0 };
+export { mobileInput, resetMobileInput } from "./input";
 export const PLAYER_SPAWN = { x: 0, y: 1.2, z: 7 } as const;
 export const playerPosition = new Vector3(
   PLAYER_SPAWN.x,
@@ -96,6 +97,8 @@ export function Player() {
     body.current?.setLinvel({ x: 0, y: 0, z: 0 }, true);
     playerMotion.moving = false;
     playerMotion.yaw = Math.PI;
+    resetMobileInput();
+    return resetMobileInput;
   }, [sceneIndex]);
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -137,8 +140,7 @@ export function Player() {
   useFrame(({ camera }, delta) => {
     if (!body.current || paused || puzzleActive || dialogue || choosing) {
       keys.clear();
-      mobileInput.x = 0;
-      mobileInput.z = 0;
+      resetMobileInput();
       playerMotion.moving = false;
       if (walkingRef.current) {
         walkingRef.current = false;
