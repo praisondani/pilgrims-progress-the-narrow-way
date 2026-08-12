@@ -281,4 +281,23 @@ describe("persisted replay safety", () => {
       soundEnabled: true,
     });
   });
+
+  it("restores a chapter-complete handoff after reload", () => {
+    const current = useGame.getState();
+    const merged = mergePersistedState(
+      { sceneIndex: 4, stepIndex: 3, sceneComplete: true },
+      current,
+    );
+    expect(merged).toMatchObject({
+      sceneIndex: 4,
+      stepIndex: 3,
+      sceneComplete: true,
+    });
+    expect(
+      migratePersistedState(
+        { sceneIndex: 4, stepIndex: 3, sceneComplete: true },
+        11,
+      ),
+    ).toMatchObject({ sceneComplete: true });
+  });
 });

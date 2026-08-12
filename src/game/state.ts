@@ -245,6 +245,7 @@ export function migratePersistedState(persisted: unknown, version: number) {
         ? []
         : stringList(saved.equipment),
     journal: stringList(saved.journal),
+    sceneComplete: booleanValue(saved.sceneComplete),
     gameComplete:
       version < 6 || doubtingWasComplete
         ? false
@@ -291,6 +292,7 @@ export function mergePersistedState(
         : stringList(saved.equipment),
     journal:
       saved.journal === undefined ? current.journal : stringList(saved.journal),
+    sceneComplete: booleanValue(saved.sceneComplete, current.sceneComplete),
     gameComplete: booleanValue(saved.gameComplete, current.gameComplete),
     soundEnabled: booleanValue(saved.soundEnabled, current.soundEnabled),
     visibility: visibilityValue(saved.visibility, current.visibility),
@@ -650,6 +652,7 @@ export const useGame = create<GameState>()(
         hasKeyOfPromise: state.hasKeyOfPromise,
         equipment: state.equipment,
         journal: state.journal,
+        sceneComplete: state.sceneComplete,
         gameComplete: state.gameComplete,
         soundEnabled: state.soundEnabled,
         visibility: state.visibility,
