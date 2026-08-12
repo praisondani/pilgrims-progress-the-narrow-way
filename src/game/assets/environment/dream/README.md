@@ -45,9 +45,9 @@ cue uses the visible crossing rather than cutting directly through the set.
 
 | Preset | LOD checked | Instances max | Draw calls max | Triangles max | Point lights | Textures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Low | far | 54 | 13 | 2,800 | 1 | 0 |
-| Medium | near | 96 | 15 | 7,400 | 1 | 0 |
-| High | near | 120 | 15 | 8,700 | 1 | 0 |
+| Low | far | 54 | 13 | 2,900 | 1 | 0 |
+| Medium | near | 96 | 15 | 7,500 | 1 | 0 |
+| High | near | 120 | 15 | 8,900 | 1 | 0 |
 
 Budget covers dressing, lantern, stream, and motes. It is an environment
 contribution below global scene limits in `docs/performance-budgets.md`, not a

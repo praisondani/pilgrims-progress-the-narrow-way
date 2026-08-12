@@ -553,6 +553,46 @@ function createHorizonRidgeGeometry() {
   );
 }
 
+/**
+ * A few far silhouettes give the reverse orbit a sense of place beyond the
+ * meadow. They are intentionally small and merged with the existing depth
+ * group: one broken watch post plus two unequal ridge outcrops. Their bases
+ * sit behind the existing horizon mounds, so only integrated silhouettes rise
+ * above the fog instead of exposing a separate prop foot.
+ */
+function createDistantLandformsGeometry() {
+  const leftOutcrop = new DodecahedronGeometry(1, 0);
+  leftOutcrop.scale(2.25, 1.34, 0.82);
+  leftOutcrop.rotateY(-0.18);
+  leftOutcrop.translate(-8.35, 1.22, 19.42);
+
+  const rightOutcrop = new DodecahedronGeometry(1, 0);
+  rightOutcrop.scale(1.98, 1.18, 0.76);
+  rightOutcrop.rotateY(0.24);
+  rightOutcrop.translate(7.45, 1.08, 19.56);
+
+  const post = new BoxGeometry(0.34, 3.35, 0.34);
+  post.translate(-3.75, 1.675, 18.05);
+  const shoulder = new BoxGeometry(1.16, 0.22, 0.52);
+  shoulder.translate(-3.75, 3.08, 18.05);
+  const brokenCap = new BoxGeometry(0.28, 1.05, 0.28);
+  brokenCap.rotateZ(-0.28);
+  brokenCap.translate(-3.45, 3.52, 18.05);
+
+  const foot = new DodecahedronGeometry(0.56, 0);
+  foot.scale(1.45, 0.58, 0.9);
+  foot.translate(-3.75, 0.33, 18.05);
+
+  return merged([
+    leftOutcrop,
+    rightOutcrop,
+    post,
+    shoulder,
+    brokenCap,
+    foot,
+  ]);
+}
+
 function createDepthMassesGeometry(quality: DreamQualityPreset) {
   const segments = quality === "low" ? 6 : quality === "medium" ? 7 : 10;
   const curve = new CatmullRomCurve3(
@@ -589,7 +629,7 @@ function createDepthMassesGeometry(quality: DreamQualityPreset) {
     [13.4, 3.35, -1.8],
     [0, 3.9, 13.5],
   ].forEach(([x, y, z], index) => {
-    if (index === 4) {
+  if (index === 4) {
       const ridge = createHorizonRidgeGeometry();
       ridge.translate(0, 0, z - 13.5);
       parts.push(ridge);
@@ -604,6 +644,7 @@ function createDepthMassesGeometry(quality: DreamQualityPreset) {
     ridge.translate(x, y, z);
     parts.push(ridge);
   });
+  parts.push(createDistantLandformsGeometry());
 
   const arch = createMossArchGeometry();
   arch.rotateY(0.34);
