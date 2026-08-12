@@ -72,6 +72,8 @@
   or stale `sceneComplete` values are discarded before the handoff UI can open.
 - `gameComplete` now requires the final scene’s final beat in saves and replay
   checkpoints, preventing malformed local state from unlocking every chapter.
+- `continueScene()` now requires `sceneComplete`, so an out-of-band click or
+  stale keyboard event cannot bypass the final interaction of a chapter.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases

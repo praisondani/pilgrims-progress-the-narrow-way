@@ -678,6 +678,7 @@ export const useGame = create<GameState>()(
       },
       continueScene: () => {
         const s = get();
+        if (!s.sceneComplete) return;
         if (s.replayCheckpoint) {
           set({
             ...restoreReplayCheckpoint(s.replayCheckpoint),

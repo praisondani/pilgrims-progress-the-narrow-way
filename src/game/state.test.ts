@@ -86,6 +86,16 @@ describe("story progression state machine", () => {
     expect(useGame.getState().stepIndex).toBe(0);
   });
 
+  it("does not continue a chapter before its completion flag", () => {
+    useGame.setState({ sceneIndex: 0, stepIndex: 0, sceneComplete: false });
+    useGame.getState().continueScene();
+    expect(useGame.getState()).toMatchObject({
+      sceneIndex: 0,
+      stepIndex: 0,
+      sceneComplete: false,
+    });
+  });
+
   it("cycles accessibility settings without changing story progress", () => {
     useGame.setState({ sceneIndex: 2, stepIndex: 3 });
     useGame.getState().cycleTextSize();
