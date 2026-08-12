@@ -42,7 +42,10 @@ import {
   type CityQualityPreset,
   type CityPoint2,
 } from "./composition";
-import { disposeOwnedGeometries } from "../resourceLifecycle";
+import {
+  deferOwnedGeometriesDisposal,
+  retainOwnedGeometries,
+} from "../resourceLifecycle";
 
 type LocalTransform = {
   local: [x: number, y: number, z: number];
@@ -909,10 +912,11 @@ function CityBuildingBatches({
     [],
   );
 
-  useEffect(
-    () => () => disposeOwnedGeometries(Object.values(geometries)),
-    [geometries],
-  );
+  useEffect(() => {
+    const owned = Object.values(geometries);
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [geometries]);
 
   const detailTransforms = useMemo(() => {
     const beamTransforms: LocalTransform[] = [];
@@ -1216,16 +1220,16 @@ function CityStreet({ quality }: { quality: CityQualityPreset }) {
   );
   const roadWearMesh = useRef<InstancedMesh>(null);
   const roadWearGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
-  useEffect(
-    () => () =>
-      disposeOwnedGeometries([
-        roadGeometry,
-        crossStreetGeometry,
-        stoneGeometry,
-        roadWearGeometry,
-      ]),
-    [crossStreetGeometry, roadGeometry, roadWearGeometry, stoneGeometry],
-  );
+  useEffect(() => {
+    const owned = [
+      roadGeometry,
+      crossStreetGeometry,
+      stoneGeometry,
+      roadWearGeometry,
+    ];
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [crossStreetGeometry, roadGeometry, roadWearGeometry, stoneGeometry]);
   useLayoutEffect(() => {
     if (!stoneMesh.current) return;
     const dummy = new Object3D();
@@ -1425,10 +1429,11 @@ function CityPlanters({ quality }: { quality: CityQualityPreset }) {
     }),
     [],
   );
-  useEffect(
-    () => () => disposeOwnedGeometries(Object.values(geometries)),
-    [geometries],
-  );
+  useEffect(() => {
+    const owned = Object.values(geometries);
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [geometries]);
   useLayoutEffect(() => {
     const dummy = new Object3D();
     [pot.current, soil.current, foliage.current].forEach((mesh) =>
@@ -1491,10 +1496,11 @@ function CityMarketCitizens({
     }),
     [],
   );
-  useEffect(
-    () => () => disposeOwnedGeometries(Object.values(geometries)),
-    [geometries],
-  );
+  useEffect(() => {
+    const owned = Object.values(geometries);
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [geometries]);
   useFrame(({ clock }) => {
     if (!root.current || reducedMotion) return;
     root.current.position.y = Math.sin(clock.elapsedTime * 1.4) * 0.018;
@@ -1563,10 +1569,11 @@ function MarketStall({ position, rotation = 0 }: { position: CityPoint2; rotatio
     addMaterialBreakup(geometry, 0.055, "#6b4a3d");
     return geometry;
   }, []);
-  useEffect(
-    () => () => disposeOwnedGeometries([counterGeometry, shelfGeometry]),
-    [counterGeometry, shelfGeometry],
-  );
+  useEffect(() => {
+    const owned = [counterGeometry, shelfGeometry];
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [counterGeometry, shelfGeometry]);
   return (
     <group position={[position[0], 0, position[1]]} rotation={[0, rotation, 0]}>
       <mesh position={[-0.68, 0.72, 0]} castShadow>
@@ -1662,10 +1669,11 @@ function CityThresholdLandmark({
     addMaterialBreakup(geometry, 0.04, "#46302d");
     return geometry;
   }, []);
-  useEffect(
-    () => () => disposeOwnedGeometries([thresholdGeometry, doorGeometry]),
-    [doorGeometry, thresholdGeometry],
-  );
+  useEffect(() => {
+    const owned = [thresholdGeometry, doorGeometry];
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [doorGeometry, thresholdGeometry]);
   return (
     <group
       position={[CITY_LANDMARK_ANCHORS.threshold[0], 0, CITY_LANDMARK_ANCHORS.threshold[1]]}
@@ -1761,22 +1769,23 @@ function CityBackdrop({ quality }: { quality: CityQualityPreset }) {
   }, []);
   const towerWindowGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
 
-  useEffect(
-    () => () => {
-      duskDomeGeometry.dispose();
-      horizonGeometry.dispose();
-      towerBodyGeometry.dispose();
-      towerRoofGeometry.dispose();
-      towerWindowGeometry.dispose();
-    },
-    [
+  useEffect(() => {
+    const owned = [
       duskDomeGeometry,
       horizonGeometry,
       towerBodyGeometry,
       towerRoofGeometry,
       towerWindowGeometry,
-    ],
-  );
+    ];
+    retainOwnedGeometries(owned);
+    return () => deferOwnedGeometriesDisposal(owned);
+  }, [
+    duskDomeGeometry,
+    horizonGeometry,
+    towerBodyGeometry,
+    towerRoofGeometry,
+    towerWindowGeometry,
+  ]);
 
   useLayoutEffect(() => {
     const dummy = new Object3D();
@@ -1912,19 +1921,17 @@ export function CityEnvironmentKit({
     () => CITY_BUILDING_SITES.filter((site) => citySiteClearsTarget(site, target)),
     [target],
   );
-  useLayoutEffect(
-    () => () => {
-      const geometries: BufferGeometry[] = [];
-      root.current?.traverse((object) => {
-        const candidate = object as Object3D & {
-          geometry?: BufferGeometry;
-        };
-        if (candidate.geometry) geometries.push(candidate.geometry);
-      });
-      disposeOwnedGeometries(geometries);
-    },
-    [],
-  );
+  useLayoutEffect(() => {
+    const geometries: BufferGeometry[] = [];
+    root.current?.traverse((object) => {
+      const candidate = object as Object3D & {
+        geometry?: BufferGeometry;
+      };
+      if (candidate.geometry) geometries.push(candidate.geometry);
+    });
+    retainOwnedGeometries(geometries);
+    return () => deferOwnedGeometriesDisposal(geometries);
+  }, []);
   return (
     <group ref={root} name="city-environment-kit" dispose={null}>
       <group name="city-atmosphere" dispose={null}>

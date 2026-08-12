@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { BoxGeometry } from "three";
-import { disposeOwnedGeometries } from "./resourceLifecycle";
+import {
+  deferOwnedGeometriesDisposal,
+  disposeOwnedGeometries,
+  retainOwnedGeometries,
+} from "./resourceLifecycle";
 
 describe("environment resource lifecycle", () => {
   it("disposes each owned geometry once even when references repeat", () => {
@@ -22,5 +26,22 @@ describe("environment resource lifecycle", () => {
     expect([...disposed.values()]).toEqual([1, 1]);
     disposeOwnedGeometries([first, second]);
     expect([...disposed.values()]).toEqual([1, 1]);
+  });
+
+  it("cancels a deferred cleanup when StrictMode remounts the geometry", async () => {
+    const geometry = new BoxGeometry(1, 1, 1);
+    let disposeCount = 0;
+    geometry.addEventListener("dispose", () => {
+      disposeCount += 1;
+    });
+
+    deferOwnedGeometriesDisposal([geometry]);
+    retainOwnedGeometries([geometry]);
+    await Promise.resolve();
+    expect(disposeCount).toBe(0);
+
+    deferOwnedGeometriesDisposal([geometry]);
+    await Promise.resolve();
+    expect(disposeCount).toBe(1);
   });
 });

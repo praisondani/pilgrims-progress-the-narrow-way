@@ -158,7 +158,10 @@
 - City environment mounts now sweep and dispose every owned geometry under the
   root on unmount while leaving shared palette materials alive; the lifecycle
   helper deduplicates repeated references across child and root cleanup and has
-  direct disposal coverage.
+  direct disposal coverage. City-owned geometry cleanup is now deferred and
+  retain-aware across React StrictMode's mount/cleanup/remount cycle, with
+  focused regression coverage so development remounts cannot poison memoized
+  meshes or produce an empty scene.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending
