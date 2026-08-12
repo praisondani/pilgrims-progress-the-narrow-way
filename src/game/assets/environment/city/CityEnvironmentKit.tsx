@@ -1905,14 +1905,28 @@ export function CityEnvironmentKit({
   quality = "medium",
   reducedMotion = false,
 }: CityEnvironmentKitProps) {
+  const root = useRef<Group>(null);
   const mobile = typeof window !== "undefined" && window.innerWidth <= 720;
   const effectiveQuality: CityQualityPreset = mobile ? "low" : quality;
   const visibleSites = useMemo(
     () => CITY_BUILDING_SITES.filter((site) => citySiteClearsTarget(site, target)),
     [target],
   );
+  useLayoutEffect(
+    () => () => {
+      const geometries: BufferGeometry[] = [];
+      root.current?.traverse((object) => {
+        const candidate = object as Object3D & {
+          geometry?: BufferGeometry;
+        };
+        if (candidate.geometry) geometries.push(candidate.geometry);
+      });
+      disposeOwnedGeometries(geometries);
+    },
+    [],
+  );
   return (
-    <group name="city-environment-kit" dispose={null}>
+    <group ref={root} name="city-environment-kit" dispose={null}>
       <group name="city-atmosphere" dispose={null}>
         <CitySceneFog mobile={mobile} />
       </group>

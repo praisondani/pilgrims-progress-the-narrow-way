@@ -20,5 +20,7 @@ describe("environment resource lifecycle", () => {
     disposeOwnedGeometries([first, first, undefined, second, null]);
 
     expect([...disposed.values()]).toEqual([1, 1]);
+    disposeOwnedGeometries([first, second]);
+    expect([...disposed.values()]).toEqual([1, 1]);
   });
 });
