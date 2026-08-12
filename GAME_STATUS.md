@@ -48,6 +48,10 @@
 - Shared mobile movement input now resets on pointer release, scene remount,
   modal pause, and player unmount, preventing a held touch direction from
   leaking into the next chapter.
+- Player movement now reuses camera-relative and guided-travel vectors instead
+  of allocating temporary Three.js vectors on every render frame, reducing
+  avoidable garbage-collection pressure during long walks without changing
+  movement, collision, or camera behavior.
 - Bounded scene-loader fallback and wall-clock camera-flight settling for slow or
   backgrounded render loops
 - Guided travel snaps across low-FPS target crossings instead of oscillating

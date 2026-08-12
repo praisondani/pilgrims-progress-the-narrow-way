@@ -76,6 +76,13 @@ export function Player() {
   const walkingRef = useRef(false);
   const impactRevision = useRef(playerImpact.revision);
   const impactLean = useRef(0);
+  // Reuse the movement vectors every frame. Player movement runs continuously
+  // on mobile and desktop; allocating four temporary Vector3 objects per
+  // frame creates avoidable garbage-collection spikes during long walks.
+  const forwardVector = useRef(new Vector3());
+  const rightVector = useRef(new Vector3());
+  const manualVector = useRef(new Vector3());
+  const guidedVector = useRef(new Vector3());
   const {
     paused,
     burden,
@@ -180,13 +187,16 @@ export function Player() {
       playerPosition.set(p.x, p.y, p.z);
       return;
     }
-    const forward = camera.getWorldDirection(new Vector3());
+    const forward = camera.getWorldDirection(forwardVector.current);
     forward.y = 0;
     forward.normalize();
-    const right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+    const right = rightVector.current.set(1, 0, 0).applyQuaternion(camera.quaternion);
     right.y = 0;
     right.normalize();
-    const manual = right.multiplyScalar(x).add(forward.multiplyScalar(-z));
+    const manual = manualVector.current
+      .copy(right)
+      .multiplyScalar(x)
+      .addScaledVector(forward, -z);
     if (manual.lengthSq() > 0 && !useGame.getState().onboarding.moved)
       useGame.getState().completeOnboardingMilestone("moved");
     if (manual.lengthSq() > 0 && guidedTravel)
@@ -204,7 +214,7 @@ export function Player() {
       !dreamGuided ||
       (guidedPoint[0] === step.position[0] &&
         guidedPoint[1] === step.position[1]);
-    const guided = new Vector3(
+    const guided = guidedVector.current.set(
       guidedPoint[0] - p.x,
       0,
       guidedPoint[1] - p.z,
