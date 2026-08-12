@@ -586,6 +586,26 @@ function createDistantLandformsGeometry() {
   foot.scale(1.45, 0.58, 0.9);
   foot.translate(-3.75, 0.33, 18.05);
 
+  // A small, broken rear shrine gives the reverse orbit a second authored
+  // landmark to read against the ridge. It stays behind the existing mound
+  // line and is merged into the same depth batch, so it adds silhouette and
+  // scale without another draw group or a new collision surface.
+  const shrineFoot = new DodecahedronGeometry(0.78, 0);
+  shrineFoot.scale(1.55, 0.46, 0.92);
+  shrineFoot.translate(0.95, 0.36, 20.3);
+  const shrineLeft = new BoxGeometry(0.3, 1.95, 0.34);
+  shrineLeft.translate(0.34, 1.34, 20.3);
+  const shrineRight = new BoxGeometry(0.3, 1.55, 0.34);
+  shrineRight.translate(1.56, 1.14, 20.3);
+  const shrineLintel = new BoxGeometry(1.78, 0.28, 0.38);
+  shrineLintel.rotateZ(-0.035);
+  shrineLintel.translate(0.95, 2.28, 20.3);
+  const shrineCap = new ConeGeometry(0.96, 0.72, 5, 1, true);
+  shrineCap.rotateY(Math.PI / 5);
+  shrineCap.translate(0.95, 2.78, 20.3);
+  const shrineSlit = new BoxGeometry(0.16, 0.48, 0.045);
+  shrineSlit.translate(1.08, 1.55, 20.08);
+
   return merged([
     leftOutcrop,
     rightOutcrop,
@@ -593,6 +613,12 @@ function createDistantLandformsGeometry() {
     shoulder,
     brokenCap,
     foot,
+    shrineFoot,
+    shrineLeft,
+    shrineRight,
+    shrineLintel,
+    shrineCap,
+    shrineSlit,
   ]);
 }
 

@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T11:27:45-05:00",
+  "updatedAt": "2026-08-12T11:33:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -33,10 +33,10 @@
       {
         "id": "dream",
         "name": "The Dreamer environment",
-        "status": "iteration-53-critic-pending-lit-pool-review",
+        "status": "iteration-54-critic-pending-lit-pool-review",
         "builder": "ultracode environment builder",
-        "critic": "fresh runtime critics — v52 fail, front 7.6–7.8/10, rear 7.2–7.4/10, Christian 6.4–7.0/10, composition 6.8–7.5/10, artifact hygiene 7.5–8.3/10; v53 lit-pool review pending because browser capture is paused",
-        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane with authored rolling shelves/east rise/stream dip, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, lantern combines tapered glass, additive aura, bounded warm falloff, a bounded feathered warm-pool shader, and a bounded 10-intensity / 12.5-distance point light, v41 adds one merged broken waymarker, v43 harmonizes ridge/fog values, v50 integrates two distant outcrops behind the ridge, v51 adds bounded far-stone haze convergence, and v52 adds low-frequency authored meadow zones. Remaining gap: genuinely layered terrain/material depth so the rear space does not remain a planar low-poly field versus Kena/Pathless/RiME."
+        "critic": "fresh runtime critics — v52 fail, front 7.6–7.8/10, rear 7.2–7.4/10, Christian 6.4–7.0/10, composition 6.8–7.5/10, artifact hygiene 7.5–8.3/10; v53 lit-pool and v54 rear-shrine reviews pending because browser capture is paused",
+        "largestGap": "Scene-level backdrop/fog owns actual Three.js Scene, Dream meadow uses 72×72 plane with authored rolling shelves/east rise/stream dip, dusk dome restores continuous 360-degree gradients, rear meadow cluster adds instanced middle-distance dressing, lantern combines tapered glass, additive aura, bounded warm falloff, a bounded feathered warm-pool shader, and a bounded 10-intensity / 12.5-distance point light, v41 adds one merged broken waymarker, v43 harmonizes ridge/fog values, v50 integrates two distant outcrops behind the ridge, v51 adds bounded far-stone haze convergence, v52 adds low-frequency authored meadow zones, and v54 adds one broken rear shrine silhouette inside the existing distant-landforms batch. Remaining gap: genuinely layered terrain/material depth so the rear space does not remain a planar low-poly field versus Kena/Pathless/RiME."
       },
       {
         "id": "city",

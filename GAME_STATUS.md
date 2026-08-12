@@ -210,6 +210,11 @@
   checkpointing; the corrected build has zero page errors in a local smoke.
   Lit-state visual review remains pending because browser capture is paused to
   protect workstation performance.
+- Dream v54 rear-landmark pass: a broken shrine silhouette with an offset cap,
+  uneven pillars, and a narrow inward-facing slit is merged into the existing
+  distant-landforms batch behind the rear ridge. It adds authored scale and a
+  second orbit landmark without changing the stream route, collision graph,
+  material groups, or draw count; fresh visual review remains pending.
 - Christian v39 material-response pass: the existing four-draw procedural hero
   now uses bounded `MeshPhysicalMaterial` finishes with subtle skin/cloth sheen,
   burden cloth response, parchment warmth, and restrained equipment clearcoat.
@@ -228,6 +233,9 @@
   and v52 adds authored meadow zones. The current largest gap is still
   genuinely layered terrain/material depth; v53 warm-pool lighting must be
   judged from a real lit-state capture before it can be accepted.
+- Dream v54 adds one merged rear shrine landmark to address the sparse rear
+  hierarchy. It is not accepted as a visual-bar pass until a fresh front/rear
+  static/runtime comparison confirms grounded contact and no orbit artifacts.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38/v39 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
@@ -274,7 +282,7 @@
 5. Continue Dream with genuinely layered terrain/material depth and a
    production-quality lantern asset now that the artifact-safe orbit, v42
    relief, v43 horizon continuity, v50 rear outcrop integration, v51 haze
-   convergence, and v52 meadow zones are stable; validate the v53 warm pool
+   convergence, v52 meadow zones, and v54 rear shrine are stable; validate the v53 warm pool
    from a real lit-state capture when browser review resumes
 6. Resume the paused v38 hero critic loop, then build the licensed GLB pipeline; replace characters scene by scene
 7. Produce dedicated finale audio beds and complete physical-device audio/performance QA
