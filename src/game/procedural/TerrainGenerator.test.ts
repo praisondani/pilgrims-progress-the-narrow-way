@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { Vector2 } from "three";
 import { countrysideBiome } from "./BiomeSystem";
+import {
+  distanceToPath,
+  distanceToPathCoordinates,
+} from "./PathMaskGenerator";
 import { generateTerrain, terrainHeight, terrainSlope } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition } from "./types";
 
@@ -23,6 +27,17 @@ const definition: ProceduralSceneDefinition = {
 };
 
 describe("procedural terrain", () => {
+  it("keeps scalar and Vector2 path distances equivalent, including a degenerate segment", () => {
+    const path = [new Vector2(0, 0), new Vector2(0, 0), new Vector2(4, 0)];
+    const point = new Vector2(2, 3);
+
+    expect(distanceToPathCoordinates(point.x, point.y, path)).toBeCloseTo(
+      distanceToPath(point, path),
+    );
+    expect(distanceToPathCoordinates(2, 3, path)).toBeCloseTo(3);
+    expect(distanceToPathCoordinates(-1, 0, path)).toBeCloseTo(1);
+  });
+
   it("generates deterministic finite topology for a collider", () => {
     const first = generateTerrain(definition, 6, 18);
     const second = generateTerrain(definition, 6, 18);

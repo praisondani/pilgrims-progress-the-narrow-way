@@ -62,6 +62,11 @@
   setting: enabling it removes both their rotation and lateral drift while
   preserving the authored motion when comfort mode is off, with pure-function
   regression coverage.
+- Chapter II terrain height, path masking, and scatter placement now use scalar
+  distance math instead of allocating temporary `Vector2` projections for each
+  sample/attempt. Deterministic seed output and degenerate path segments are
+  covered by procedural regression tests; the authored route, exclusion pads,
+  and visual density are unchanged.
 - The same comfort contract now wraps every authored `Float` and `Sparkles`
   effect across the scene families, and disables cloud drift plus active-target
   beacon rotation when reduced motion is on. Enabled-motion tuning is unchanged;

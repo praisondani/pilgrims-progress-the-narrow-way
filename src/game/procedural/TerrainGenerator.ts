@@ -1,5 +1,9 @@
-import { BufferGeometry, Float32BufferAttribute, Uint32BufferAttribute, Vector2 } from "three";
-import { distanceToPath } from "./PathMaskGenerator";
+import {
+  BufferGeometry,
+  Float32BufferAttribute,
+  Uint32BufferAttribute,
+} from "three";
+import { distanceToPathCoordinates } from "./PathMaskGenerator";
 import { SeededRandom } from "./SeededRandom";
 import type { ProceduralSceneDefinition } from "./types";
 
@@ -30,12 +34,14 @@ export function terrainHeight(definition: ProceduralSceneDefinition, x: number, 
   const detail = valueNoise(seed ^ 0x9e3779b9, x * 0.52, z * 0.52) - 0.5;
   const radial = Math.min(1, Math.hypot(x, z) / definition.radius);
   let height = broad * 0.78 + detail * 0.16 + radial * radial * 0.3;
-  const point = new Vector2(x, z);
-  const pathDistance = distanceToPath(point, definition.path);
+  const pathDistance = distanceToPathCoordinates(x, z, definition.path);
   const pathFlatten = 1 - smooth(Math.min(1, pathDistance / 1.65));
   height = mix(height, 0, pathFlatten * 0.96);
   for (const landmark of definition.landmarks) {
-    const distance = point.distanceTo(new Vector2(...landmark.position));
+    const distance = Math.hypot(
+      x - landmark.position[0],
+      z - landmark.position[1],
+    );
     const mask = 1 - smooth(Math.min(1, distance / landmark.radius));
     height = mix(height, 0, mask * landmark.flattenStrength);
   }

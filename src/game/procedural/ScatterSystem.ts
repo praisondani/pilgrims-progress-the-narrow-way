@@ -1,17 +1,24 @@
 import { Vector2 } from "three";
-import { distanceToPath } from "./PathMaskGenerator";
+import { distanceToPathCoordinates } from "./PathMaskGenerator";
 import { SeededRandom } from "./SeededRandom";
 import { terrainHeight, terrainSlope } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition, ScatterPoint, ScatterRule } from "./types";
 
 function clearsLandmarks(
-  point: Vector2,
+  x: number,
+  z: number,
   definition: ProceduralSceneDefinition,
   kind: "vegetation" | "rocks",
 ) {
   return definition.landmarks.every((landmark) => {
     const excluded = kind === "vegetation" ? landmark.excludeVegetation : landmark.excludeRocks;
-    return !excluded || point.distanceTo(new Vector2(...landmark.position)) > landmark.radius;
+    return (
+      !excluded ||
+      Math.hypot(
+        x - landmark.position[0],
+        z - landmark.position[1],
+      ) > landmark.radius
+    );
   });
 }
 
@@ -36,19 +43,28 @@ export function scatterPoints(
     const radius = clustered
       ? Math.sqrt(random.next()) * 2.4
       : Math.sqrt(random.next()) * (definition.radius - 0.35);
-    const point = clustered
-      ? cluster.clone().add(new Vector2(Math.sin(angle) * radius, Math.cos(angle) * radius))
-      : new Vector2(Math.sin(angle) * radius, Math.cos(angle) * radius);
-    if (point.length() > definition.radius - 0.28) continue;
-    if (distanceToPath(point, definition.path) < rule.pathClearance) continue;
-    if (!clearsLandmarks(point, definition, kind)) continue;
-    if (terrainSlope(definition, point.x, point.y) > rule.maxSlope) continue;
-    if (points.some((other) => Math.hypot(point.x - other.x, point.y - other.z) < rule.minSpacing))
+    const offsetX = Math.sin(angle) * radius;
+    const offsetZ = Math.cos(angle) * radius;
+    const pointX = clustered ? cluster.x + offsetX : offsetX;
+    const pointZ = clustered ? cluster.y + offsetZ : offsetZ;
+    if (Math.hypot(pointX, pointZ) > definition.radius - 0.28) continue;
+    if (
+      distanceToPathCoordinates(pointX, pointZ, definition.path) <
+      rule.pathClearance
+    )
+      continue;
+    if (!clearsLandmarks(pointX, pointZ, definition, kind)) continue;
+    if (terrainSlope(definition, pointX, pointZ) > rule.maxSlope) continue;
+    if (
+      points.some(
+        (other) => Math.hypot(pointX - other.x, pointZ - other.z) < rule.minSpacing,
+      )
+    )
       continue;
     points.push({
-      x: point.x,
-      z: point.y,
-      y: terrainHeight(definition, point.x, point.y),
+      x: pointX,
+      z: pointZ,
+      y: terrainHeight(definition, pointX, pointZ),
       scale: random.range(rule.minScale, rule.maxScale),
       rotation: random.range(0, Math.PI * 2),
       variant: random.integer(0, 3),

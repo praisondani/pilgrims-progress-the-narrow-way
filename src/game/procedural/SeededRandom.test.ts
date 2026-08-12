@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { Vector2 } from "three";
 import { countrysideBiome } from "./BiomeSystem";
 import { createCountrysideDefinition } from "./countrysideDefinition";
-import { distanceToPath } from "./PathMaskGenerator";
+import { distanceToPath, distanceToPathCoordinates } from "./PathMaskGenerator";
 import { scatterPoints } from "./ScatterSystem";
 import { SeededRandom } from "./SeededRandom";
-import { terrainSlope } from "./TerrainGenerator";
+import { terrainHeight, terrainSlope } from "./TerrainGenerator";
 import type { ProceduralSceneDefinition } from "./types";
 
 const definition: ProceduralSceneDefinition = {
@@ -64,6 +64,21 @@ describe("procedural generation", () => {
     expect(alternate.path).toEqual(canonical.path);
     expect(alternate.landmarks).toEqual(canonical.landmarks);
     expect(alternate.biome).toBe(canonical.biome);
+  });
+
+  it("keeps every authored Chapter II objective on a finite playable pad", () => {
+    const field = createCountrysideDefinition("field-contract");
+
+    for (const landmark of field.landmarks) {
+      const [x, z] = landmark.position;
+      expect(Number.isFinite(x)).toBe(true);
+      expect(Number.isFinite(z)).toBe(true);
+      expect(Math.hypot(x, z) + landmark.radius).toBeLessThan(field.radius);
+      expect(terrainHeight(field, x, z)).toBeCloseTo(0, 4);
+      expect(Number.isFinite(distanceToPathCoordinates(x, z, field.path))).toBe(
+        true,
+      );
+    }
   });
 
   it("repeats the same random sequence for the same seed", () => {
