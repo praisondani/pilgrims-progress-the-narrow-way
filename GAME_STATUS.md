@@ -76,6 +76,9 @@
   stale keyboard event cannot bypass the final interaction of a chapter.
 - Choice responses and puzzle completion now require their active modal state;
   stale callbacks are ignored instead of mutating story progression.
+- Interaction callbacks are ignored while a dialogue-choice or puzzle modal is
+  active, preventing repeated `E`/pointer events from reopening or stacking
+  trials.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases

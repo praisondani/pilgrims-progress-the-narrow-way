@@ -638,7 +638,8 @@ export const useGame = create<GameState>()(
       },
       interact: () => {
         const s = get();
-        if (!s.nearby || s.dialogue || s.sceneComplete) return;
+        if (!s.nearby || s.dialogue || s.choosing || s.puzzleActive || s.sceneComplete)
+          return;
         const step = storyScenes[s.sceneIndex].steps[s.stepIndex];
         const firstObjective = s.sceneIndex === 0 && s.stepIndex === 0;
         if (firstObjective)

@@ -87,6 +87,21 @@ describe("story progression state machine", () => {
     });
   });
 
+  it("ignores interaction callbacks while another modal is active", () => {
+    useGame.setState({
+      sceneIndex: 0,
+      stepIndex: 0,
+      nearby: true,
+      choosing: true,
+      puzzleActive: false,
+    });
+    useGame.getState().interact();
+    expect(useGame.getState()).toMatchObject({
+      choosing: true,
+      puzzleActive: false,
+    });
+  });
+
   it("gates scene transitions behind the final beat", () => {
     useGame.setState({
       sceneIndex: 0,
