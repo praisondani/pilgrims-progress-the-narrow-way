@@ -58,6 +58,10 @@
 - GitHub Actions unit/build/bundle/asset/secret quality gates; Playwright browser
   suites remain available locally but are intentionally disabled in CI to conserve
   runner credits and avoid long pipelines
+- Verified dist-only release `b2e61d1` was pushed to `master` and deployed
+  atomically to `https://pilgrims.biblequick.com`; the public endpoint returns
+  HTTPS 200 with the expected CSP/security headers, and the server release
+  contains no source, `.env`, key, certificate, or source-map artifacts.
 - Persistent normal/large/largest text settings
 - Reduced-motion and cinematic-camera comfort controls
 - Recover-current-checkpoint action and persisted-save index clamping
