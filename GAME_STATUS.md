@@ -82,6 +82,8 @@
   malformed drawer/API request cannot write a `NaN` step into live state.
 - Save and replay completion flags now require the chapter’s final beat; early
   or stale `sceneComplete` values are discarded before the handoff UI can open.
+- Persisted `puzzleActive` is now validated against the restored story beat;
+  stale saves cannot open a missing puzzle overlay or crash the game shell.
 - `gameComplete` now requires the final scene’s final beat in saves and replay
   checkpoints, preventing malformed local state from unlocking every chapter.
 - `continueScene()` now requires `sceneComplete`, so an out-of-band click or

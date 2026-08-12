@@ -652,7 +652,7 @@ function Overlay() {
         </button>
       )}
       {(game.dialogue || game.choosing) && <div className="cinematic-bars" />}
-      {game.puzzleActive && (
+      {game.puzzleActive && puzzleFor(scene.id, step.id) && (
         <PuzzleOverlay
           key={`${scene.id}:${step.id}`}
           puzzle={puzzleFor(scene.id, step.id)!}

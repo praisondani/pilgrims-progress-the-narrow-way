@@ -399,4 +399,19 @@ describe("persisted replay safety", () => {
       })?.gameComplete,
     ).toBe(false);
   });
+
+  it("rejects a puzzle flag when the restored beat has no puzzle", () => {
+    const migrated = migratePersistedState(
+      { sceneIndex: 0, stepIndex: 1, puzzleActive: true },
+      11,
+    );
+    expect(migrated.puzzleActive).toBe(false);
+
+    useGame.setState({ sceneIndex: 0, stepIndex: 1, puzzleActive: true });
+    const merged = mergePersistedState(
+      { puzzleActive: true },
+      useGame.getState(),
+    );
+    expect(merged.puzzleActive).toBe(false);
+  });
 });

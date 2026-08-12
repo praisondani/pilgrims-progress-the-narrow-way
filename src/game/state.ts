@@ -200,6 +200,17 @@ function gameCompleteValue(
   );
 }
 
+function puzzleActiveValue(
+  sceneIndex: number,
+  stepIndex: number,
+  value: unknown,
+  fallback = false,
+) {
+  const step = storyScenes[sceneIndex]?.steps[stepIndex];
+  return Boolean(step && puzzleFor(storyScenes[sceneIndex].id, step.id)) &&
+    booleanValue(value, fallback);
+}
+
 function persistedCandidate(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
     ? (value as Record<string, unknown>)
@@ -304,7 +315,7 @@ export function migratePersistedState(persisted: unknown, version: number) {
     textSize: textSizeValue(saved.textSize),
     reducedMotion: booleanValue(saved.reducedMotion),
     cinematicCamera: booleanValue(saved.cinematicCamera, true),
-    puzzleActive: booleanValue(saved.puzzleActive),
+    puzzleActive: puzzleActiveValue(sceneIndex, stepIndex, saved.puzzleActive),
     onboarding,
     replayCheckpoint:
       version < 9
@@ -363,7 +374,12 @@ export function mergePersistedState(
       saved.cinematicCamera,
       current.cinematicCamera,
     ),
-    puzzleActive: booleanValue(saved.puzzleActive, current.puzzleActive),
+    puzzleActive: puzzleActiveValue(
+      sceneIndex,
+      stepIndex,
+      saved.puzzleActive,
+      current.puzzleActive,
+    ),
     onboarding: onboardingValue(saved.onboarding, current.onboarding),
     replayCheckpoint:
       saved.replayCheckpoint === undefined
