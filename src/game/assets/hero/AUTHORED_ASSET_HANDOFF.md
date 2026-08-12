@@ -1,6 +1,6 @@
 # Christian production asset handoff
 
-The current v38 procedural reconstruction is a reviewed runtime prototype, not
+The current v39 procedural reconstruction is a reviewed runtime prototype, not
 the final studio asset. It keeps Christian's burden behind his scapulae, uses
 two asymmetric cloth lobes with compression folds, low-profile tension relief,
 rear webbing, waist transfer, rope contact, and a far-LOD harness identity,
@@ -21,9 +21,13 @@ cloth relief/facets, and V36 carries clear shoulder/waist webbing into the far
 LOD. V37 narrows the palm/wrist transition, separates and lengthens the fingers,
 and adds a directional toe cap, sole, and ankle seam. V38 adds modest tunic
 taper, low drape relief, a hem highlight, angled shoulder seams, a chest crease,
-and a woven sleeve cuff/wrinkle pass. The prior critic passes adult readability,
-hands, boots, burden contact/material, and 96 px load identity; v38's fresh
-critic loop is intentionally pending while work is paused.
+and a woven sleeve cuff/wrinkle pass. V39 keeps the same four renderable
+materials and draw budget, but upgrades their finish to bounded
+`MeshPhysicalMaterial` response: subtle warm sheen/clearcoat for skin and cloth,
+softer burden highlights, parchment warmth, and restrained equipment clearcoat.
+The prior critic passes adult readability, hands, boots, burden contact/material,
+and 96 px load identity; the v38/v39 critic loop is intentionally pending while
+work is paused. This material pass does not replace the required licensed GLB.
 
 - reference: `public/studio-evidence/hero-reference/christian-turnaround-v1.png`
 - v18 front render: `public/studio-evidence/vertical-slice-01/christian-v18-front.png`

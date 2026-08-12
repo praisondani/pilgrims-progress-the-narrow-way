@@ -6,11 +6,12 @@ import {
   Group,
   LOD,
   Mesh,
-  MeshStandardMaterial,
+  MeshPhysicalMaterial,
   Object3D,
   Skeleton,
   SkinnedMesh,
   Vector3,
+  type ColorRepresentation,
   type Material,
   type Texture,
 } from "three";
@@ -81,12 +82,33 @@ const expressionChannels: HeroExpressionChannel[] = [
   "squint",
 ];
 
-function createVertexMaterial(name: string, roughness: number, metalness = 0) {
-  const material = new MeshStandardMaterial({
+type VertexMaterialFinish = {
+  clearcoat: number;
+  clearcoatRoughness: number;
+  sheen: number;
+  sheenColor: ColorRepresentation;
+};
+
+function createVertexMaterial(
+  name: string,
+  roughness: number,
+  metalness = 0,
+  finish: Partial<VertexMaterialFinish> = {},
+) {
+  const material = new MeshPhysicalMaterial({
     color: new Color("#ffffff"),
     vertexColors: true,
     roughness,
     metalness,
+    // Keep physical response deliberately restrained. Four shared materials
+    // retain the authored four-draw contract while adding broad cloth/skin
+    // response that survives the third-person camera; no texture atlas or
+    // extra shader material is introduced.
+    clearcoat: finish.clearcoat ?? 0.04,
+    clearcoatRoughness: finish.clearcoatRoughness ?? 0.78,
+    sheen: finish.sheen ?? 0.06,
+    sheenColor: new Color(finish.sheenColor ?? "#c7a080"),
+    sheenRoughness: 0.82,
     side: DoubleSide,
   });
   material.name = name;
@@ -1232,6 +1254,13 @@ export function createAuthoredPilgrimHero(
   const bodyMaterial = createVertexMaterial(
     "hero.authored.body.material",
     0.82,
+    0,
+    {
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.72,
+      sheen: 0.14,
+      sheenColor: "#d6a082",
+    },
   );
   const bodyMesh = new SkinnedMesh(bodyGeometry, bodyMaterial);
   bodyMesh.name = "hero.mesh.authored-body";
@@ -1720,6 +1749,13 @@ export function createAuthoredPilgrimHero(
   const burdenMaterial = createVertexMaterial(
     "hero.authored.burden.material",
     0.94,
+    0,
+    {
+      clearcoat: 0.025,
+      clearcoatRoughness: 0.9,
+      sheen: 0.1,
+      sheenColor: "#8c725a",
+    },
   );
   const burdenMesh = new Mesh(burdenGeometry, burdenMaterial);
   burdenMesh.name = "hero.mesh.authored-burden";
@@ -1812,7 +1848,17 @@ export function createAuthoredPilgrimHero(
     10,
     7,
   );
-  const propMaterial = createVertexMaterial("hero.authored.prop.material", 0.8);
+  const propMaterial = createVertexMaterial(
+    "hero.authored.prop.material",
+    0.8,
+    0,
+    {
+      clearcoat: 0.06,
+      clearcoatRoughness: 0.7,
+      sheen: 0.08,
+      sheenColor: "#ead8b0",
+    },
+  );
   const rollMesh = new SkinnedMesh(
     rollBuilder.toGeometry("hero.authored.roll.geometry"),
     propMaterial,
@@ -1865,6 +1911,12 @@ export function createAuthoredPilgrimHero(
     "hero.authored.equipment.material",
     0.38,
     0.55,
+    {
+      clearcoat: 0.16,
+      clearcoatRoughness: 0.3,
+      sheen: 0.03,
+      sheenColor: "#d8c39a",
+    },
   );
   const equipmentMesh = new SkinnedMesh(
     equipmentBuilder.toGeometry("hero.authored.equipment.geometry"),

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { Group, Mesh, SkinnedMesh, Vector3 } from "three";
+import { Group, Mesh, MeshPhysicalMaterial, SkinnedMesh, Vector3 } from "three";
 import { createPilgrimHero } from "./createHero";
 import { createDeferredHeroDisposer } from "./lifecycle";
 import { createHeroRandom } from "./procedural";
@@ -72,6 +72,15 @@ describe("authored Christian hero", () => {
     ).toHaveLength(2);
     expect(body.geometry.attributes.skinIndex).toBeTruthy();
     expect(body.geometry.morphAttributes.position).toHaveLength(4);
+    const bodyMaterial = body.material as MeshPhysicalMaterial;
+    const burdenMaterial = (
+      runtime.root.getObjectByName("hero.mesh.authored-burden") as Mesh
+    ).material as MeshPhysicalMaterial;
+    expect(bodyMaterial.isMeshPhysicalMaterial).toBe(true);
+    expect(burdenMaterial.isMeshPhysicalMaterial).toBe(true);
+    expect(bodyMaterial.clearcoat).toBeCloseTo(0.08, 3);
+    expect(bodyMaterial.sheen).toBeCloseTo(0.14, 3);
+    expect(burdenMaterial.clearcoat).toBeCloseTo(0.025, 3);
     expect(metadata.coordinateSystem).toEqual({
       up: "+Y",
       forward: "+Z",

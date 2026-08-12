@@ -198,6 +198,12 @@
   checkpointing; the corrected build has zero page errors in a local smoke.
   Lit-state visual review remains pending because browser capture is paused to
   protect workstation performance.
+- Christian v39 material-response pass: the existing four-draw procedural hero
+  now uses bounded `MeshPhysicalMaterial` finishes with subtle skin/cloth sheen,
+  burden cloth response, parchment warmth, and restrained equipment clearcoat.
+  Geometry, sockets, LODs, and triangle/draw budgets remain unchanged. Runtime
+  critic capture is still pending; the production 19–24k GLB remains required
+  for final visual sign-off.
 
 ## In progress
 
@@ -211,13 +217,14 @@
   genuinely layered terrain/material depth; v53 warm-pool lighting must be
   judged from a real lit-state capture before it can be accepted.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
-- Christian v38 img2threejs procedural anatomy/face, compacted adult head,
+- Christian v38/v39 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
   hands with separated fingers, directional toe/sole boots, and compressed
-  burden pass with fresh front/profile/rear runtime evidence. The prior
-  independent runtime critic scored v37 at 7.4/10; v38 is a focused builder
-  pass that improves torso/garment construction but is paused before a fresh
-  critic loop. A licensed sculpt/GLB remains the long-term target.
+  burden pass with fresh front/profile/rear runtime evidence. V39 upgrades the
+  same four shared hero materials to bounded physical finishes without adding
+  draws or textures. The prior independent runtime critic scored v37 at 7.4/10;
+  v38/v39 critic capture remains paused. A licensed sculpt/GLB remains the
+  long-term target.
 - City v22 independent runtime critics scored 7.3–7.8 front, 6.3–7.5 rear,
   and 6.0–7.5 mobile; artifact checks pass and the varied block/roof clusters
   materially improve rear layering. City v23 final critic scored 7.4 front,
