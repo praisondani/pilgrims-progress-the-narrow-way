@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { storyScenes } from "./story";
 import {
   ambienceUrl,
@@ -58,6 +60,40 @@ describe("safe local audio assets", () => {
   it("never builds external asset URLs", () => {
     expect(ambienceUrl("dream")).toBe("/audio/ambience/dream.mp3");
     expect(sfxUrl("dialogue")).toBe("/audio/sfx/dialogue.mp3");
+  });
+
+  it("ships every resolved scene bed and SFX with an MP3 frame", () => {
+    const assetPath = (url: string) =>
+      resolve(process.cwd(), "public", url.replace(/^\//, ""));
+    const hasMpegFrame = (path: string) => {
+      const bytes = readFileSync(path);
+      for (let index = 32; index < bytes.length - 1; index += 1) {
+        if (bytes[index] === 0xff && (bytes[index + 1] & 0xe0) === 0xe0)
+          return true;
+      }
+      return false;
+    };
+    for (const sceneId of audioSceneIds) {
+      const path = assetPath(ambienceUrl(sceneId));
+      expect(existsSync(path), `${sceneId} ambience missing`).toBe(true);
+      expect(hasMpegFrame(path), `${sceneId} ambience has no MP3 frame`).toBe(
+        true,
+      );
+    }
+    for (const name of [
+      "chapter",
+      "dialogue",
+      "error",
+      "focus",
+      "interact",
+      "step-earth",
+      "step-mud",
+      "success",
+    ]) {
+      const path = assetPath(sfxUrl(name));
+      expect(existsSync(path), `${name} SFX missing`).toBe(true);
+      expect(hasMpegFrame(path), `${name} SFX has no MP3 frame`).toBe(true);
+    }
   });
 
   it("converts measured normalization levels to linear gain", () => {
