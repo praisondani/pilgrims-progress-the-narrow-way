@@ -19,6 +19,9 @@
 - Bounded audio source gains, four-voice transient cap, coalesced browser unlock,
   interruption-aware AudioContext state reporting, and decoded-bed RMS/peak
   calibration with safe per-source lift before the shared bus limiter
+- Title-screen journey action now unlocks sound on first play; bounded native
+  `<audio>` fallback covers Web Audio context/decode failures without speaker
+  spikes.
 - Forty-seven symbolic trials using ordered-action and focus mechanics
 - Persistent sealed-roll loss/recovery and Palace equipment state with visible character gear
 - Bright-by-default gameplay with standard/bright/high-contrast visibility presets

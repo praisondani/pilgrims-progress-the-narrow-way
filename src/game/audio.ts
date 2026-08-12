@@ -72,6 +72,10 @@ export const audioMix = {
   ambienceBusGain: 0.6,
   sfxBusGain: 0.45,
   masterGain: 0.8,
+  // Native fallback is used only when Web Audio cannot create/decode a source.
+  // Keep it below full scale because HTMLAudioElement has no shared limiter.
+  nativeAmbienceVolume: 0.24,
+  nativeSfxVolume: 0.18,
   // Source calibration values are intentionally bounded before they reach
   // the shared limiter. A few legacy scenes were calibrated with very large
   // positive offsets; those can become speaker spikes when voices overlap.
@@ -148,6 +152,11 @@ type PlayingAmbience = {
   gain: GainNode;
 };
 
+type PlayingNativeAmbience = {
+  element: HTMLAudioElement;
+  scene: string;
+};
+
 type AudioBufferStats = { rms: number; peak: number };
 
 function measureBuffer(buffer: AudioBuffer): AudioBufferStats {
@@ -193,6 +202,8 @@ export class GameAudio {
   private listeners = new Set<() => void>();
   private resumeRequest?: Promise<boolean>;
   private activeSfx: AudioBufferSourceNode[] = [];
+  private nativeAmbience?: PlayingNativeAmbience;
+  private nativeSfx = new Set<HTMLAudioElement>();
   private calibratedGains = new Map<string, number>();
 
   getSnapshot = () => this.playbackState;
@@ -209,7 +220,8 @@ export class GameAudio {
     this.playbackState = state;
     if (typeof document !== "undefined") {
       document.documentElement.dataset.audioState = state;
-      document.documentElement.dataset.audioContext = this.ctx?.state ?? "none";
+      document.documentElement.dataset.audioContext =
+        this.ctx?.state ?? (this.nativeAmbience ? "native" : "none");
       if (scene) document.documentElement.dataset.audioScene = scene;
     }
     this.listeners.forEach((listener) => listener());
@@ -221,13 +233,18 @@ export class GameAudio {
       return;
     }
     if (!this.ctx) this.buildGraph();
-    if (!this.ctx) return;
+    if (!this.ctx) {
+      void this.playNativeAmbience(this.pendingScene, this.sceneRequest);
+      return;
+    }
     void this.resumeAndPlay();
   }
 
   private async resumeAndPlay() {
     if (!this.ctx) this.buildGraph();
-    if (!this.ctx || !this.enabled) return false;
+    if (!this.enabled) return false;
+    if (!this.ctx)
+      return this.playNativeAmbience(this.pendingScene, this.sceneRequest);
     const context = this.ctx;
     if (context.state !== "running") {
       if (!this.resumeRequest) {
@@ -253,7 +270,8 @@ export class GameAudio {
           this.resumeRequest = undefined;
         });
       }
-      if (!(await this.resumeRequest)) return false;
+      if (!(await this.resumeRequest))
+        return this.playNativeAmbience(this.pendingScene, this.sceneRequest);
     }
     if (!this.enabled) {
       this.markState("muted", this.pendingScene);
@@ -261,7 +279,7 @@ export class GameAudio {
     }
     if (context.state !== "running") {
       this.markState("blocked", this.pendingScene);
-      return false;
+      return this.playNativeAmbience(this.pendingScene, this.sceneRequest);
     }
     this.markState("loading", this.pendingScene);
     await this.playScene(this.pendingScene);
@@ -274,6 +292,13 @@ export class GameAudio {
       // Invalidate a pending decode so it cannot start an ambience source
       // after the user has muted audio while it was loading.
       this.sceneRequest += 1;
+      this.nativeAmbience?.element.pause();
+      this.nativeAmbience = undefined;
+      for (const element of this.nativeSfx) {
+        element.pause();
+        element.remove();
+      }
+      this.nativeSfx.clear();
       this.markState("muted", this.pendingScene);
     } else {
       this.markState("loading", this.pendingScene);
@@ -380,7 +405,77 @@ export class GameAudio {
 
   scene(id: string) {
     this.pendingScene = id;
-    if (this.ctx && this.enabled) void this.resumeAndPlay();
+    if (this.enabled) void this.resumeAndPlay();
+  }
+
+  /**
+   * Keep a browser-native playback path for Safari/WebKit builds where an
+   * AudioContext exists but MP3 decode is unavailable or interrupted. The
+   * fallback still needs the same trusted gesture, but avoids turning a
+   * recoverable decode failure into a permanently silent game.
+   */
+  private async playNativeAmbience(id: string, request: number) {
+    if (!this.enabled || id !== this.pendingScene || request !== this.sceneRequest)
+      return false;
+    if (typeof Audio === "undefined") return false;
+    if (this.nativeAmbience?.scene === id) {
+      this.markState("playing", id);
+      return true;
+    }
+    this.markState("loading", id);
+    const previous = this.nativeAmbience;
+    previous?.element.pause();
+    previous?.element.removeAttribute("src");
+    previous?.element.load();
+    const element = new Audio(ambienceUrl(id));
+    element.loop = true;
+    element.preload = "auto";
+    element.volume = audioMix.nativeAmbienceVolume;
+    element.setAttribute("playsinline", "true");
+    this.nativeAmbience = { element, scene: id };
+    try {
+      await element.play();
+    } catch {
+      if (this.nativeAmbience?.element === element) this.nativeAmbience = undefined;
+      element.remove();
+      if (this.enabled && id === this.pendingScene)
+        this.markState("blocked", id);
+      return false;
+    }
+    if (
+      !this.enabled ||
+      id !== this.pendingScene ||
+      request !== this.sceneRequest ||
+      this.nativeAmbience?.element !== element
+    ) {
+      element.pause();
+      element.remove();
+      return false;
+    }
+    document.documentElement.dataset.audioContext = "native";
+    this.markState("playing", id);
+    return true;
+  }
+
+  private async playNativeSfx(name: string) {
+    if (!this.enabled || typeof Audio === "undefined") return false;
+    const element = new Audio(sfxUrl(name));
+    element.preload = "auto";
+    element.volume = audioMix.nativeSfxVolume;
+    element.setAttribute("playsinline", "true");
+    this.nativeSfx.add(element);
+    const cleanup = () => {
+      this.nativeSfx.delete(element);
+      element.remove();
+    };
+    element.addEventListener("ended", cleanup, { once: true });
+    try {
+      await element.play();
+      return true;
+    } catch {
+      cleanup();
+      return false;
+    }
   }
 
   private async playScene(id: string) {
@@ -408,7 +503,10 @@ export class GameAudio {
       request !== this.sceneRequest ||
       id !== this.pendingScene
     ) {
-      if (!buffer && request === this.sceneRequest) this.markState("error", id);
+      if (!buffer && request === this.sceneRequest) {
+        if (await this.playNativeAmbience(id, request)) return;
+        this.markState("error", id);
+      }
       return;
     }
 
@@ -454,10 +552,19 @@ export class GameAudio {
 
   private async playSfx(name: string) {
     if (!this.enabled) return;
-    if (!(await this.resumeAndPlay())) return;
-    if (!this.ctx || !this.sfxBus) return;
+    if (!(await this.resumeAndPlay())) {
+      await this.playNativeSfx(name);
+      return;
+    }
+    if (!this.ctx || !this.sfxBus) {
+      await this.playNativeSfx(name);
+      return;
+    }
     const buffer = await this.load(sfxUrl(name));
-    if (!buffer || !this.enabled) return;
+    if (!buffer || !this.enabled) {
+      if (!buffer) await this.playNativeSfx(name);
+      return;
+    }
     const gainKey = `sfx:${name}`;
     const gainDb = this.calibratedGains.get(gainKey) ?? (() => {
       const stats = measureBuffer(buffer);

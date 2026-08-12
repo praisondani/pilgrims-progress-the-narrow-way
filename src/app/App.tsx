@@ -73,6 +73,7 @@ function NavigationCue({
 
 function Title() {
   const start = useGame((s) => s.start);
+  const soundEnabled = useGame((s) => s.soundEnabled);
   return (
     <main className="title-screen" data-testid="title-screen">
       <section className="title-hero" aria-labelledby="game-title">
@@ -95,6 +96,13 @@ function Title() {
               className="primary"
               autoFocus
               onClick={() => {
+                // The title action is a trusted gesture. Use it to unlock the
+                // audio graph so first-time players hear the Dream bed without
+                // needing to discover a secondary HUD toggle first.
+                if (!soundEnabled) {
+                  gameAudio.setEnabled(true);
+                  useGame.setState({ soundEnabled: true });
+                }
                 start();
               }}
             >

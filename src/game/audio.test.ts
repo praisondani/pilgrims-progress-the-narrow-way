@@ -36,6 +36,13 @@ describe("safe local audio assets", () => {
     expect(audioMix.masterGain).toBeLessThan(1);
   });
 
+  it("keeps native fallback playback bounded below full scale", () => {
+    expect(audioMix.nativeAmbienceVolume).toBeGreaterThan(0);
+    expect(audioMix.nativeAmbienceVolume).toBeLessThanOrEqual(0.3);
+    expect(audioMix.nativeSfxVolume).toBeGreaterThan(0);
+    expect(audioMix.nativeSfxVolume).toBeLessThanOrEqual(0.25);
+  });
+
   it("keeps fallback scene trims bounded before they reach the graph", () => {
     expect(ambienceSourceGainDb("arbor")).toBeLessThanOrEqual(
       4,
