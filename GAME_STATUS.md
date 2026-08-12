@@ -59,6 +59,10 @@
   instead of allocating coordinate arrays for every swept-contact check,
   preserving telegraph, impact, stagger, and cover behavior under low-FPS
   conditions.
+- Dream warm-pool animation now treats shader uniforms as an untrusted runtime
+  boundary, skips updates after resource disposal, and retains resources in a
+  layout effect before the render loop can observe them; malformed/disposed
+  materials are covered by focused lighting tests.
 - Bounded scene-loader fallback and wall-clock camera-flight settling for slow or
   backgrounded render loops
 - Guided travel snaps across low-FPS target crossings instead of oscillating

@@ -24,6 +24,7 @@ import {
 } from "./composition";
 import { dreamFogRange, resolveDreamPalette } from "./palette";
 import { selectDreamLod } from "./performance";
+import { readNumericUniform } from "./lighting";
 import {
   createDreamEnvironmentResources,
   type DreamEnvironmentResources,
@@ -329,6 +330,7 @@ function DreamLanternLandmark({
   }, []);
 
   useFrame(({ clock }) => {
+    if (resources.disposed) return;
     if (light.current) {
       const pulse =
         lit && !reducedMotion ? Math.sin(clock.elapsedTime * 2.1) * 0.5 : 0;
@@ -338,8 +340,10 @@ function DreamLanternLandmark({
       light.current.intensity = (lit ? 10 : 2.2) + pulse;
       light.current.distance = lit ? 12.5 : 7;
     }
-    const poolStrength =
-      resources.materials.lanternPool?.uniforms?.poolStrength;
+    const poolStrength = readNumericUniform(
+      resources.materials?.lanternPool,
+      "poolStrength",
+    );
     if (poolStrength) {
       const poolPulse =
         lit && !reducedMotion ? Math.sin(clock.elapsedTime * 1.6) * 0.012 : 0;
@@ -602,7 +606,7 @@ export function DreamEnvironmentKit({
     [palette, quality, water],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     resources.retain();
     return () => resources.release();
   }, [resources]);
