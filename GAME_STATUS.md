@@ -52,6 +52,10 @@
   of allocating temporary Three.js vectors on every render frame, reducing
   avoidable garbage-collection pressure during long walks without changing
   movement, collision, or camera behavior.
+- Wicket Gate arrow contact now reuses player/arrow lane tuples across frames
+  instead of allocating coordinate arrays for every swept-contact check,
+  preserving telegraph, impact, stagger, and cover behavior under low-FPS
+  conditions.
 - Bounded scene-loader fallback and wall-clock camera-flight settling for slow or
   backgrounded render loops
 - Guided travel snaps across low-FPS target crossings instead of oscillating

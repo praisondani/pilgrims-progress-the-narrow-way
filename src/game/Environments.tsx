@@ -264,6 +264,10 @@ function FlyingArrows({ controller }: { controller: GateController }) {
   const previousX = useRef<number[]>([]);
   const previousCycle = useRef<number[]>([]);
   const previousPlayer = useRef<[number, number] | null>(null);
+  const playerEnd = useRef<[number, number]>([0, 0]);
+  const arrowStarts = useRef<[number, number][]>([]);
+  const arrowEnds = useRef<[number, number][]>([]);
+  const playerLaneCenters = useRef<[number, number][]>([]);
   const hitCycle = useRef<number[]>([]);
   const lastPhase = useRef("");
   const lastImpact = useRef(0);
@@ -289,9 +293,12 @@ function FlyingArrows({ controller }: { controller: GateController }) {
   }, []);
   useFrame(({ clock }) => {
     const now = performance.now();
-    const playerEnd: [number, number] = [playerPosition.x, playerPosition.z];
-    const playerStart = previousPlayer.current ?? playerEnd;
-    previousPlayer.current = playerEnd;
+    const currentPlayer = playerEnd.current;
+    currentPlayer[0] = playerPosition.x;
+    currentPlayer[1] = playerPosition.z;
+    const playerStart =
+      previousPlayer.current ??
+      (previousPlayer.current = [currentPlayer[0], currentPlayer[1]]);
     const sharedFrame = gateArrowFrame(clock.elapsedTime, 0);
     if (lastPhase.current !== sharedFrame.phase) {
       lastPhase.current = sharedFrame.phase;
@@ -310,6 +317,21 @@ function FlyingArrows({ controller }: { controller: GateController }) {
       previousX.current[index] = frame.x;
       arrow.position.set(frame.x, y, z);
       arrow.visible = frame.visible && hitCycle.current[index] !== frame.cycle;
+      const arrowStart =
+        arrowStarts.current[index] ??
+        (arrowStarts.current[index] = [priorX, z]);
+      const arrowEnd =
+        arrowEnds.current[index] ??
+        (arrowEnds.current[index] = [frame.x, z]);
+      arrowStart[0] = priorX;
+      arrowStart[1] = z;
+      arrowEnd[0] = frame.x;
+      arrowEnd[1] = z;
+      const playerLaneCenter =
+        playerLaneCenters.current[index] ??
+        (playerLaneCenters.current[index] = [currentPlayer[0], z]);
+      playerLaneCenter[0] = currentPlayer[0];
+      playerLaneCenter[1] = z;
       if (warnings.current[index])
         warnings.current[index]!.visible =
           frame.targeted && frame.phase === "telegraph";
@@ -318,24 +340,24 @@ function FlyingArrows({ controller }: { controller: GateController }) {
         !controller.doorwayOpen &&
         arrow.visible &&
         now - lastImpact.current > 1_450 &&
-        !isInsideGateCover([playerPosition.x, playerPosition.z]) &&
+        !isInsideGateCover(currentPlayer) &&
         (segmentCircleContact(
           playerStart,
-          playerEnd,
-          [playerPosition.x, z],
+          currentPlayer,
+          playerLaneCenter,
           1.15,
         ) ||
           segmentSegmentContact(
-            [priorX, z],
-            [frame.x, z],
+            arrowStart,
+            arrowEnd,
             playerStart,
-            playerEnd,
+            currentPlayer,
             0.92,
           ) ||
           segmentCircleContact(
-            [priorX, z],
-            [frame.x, z],
-            playerEnd,
+            arrowStart,
+            arrowEnd,
+            currentPlayer,
             0.92,
           )) &&
         Math.abs(playerPosition.y - y) < 1.05
@@ -353,6 +375,8 @@ function FlyingArrows({ controller }: { controller: GateController }) {
         document.documentElement.dataset.lastArrowImpact = String(Date.now());
       }
     });
+    playerStart[0] = currentPlayer[0];
+    playerStart[1] = currentPlayer[1];
   });
   return (
     <group>
