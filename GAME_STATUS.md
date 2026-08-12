@@ -129,16 +129,26 @@
   sample is 19 draw calls / 29,082 triangles; the rear capture retains a small
   authored path wedge at the lower-left edge, but no stream end-cap shard or
   blue beam.
+- Dream v35/v36 atmosphere and rear-density pass: scene-level background/fog
+  now owns the actual Three.js `Scene` (removing the transparent-canvas black
+  sky), the Dream meadow grows to a 72×72 authored plane, a dusk sky dome
+  restores continuous 360-degree gradients, and a deterministic rear meadow
+  cluster adds middle-distance shrubs, rocks, and grass through existing
+  instanced batches. The lantern chamber is tapered glass instead of a flat
+  card. Fresh front/rear captures show clean horizon continuity and no former
+  stream/beam artifacts; the mobile headless profile is 20 draw calls / 29,818
+  triangles p95 at 15.8 headless FPS.
 
 ## In progress
 
 - Chapter II procedural countryside visual/performance/progression validation
-- Dream v33/v34 remains below the visual bar after fresh independent critics
-  scored 7.2–7.3/10 front, 5.7–6.0/10 rear, 6.2–6.8/10 for Christian, and
-  6.7–6.9/10 for composition; the stream/beam artifacts are gone, but a small
-  path wedge remains at the rear edge and the reverse orbit still exposes a
-  broad green plane under a dark sky without enough layered landmarks or
-  atmospheric depth versus Kena/Pathless/RiME
+- Dream v36 remains below the visual bar after fresh independent critics scored
+  7.5–7.6/10 front, 6.5–6.7/10 rear, 6.3–7.0/10 for Christian, and
+  5.9–7.2/10 for composition; scene-level backdrop/fog and the sky dome remove
+  the former horizon failure, while rear middle-distance dressing improves the
+  360 read. The remaining gap is authored world-scale depth, material richness,
+  and a lantern that reads as a luminous source rather than a bright card versus
+  Kena/Pathless/RiME.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
 - Christian v38 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
