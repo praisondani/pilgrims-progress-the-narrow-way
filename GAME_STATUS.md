@@ -143,8 +143,8 @@
   make the lit shrine illuminate nearby ground instead of reading as a flat
   card. Fresh objective/lit runtime captures show no shard, slab, beam, or black
   wedge artifacts. The mobile headless sample is 21 draw calls / 29,986
-  triangles p95 at 12.7 headless FPS; environment contribution remains inside
-  its 15-call / 7,200-triangle medium contract.
+  triangles p95 at 12.7 headless FPS; the current Dream environment estimate is
+  15 calls / 7,282 triangles against its 15-call / 7,500-triangle medium budget.
 - Dream v41 landmark pass: one merged broken waymarker now anchors the rear
   meadow axis without adding a draw call or collision wall. Fresh front/rear
   orbit captures show a grounded, readable sign silhouette with no cropped

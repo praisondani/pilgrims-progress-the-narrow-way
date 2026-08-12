@@ -54,10 +54,14 @@ contribution below global scene limits in `docs/performance-budgets.md`, not a
 whole-frame claim. `performance.test.ts` computes triangle counts from actual
 Three.js geometries and rejects budget overruns.
 
-Integrated medium runtime uses far LOD at initial camera distance:
-66 visible instances, 13 draw calls, 3,582 triangles, one point light, and zero
-textures. Near LOD remains the budget worst case at 83 instances, 15 draw calls,
-and 7,210 triangles plus the bounded lantern warm-pool pass.
+Measured runtime estimates from current geometry are:
+
+- Low/far: 37 visible instances, 13 draw calls, 2,746 triangles.
+- Medium/near: 90 visible instances, 15 draw calls, 7,282 triangles.
+- High/near: 112 visible instances, 15 draw calls, 8,754 triangles.
+
+Each preset uses one point light and zero textures. Near LOD remains the budget
+worst case; the bounded lantern warm-pool pass is included in these counts.
 
 Resources are owned by one pool, retained by mounted kit, and explicitly
 disposed after final release. Deferred release survives React Strict Mode effect
