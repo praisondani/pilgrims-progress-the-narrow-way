@@ -300,4 +300,21 @@ describe("persisted replay safety", () => {
       ),
     ).toMatchObject({ sceneComplete: true });
   });
+
+  it("preserves live progress when numeric save fields are null or empty", () => {
+    useGame.setState({
+      sceneIndex: 6,
+      stepIndex: 2,
+      burden: 1,
+    });
+    const merged = mergePersistedState(
+      { sceneIndex: null, stepIndex: "", burden: null },
+      useGame.getState(),
+    );
+    expect(merged).toMatchObject({
+      sceneIndex: 6,
+      stepIndex: 2,
+      burden: 1,
+    });
+  });
 });

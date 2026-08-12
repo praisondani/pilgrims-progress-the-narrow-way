@@ -84,24 +84,35 @@ type GameState = {
   returnFromReplay: () => void;
 };
 
-function asFiniteInteger(value: unknown, fallback: number) {
+function asFiniteNumber(value: unknown, fallback: number) {
+  if (
+    value === null ||
+    value === undefined ||
+    (typeof value === "string" && value.trim() === "")
+  )
+    return fallback;
   const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function asFiniteInteger(value: unknown, fallback: number) {
+  const number = asFiniteNumber(value, fallback);
   return Number.isFinite(number) ? Math.trunc(number) : fallback;
 }
 
-function clampSceneIndex(value: unknown) {
+function clampSceneIndex(value: unknown, fallback = 0) {
   return Math.max(
     0,
-    Math.min(storyScenes.length - 1, asFiniteInteger(value, 0)),
+    Math.min(storyScenes.length - 1, asFiniteInteger(value, fallback)),
   );
 }
 
-function clampStepIndex(sceneIndex: number, value: unknown) {
+function clampStepIndex(sceneIndex: number, value: unknown, fallback = 0) {
   return Math.max(
     0,
     Math.min(
       storyScenes[sceneIndex].steps.length - 1,
-      asFiniteInteger(value, 0),
+      asFiniteInteger(value, fallback),
     ),
   );
 }
@@ -121,7 +132,7 @@ function booleanValue(value: unknown, fallback = false) {
 }
 
 function burdenValue(value: unknown, fallback = 0) {
-  const number = Number(value);
+  const number = asFiniteNumber(value, fallback);
   return Number.isFinite(number)
     ? Math.max(0, Math.min(1, number))
     : fallback;
@@ -270,10 +281,11 @@ export function mergePersistedState(
   current: GameState,
 ): GameState {
   const saved = persistedCandidate(persisted);
-  const sceneIndex = clampSceneIndex(saved.sceneIndex ?? current.sceneIndex);
+  const sceneIndex = clampSceneIndex(saved.sceneIndex, current.sceneIndex);
   const stepIndex = clampStepIndex(
     sceneIndex,
-    saved.stepIndex ?? current.stepIndex,
+    saved.stepIndex,
+    current.stepIndex,
   );
   return {
     ...current,

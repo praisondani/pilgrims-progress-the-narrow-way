@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T14:12:00-05:00",
+  "updatedAt": "2026-08-12T14:26:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -84,7 +84,7 @@
         "status": "blocked",
         "builder": "main integration",
         "critic": "automated runtime benchmark",
-        "largestGap": "Title now defers GameCanvas, keeping Three.js/Rapier out of the 252 KB production entry; the bundle guard requires a separate GameCanvas chunk under a 400 KB entry cap. Dream resource ownership now passes twelve repeated low-quality remount/release cycles with exactly-once disposal, City environment mounts sweep every owned root geometry while leaving shared palette materials alive, Chapter II's pure seedable definition factory derives all six story landmarks and every vegetation/rock rule is tested across canonical and alternate seeds for route/clearance/slope invariants, terrain tests lock deterministic ring topology and finite collider vertices, and persisted payloads sanitize replay indices, arrays, settings, onboarding flags, legacy completion migrations, and chapter-complete handoffs before lookup. Migration/merge helpers, resource disposal, first-step footsteps, first focus-puzzle audio playback, and reload-at-complete behavior are directly regression-tested. Gate remains 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS with 124 / 88 draw-call p95; the new River finale tier is 7.06s desktop / 6.97s mobile at 142 / 96 draw-call p95 and 41,142 / 39,038 triangles. Hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
+        "largestGap": "Title now defers GameCanvas, keeping Three.js/Rapier out of the 252 KB production entry; the bundle guard requires a separate GameCanvas chunk under a 400 KB entry cap. Dream resource ownership now passes twelve repeated low-quality remount/release cycles with exactly-once disposal, City environment mounts sweep every owned root geometry while leaving shared palette materials alive, Chapter II's pure seedable definition factory derives all six story landmarks and every vegetation/rock rule is tested across canonical and alternate seeds for route/clearance/slope invariants, terrain tests lock deterministic ring topology and finite collider vertices, and persisted payloads reject null/empty numeric corruption while sanitizing replay indices, arrays, settings, onboarding flags, legacy completion migrations, and chapter-complete handoffs before lookup. Migration/merge helpers, resource disposal, first-step footsteps, first focus-puzzle audio playback, reload-at-complete behavior, and malformed numeric preservation are directly regression-tested. Gate remains 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS with 124 / 88 draw-call p95; the new River finale tier is 7.06s desktop / 6.97s mobile at 142 / 96 draw-call p95 and 41,142 / 39,038 triangles. Hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
       },
       {
         "id": "progress-board",

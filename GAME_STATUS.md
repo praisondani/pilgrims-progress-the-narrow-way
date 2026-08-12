@@ -63,6 +63,9 @@
 - Chapter-complete state is now persisted and sanitized, so a reload at the
   final beat restores the chapter handoff instead of reopening an already
   finished objective; migration coverage verifies the flag.
+- Persisted numeric fields now reject null/empty corruption instead of
+  coercing it to zero; merges preserve the live chapter, step, and burden when
+  malformed local values arrive.
 - Multi-phase Apollyon resistance centered on defense, truth, recovery, and perseverance
 - Sound-led Shadow of Death traversal with false-light, echo, prayer, fire, and balance mechanics
 - Faithful memory vignettes, Talkative evidence investigation, Evangelist preparation, and Vanity Fair social/court phases
