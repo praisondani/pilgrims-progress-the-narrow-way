@@ -1,11 +1,12 @@
 import {
+  lazy,
+  Suspense,
   useEffect,
   useRef,
   useState,
   useSyncExternalStore,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { GameCanvas } from "../game/GameCanvas";
 import { mobileInput } from "../game/Player";
 import { useGame } from "../game/state";
 import { storyScenes, totalStoryBeats } from "../game/story";
@@ -13,6 +14,14 @@ import { gameAudio } from "../game/audio";
 import { puzzleFor, totalPuzzles } from "../game/puzzles";
 import { PuzzleOverlay } from "./PuzzleOverlay";
 import { playerPosition } from "../game/Player";
+
+// Keep title/about content lightweight. Three.js, Rapier, and authored scene
+// kits load only after the player starts the journey, reducing first-paint
+// cost without changing the playable scene graph.
+const GameCanvas = lazy(async () => {
+  const module = await import("../game/GameCanvas");
+  return { default: module.GameCanvas };
+});
 
 function NavigationCue({
   target,
@@ -959,7 +968,16 @@ export function App() {
   const started = useGame((s) => s.started);
   return started ? (
     <main className="game" data-testid="game-screen">
-      <GameCanvas />
+      <Suspense
+        fallback={
+          <div className="scene-loader" role="status" aria-live="polite">
+            <span>Preparing the road</span>
+            <strong>The Dreamer</strong>
+          </div>
+        }
+      >
+        <GameCanvas />
+      </Suspense>
       <Overlay />
     </main>
   ) : (

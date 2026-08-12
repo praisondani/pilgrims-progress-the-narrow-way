@@ -1,7 +1,7 @@
 {
   "project": "Pilgrim’s Progress: The Narrow Way",
   "program": "Studio-quality third-person narrative adventure overhaul",
-  "updatedAt": "2026-08-12T11:42:00-05:00",
+  "updatedAt": "2026-08-12T11:49:00-05:00",
   "productionUrl": "https://pilgrims.biblequick.com",
   "repositoryUrl": "https://github.com/praisondani/pilgrims-progress-the-narrow-way",
   "qualityBar": [
@@ -84,7 +84,7 @@
         "status": "blocked",
         "builder": "main integration",
         "critic": "automated runtime benchmark",
-        "largestGap": "Gate remains 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS with 124 / 88 draw-call p95; the new River finale tier is 7.06s desktop / 6.97s mobile at 142 / 96 draw-call p95 and 41,142 / 39,038 triangles. Hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
+        "largestGap": "Title now defers GameCanvas, keeping Three.js/Rapier out of the 252 KB production entry; the bundle guard requires a separate GameCanvas chunk under a 400 KB entry cap. Gate remains 5.60s desktop / 4.44s mobile at 3.8 / 6.6 headless FPS with 124 / 88 draw-call p95; the new River finale tier is 7.06s desktop / 6.97s mobile at 142 / 96 draw-call p95 and 41,142 / 39,038 triangles. Hardware FPS, cold-start variance, and authored visual fidelity remain release blockers."
       },
       {
         "id": "progress-board",
@@ -681,7 +681,7 @@
     "browserRegression": "Local desktop Gate/procedural focused flows 4/4 pass; mobile WebKit 4/4 pass including autoplay-permission reload handling and forced AudioContext interruption recovery; camera and Doubting Castle focused flows 2/2 pass; exhaustive desktop 30-scene real-controls journey 1/1 pass in 25.3m; GitHub Actions Playwright job intentionally disabled to conserve runner credits, so browser suites are run locally/manual",
     "keyboardPuzzles": "focus trials confirm with Hold this focus and Enter/Space; focused desktop and mobile tests pass",
     "fullJourney": "Exhaustive Dream → Celestial City real-controls journey 1/1 pass (25.3m) across all 30 scenes; it now includes the low-FPS guided-route and cross-scene spawn-reset hardening.",
-    "bundleBudget": "4.42 MB JavaScript + 2.16 MB audio — pass",
+    "bundleBudget": "4.42 MB JavaScript + 2.16 MB audio — pass; 252 KB entry with deferred GameCanvas chunk",
     "secretAudit": "pass",
     "img2threejs": "Christian v38/v39 procedural reconstruction with near/far LOD proxies, compacted adult head hierarchy, tapered torso, tailored tunic seams, articulated hands, directional boots, compressed charcoal burden, continuous rope/leather contact, animated load settling, and four shared bounded physical hero materials; the prior fresh v37 runtime critic scored 7.4/10, while v38/v39 focused critic loop remains paused; no production GLB is accepted yet",
     "deployment": "not authorized for studio release: gameplay/regression gates, Dream/City headless budgets, and v29 runtime safety pass, but Dream v36/v53, v38/v39 hero, and City v28 critics fail the visual bar; Dream still needs richer authored 360-degree landmark/terrain/material depth and a visual lit-pool review, City v29 still needs a fresh landmark/paving critic comparison, dedicated finale audio and a production Christian GLB remain outstanding"

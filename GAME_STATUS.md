@@ -34,6 +34,10 @@
 - Guided travel snaps across low-FPS target crossings instead of oscillating
   outside interaction range
 - Split production chunks with enforced bundle budget
+- Title loading pass: `GameCanvas` now lazy-loads after the trusted Begin
+  gesture, keeping Three.js/Rapier out of the title entry. The current
+  production entry is 252 KB and the deferred `GameCanvas` chunk is 113 KB;
+  `check:bundle` enforces the deferred-chunk contract and a 400 KB entry cap.
 - Desktop and mobile Chromium smoke tests plus legacy exhaustive and finale real-control journey coverage
 - GitHub Actions unit/build/bundle/asset/secret quality gates; Playwright browser
   suites remain available locally but are intentionally disabled in CI to conserve
@@ -237,6 +241,8 @@
   hierarchy. It is not accepted as a visual-bar pass until a fresh front/rear
   static/runtime comparison confirms grounded contact and no orbit artifacts.
 - Physical-device WebGPU/WebGL and mid-range mobile benchmarks
+- Title entry is now deferred, but hardware scene FPS, cold-start variance,
+  and post-start physics/render cost still require device profiling.
 - Christian v38/v39 img2threejs procedural anatomy/face, compacted adult head,
   tapered torso, tailored tunic seams, sleeve cuff/wrinkle relief, articulated
   hands with separated fingers, directional toe/sole boots, and compressed
