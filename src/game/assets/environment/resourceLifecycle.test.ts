@@ -31,6 +31,20 @@ describe("environment resource lifecycle", () => {
     ]);
   });
 
+  it("can exclude shared palette materials from an owned scene graph", () => {
+    const group = new Group();
+    const geometry = new BoxGeometry(1, 1, 1);
+    const shared = new MeshStandardMaterial();
+    const owned = new MeshStandardMaterial();
+    group.add(new Mesh(geometry, shared));
+    group.add(new Mesh(geometry, owned));
+
+    expect(collectOwnedResources(group, [shared])).toEqual([
+      geometry,
+      owned,
+    ]);
+  });
+
   it("disposes repeated procedural region graphs after each final release", async () => {
     for (let transition = 0; transition < 12; transition += 1) {
       const group = new Group();

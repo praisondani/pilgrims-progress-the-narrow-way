@@ -192,6 +192,10 @@
   collector used by the environment lifecycle contract; twelve repeated
   mount/release graphs prove shared resources stay alive through remounts and
   dispose exactly once after the final release.
+- City's root lifecycle now collects per-mount JSX materials as well as
+  geometry, while explicitly excluding the module-owned palette shared across
+  transitions; shared-material and owned-material disposal are regression
+  tested separately.
 - Exhaustive 30-scene Dream-to-Celestial City real-controls journey passes on
   desktop (1/1, 25.3m), including Gate arrows, puzzles, dialogue, chapter
   transitions, and the Celestial City ending

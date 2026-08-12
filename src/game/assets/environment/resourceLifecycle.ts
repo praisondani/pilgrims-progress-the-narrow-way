@@ -21,7 +21,11 @@ function uniqueResources(
  * deduplicated list to the retain/defer lifecycle below. Shared resources are
  * returned once even when several meshes reference the same identity.
  */
-export function collectOwnedResources(root: Object3D): OwnedResource[] {
+export function collectOwnedResources(
+  root: Object3D,
+  excluded: Iterable<OwnedResource> = [],
+): OwnedResource[] {
+  const excludedResources = new Set(excluded);
   const resources: OwnedResource[] = [];
   root.traverse((object) => {
     const candidate = object as Object3D & {
@@ -33,7 +37,9 @@ export function collectOwnedResources(root: Object3D): OwnedResource[] {
     if (Array.isArray(candidate.material)) resources.push(...candidate.material);
     else resources.push(candidate.material);
   });
-  return [...uniqueResources(resources)];
+  return [...uniqueResources(resources)].filter(
+    (resource) => !excludedResources.has(resource),
+  );
 }
 
 /**

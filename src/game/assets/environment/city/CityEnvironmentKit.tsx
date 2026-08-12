@@ -43,8 +43,11 @@ import {
   type CityPoint2,
 } from "./composition";
 import {
+  collectOwnedResources,
   deferOwnedGeometriesDisposal,
+  deferOwnedResourcesDisposal,
   retainOwnedGeometries,
+  retainOwnedResources,
 } from "../resourceLifecycle";
 
 type LocalTransform = {
@@ -1415,6 +1418,40 @@ const CITY_CITIZEN_HAT_MATERIAL = new MeshStandardMaterial({
   roughness: 0.86,
 });
 
+// These palette materials are module-owned and intentionally shared by every
+// City mount. The root lifecycle disposes per-mount JSX materials, but must
+// leave this stable palette alive for the next chapter transition.
+const CITY_SHARED_MATERIALS = [
+  CITY_FACADE_MATERIAL,
+  CITY_ROOF_MATERIAL,
+  CITY_BEAM_MATERIAL,
+  CITY_WINDOW_MATERIAL,
+  CITY_TRIM_MATERIAL,
+  CITY_AWNING_MATERIAL,
+  CITY_DOOR_FRAME_MATERIAL,
+  CITY_DOOR_MATERIAL,
+  CITY_CHIMNEY_MATERIAL,
+  CITY_STONE_MATERIAL,
+  CITY_STONE_LIGHT_MATERIAL,
+  CITY_WOOD_MATERIAL,
+  CITY_COBBLE_MATERIAL,
+  CITY_FACADE_WEAR_MATERIAL,
+  CITY_ROAD_WEAR_MATERIAL,
+  CITY_SURFACE_MATERIAL,
+  CITY_PLANTER_MATERIAL,
+  CITY_FOLIAGE_MATERIAL,
+  CITY_BANNER_MATERIAL,
+  CITY_BANNER_DARK_MATERIAL,
+  CITY_CREST_MATERIAL,
+  CITY_SKYLINE_BODY_MATERIAL,
+  CITY_SKYLINE_ROOF_MATERIAL,
+  CITY_HORIZON_MATERIAL,
+  CITY_SKY_MATERIAL,
+  CITY_CITIZEN_BODY_MATERIAL,
+  CITY_CITIZEN_HEAD_MATERIAL,
+  CITY_CITIZEN_HAT_MATERIAL,
+] as const;
+
 function CityPlanters({ quality }: { quality: CityQualityPreset }) {
   const count = quality === "low" ? 1 : quality === "medium" ? 2 : 3;
   const positions = CITY_PLANTER_POSITIONS.slice(0, count);
@@ -1922,15 +1959,11 @@ export function CityEnvironmentKit({
     [target],
   );
   useLayoutEffect(() => {
-    const geometries: BufferGeometry[] = [];
-    root.current?.traverse((object) => {
-      const candidate = object as Object3D & {
-        geometry?: BufferGeometry;
-      };
-      if (candidate.geometry) geometries.push(candidate.geometry);
-    });
-    retainOwnedGeometries(geometries);
-    return () => deferOwnedGeometriesDisposal(geometries);
+    const resources = root.current
+      ? collectOwnedResources(root.current, CITY_SHARED_MATERIALS)
+      : [];
+    retainOwnedResources(resources);
+    return () => deferOwnedResourcesDisposal(resources);
   }, []);
   return (
     <group ref={root} name="city-environment-kit" dispose={null}>
